@@ -10,7 +10,7 @@ class Tournaments extends Component {
       <View>
         {this.props.tournaments.map((tournament, i) => {
           return (
-            <TouchableHighlight key={i} onPress={this._routeToDetailsPressed.bind(this, tournament)}>
+            <TouchableHighlight key={i} onPress={this._routeToDetailsPressed.bind(this, tournament.id)}>
               <Text> {i+1}: {tournament.title}{"\n"} </Text>
             </TouchableHighlight>
         )})}
@@ -18,13 +18,14 @@ class Tournaments extends Component {
     )
   }
 
-  _routeToDetailsPressed = (tournament) => {
-    this.props.routeToDetailsFunction(tournament)
+  _routeToDetailsPressed = (id) => {
+    this.props.routeToDetailsFunction(id)
   }
 
   _deleteButtonPressed = (id) => {
     this.props.deleteTournamentFunction(id)
   }
+
 }
 
 export default Tournaments

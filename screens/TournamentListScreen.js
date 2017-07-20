@@ -192,8 +192,8 @@ class TournamentListScreen extends React.Component {
     this.setState({modalVisible: !this.state.modalVisible});
   }
 
-  _routeToDetails(tournament) {
-      this.props.navigator.push('tournamentDetails')
+  _routeToDetails(id) {
+      this.props.navigator.push('tournamentDetails', {id: id})
   }
 
   _onRowSelected = (tournament) => {

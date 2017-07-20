@@ -5,6 +5,7 @@ import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import TournamentListScreen from '../screens/TournamentListScreen';
 import RootNavigation from './RootNavigation';
+import TournamentDetailsScreen from '../screens/TournamentDetailsScreen';
 
 export default createRouter(() => ({
   home: () => HomeScreen,
@@ -12,5 +13,5 @@ export default createRouter(() => ({
   settings: () => SettingsScreen,
   tournamentList: () => TournamentListScreen,
   rootNavigation: () => RootNavigation,
-  tournamentDetails: () => SettingsScreen,
+  tournamentDetails: () => TournamentDetailsScreen,
 }));
