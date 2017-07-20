@@ -28,6 +28,9 @@ const createTournament = gql`
       userId: $userId
       title:$title
       game:NLHE
+      timer: {
+        active: false
+      }
       segments: [
         {
           sBlind:10

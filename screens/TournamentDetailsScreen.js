@@ -18,7 +18,14 @@ const getTournamentQuery = gql`
   query getTournament($id: ID) {
     Tournament(id: $id)
     {
+      id
       title
+      timer {
+        id
+        active
+        updatedAt
+        elapsed
+      }
       segments {
         duration
         sBlind
@@ -33,6 +40,24 @@ const getTournamentQuery = gql`
       tags {
         name
       }
+    }
+  }
+`
+
+const createTimer = gql`
+  mutation createTournamentTimer($tournamentId: ID!) {
+    createTimer(tournamentId: $tournamentId, active: true) {
+      id
+      active
+      updatedAt
+    }
+  }
+`
+
+const updateTimer = gql`
+  mutation updateTournamentTimer($id: ID!, $active: Boolean) {
+    updateTimer(id: $id, active: $active) {
+      id
     }
   }
 `
@@ -65,6 +90,17 @@ class TournamentDetailsScreen extends React.Component {
     this.setState({modalVisible: !this.state.modalVisible});
   }
 
+  _toggleTimerButtonPressed() {
+    if (this.props.getTournament.Tournament.timer==null) {
+      alert ('creating timer for tournamnet with id=' + this.props.getTournament.Tournament.id)
+      this.props.createTimerMutation({variables: {tournamentId: this.props.getTournament.Tournament.id} })
+    } else {
+      alert('updating timer to ' + !this.props.getTournament.Tournament.timer.active)
+      this.props.updateTimerMutation({variables: {id: this.props.getTournament.Tournament.timer.id, active: !this.props.getTournament.Tournament.timer.active} })
+    }
+    this.props.getTournament.refetch()
+  }
+
   render() {
     const { getTournament: { loading, error, Tournament } } = this.props;
     if (loading) {
@@ -86,8 +122,18 @@ class TournamentDetailsScreen extends React.Component {
           </Modal>
           <Text>
             {Tournament.title}{"\n\n"}
-            {Tournament.segments.length} Levels, starting at BB={Tournament.segments[0].bBlind}
+            {Tournament.segments.length} Levels, starting at BB={Tournament.segments[0].bBlind}{"\n\n"}
+            {Tournament.timer ? 
+              Tournament.timer.id + "\n\n" +
+              Tournament.timer.active + "\n\n" +
+              Tournament.timer.updatedAt
+              : 
+              "No Timer Set Yet"
+            }
           </Text>
+          <TouchableHighlight onPress={this._toggleTimerButtonPressed.bind(this)}>
+            <Text>Start/Stop</Text>
+          </TouchableHighlight>
         </View>
       )
     }
@@ -97,4 +143,6 @@ class TournamentDetailsScreen extends React.Component {
 export default compose(
   graphql(getTournamentQuery, { name: 'getTournament', }),
   graphql(currentUserQuery, { name: 'currentUser', }),
+  graphql(createTimer, {name: 'createTimerMutation'}),
+  graphql(updateTimer, {name: 'updateTimerMutation'}),
 )(TournamentDetailsScreen)
