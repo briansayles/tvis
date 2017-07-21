@@ -30,6 +30,7 @@ const createTournament = gql`
       game:NLHE
       timer: {
         active: false
+        elapsed: 0
       }
       segments: [
         {
@@ -98,15 +99,12 @@ const deleteTournament = gql`
   }
 `
 
-const changeTitle = gql`
-  mutation updateTournamentTitle ($id: ID!, $newTitle: String) {
-    updateTournament(id: $id, title: $newTitle) {
-      id
-    }
-  }
-`
-
 class TournamentListScreen extends React.Component {
+
+  static navigationOptions = {
+    title: "Tournaments"
+  };
+  
 
   constructor(props) {
     super(props)
@@ -145,14 +143,22 @@ class TournamentListScreen extends React.Component {
           }
         }
       `,
-      updateQuery: (previousState, {subscriptionData}) => {
-        const newTournament = subscriptionData.data.Tournament.node
-        const alltournaments = previousState.allTournaments.concat([newTournament])
-        return {
-          allTournaments: alltournaments
+      updateQuery: (previous, {subscriptionData}) => {
+        this.props.allTournamentsQuery.refetch()
+        return
+        const newAlltournaments = [
+          subscriptionData.data.Tournament.node,
+          ...previous.allTournaments
+        ]
+        const result = {
+          ...previous,
+          allTournaments: newAlltournaments
         }
+        return result
       },
-      onError: (err) => console.error(err),
+      onError: (err) => {
+        console.error(err)
+      },
     });
   }
 
@@ -172,20 +178,9 @@ class TournamentListScreen extends React.Component {
           "userId": this.state.user.id,
         }
       }
-    ).then(this.props.allTournamentsQuery.refetch())
+    )
  }
 
-  _changeNameButtonPressed() {
-    const firstTournamentId = this.props.allTournamentsQuery.allTournaments[0].id
-    this.props.changeTitleMutation(
-      {
-        variables: {
-          "id": firstTournamentId,
-          "newTitle": "Tournament name updated on " + new Date().toString()
-        }
-      }
-    ).then(this.props.allTournamentsQuery.refetch())
-  }
 
   _refreshButtonPressed() {
     this.props.allTournamentsQuery.refetch()
@@ -197,13 +192,6 @@ class TournamentListScreen extends React.Component {
 
   _routeToDetails(id) {
       this.props.navigator.push('tournamentDetails', {id: id})
-  }
-
-  _onRowSelected = (tournament) => {
-    this.props.navigator.push(Router.getRoute('tournamentDetails', {
-      tournament: tournament,
-      userId: this.state.user && this.state.user.id,
-    }))
   }
 
   _deleteTournament = (id) => {
@@ -225,7 +213,6 @@ class TournamentListScreen extends React.Component {
           </View>
         </Modal>
         <TouchableHighlight onPress={this._refreshButtonPressed.bind(this)}><Text>Refresh{"\n"}</Text></TouchableHighlight>
-        <TouchableHighlight onPress={this._changeNameButtonPressed.bind(this)}><Text>Update Name{"\n"}</Text></TouchableHighlight>
         <Tournaments
           tournaments={this.props.allTournamentsQuery.allTournaments || []}
           endRef={this._endRef}
@@ -246,6 +233,5 @@ export default compose(
   graphql(allTournaments, { name: 'allTournamentsQuery' }),
   graphql(createTournament, { name: 'createTournamentMutation'}),
   graphql(currentUser, { name: 'currentUserQuery' }),
-  graphql(changeTitle, { name: 'changeTitleMutation'}),
   graphql(deleteTournament, { name: 'deleteTournamentMutation' }),
 )(TournamentListScreen)

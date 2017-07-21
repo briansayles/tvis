@@ -16,6 +16,10 @@ export default class HomeScreen extends React.Component {
   static route = {
   };
   
+  static navigationOptions = {
+    title: "Home"
+  };
+  
   constructor(props) {
     super(props);
     this.state = {

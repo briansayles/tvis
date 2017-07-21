@@ -17,27 +17,21 @@ export const graphQL_endpoint = 'https://api.graph.cool/simple/v1/cj2af1mob3rg50
 
 export let redirect_uri;
 if (Expo.Constants.manifest.xde) {
-  // replace `<Expo URL without Port>` with the app's URL when you open it in expo
-  // without the colon and the port
   redirect_uri = 'exp://wy-8me.tourneymanager.tvis.exp.direct/+/redirect';
 } else {
   // this URL will be used when you publish your app
   redirect_uri = `${Expo.Constants.linkingUri}/redirect`;
 }
 
-const wsClient = new SubscriptionClient(`wss://subscriptions.graph.cool/v1/cj2af1mob3rg50199waj6qzyf`, {
-  reconnect: true,
-  connectionParams: {
-    // Pass any arguments you want for initialization
-  }
-});
-
-// console.log('redirect_uri=' + redirect_uri);
 const networkInterface = createNetworkInterface({
   uri: graphQL_endpoint,
 });
-// console.log('networkInterface created');
 
+const wsClient = new SubscriptionClient(`wss://subscriptions.graph.cool/v1/cj2af1mob3rg50199waj6qzyf`, {
+  reconnect: true,
+  connectionParams: {
+  }
+});
 
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
   networkInterface,
@@ -61,15 +55,11 @@ networkInterfaceWithSubscriptions.use([{
       });
   }
 }]);
-// console.log('applyMiddleware completed');
 
 export const client = new ApolloClient({
   networkInterface: networkInterfaceWithSubscriptions,
   dataIdFromObject: o => o.id,
 });
-
-// console.log('client exported');
-// console.log('Platform='+Platform.OS);
 
 class AppContainer extends React.Component {
 
