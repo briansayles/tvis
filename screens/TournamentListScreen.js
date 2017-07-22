@@ -36,30 +36,30 @@ const createTournament = gql`
         {
           sBlind:10
           bBlind:20
-          duration:12
+          duration:1
         }
         {
           sBlind:15
           bBlind:30
-          duration:12
+          duration:2
         }
         {
           sBlind:20
           bBlind:40
-          duration:10
+          duration:1
         }      {
           sBlind:25
           bBlind:50
-          duration:10
+          duration:2
         }      {
           sBlind:50
           bBlind:100
-          duration:10
+          duration:1
         }      
         {
           sBlind:75
           bBlind:150
-          duration:10
+          duration:2
         }
       ]
       chips: [
@@ -200,28 +200,35 @@ class TournamentListScreen extends React.Component {
   }
 
   render() {
-    return (
-      <View style={{flex: 1, paddingTop: 22}}>
-        <Modal
-          animationType='slide'
-          transparent={false}
-          visible={this.state.modalVisible}
-        >
-          <View style={{backgroundColor: '#060'}}>
-            <Text>{"\n"}{"\n"}{"\n"}{"\n"}</Text>
-            <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
-          </View>
-        </Modal>
-        <TouchableHighlight onPress={this._refreshButtonPressed.bind(this)}><Text>Refresh{"\n"}</Text></TouchableHighlight>
-        <Tournaments
-          tournaments={this.props.allTournamentsQuery.allTournaments || []}
-          endRef={this._endRef}
-          deleteTournamentFunction = {this._deleteTournament.bind(this)}
-          routeToDetailsFunction = {this._routeToDetails.bind(this)}
-        />
-        <TouchableHighlight onPress={this._addButtonPressed.bind(this)}><Text>Add Tournament</Text></TouchableHighlight>
-      </View>
-    )
+    const { allTournamentsQuery: { loading, error, allTournaments } } = this.props
+    if (loading) {
+      return (<Text>Loading...</Text>)
+    } else if (error) {
+      return(<Text>Error!</Text>)
+    } else {
+      return (
+        <View style={{flex: 1, paddingTop: 22}}>
+          <Modal
+            animationType='slide'
+            transparent={false}
+            visible={this.state.modalVisible}
+          >
+            <View style={{backgroundColor: '#060'}}>
+              <Text>{"\n"}{"\n"}{"\n"}{"\n"}</Text>
+              <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
+            </View>
+          </Modal>
+          <TouchableHighlight onPress={this._refreshButtonPressed.bind(this)}><Text>Refresh{"\n"}</Text></TouchableHighlight>
+          <Tournaments
+            tournaments={allTournaments || []}
+            endRef={this._endRef}
+            deleteTournamentFunction = {this._deleteTournament.bind(this)}
+            routeToDetailsFunction = {this._routeToDetails.bind(this)}
+          />
+          <TouchableHighlight onPress={this._addButtonPressed.bind(this)}><Text>Add Tournament</Text></TouchableHighlight>
+        </View>
+      )
+    }
   }
 
   _endRef = (element) => {

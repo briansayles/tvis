@@ -1,4 +1,9 @@
 export function	msToTime(duration, includeFractions, includeHours) {
+  var negative = false
+  if(duration<0) {
+  	negative = true
+  	duration = -duration
+  }
   var milliseconds = parseInt((duration%1000)/100)
       , seconds = parseInt((duration/1000)%60)
       , minutes = parseInt((duration/(1000*60))%60)
@@ -7,7 +12,8 @@ export function	msToTime(duration, includeFractions, includeHours) {
   minutes = (minutes < 10) ? "0" + minutes : minutes
   seconds = (seconds < 10) ? "0" + seconds : seconds
   var output
-  output = includeHours ? hours + ":" : ""
+  output = negative ? "-" : ""
+  output += includeHours ? hours + ":" : ""
   output += minutes + ":" + seconds
   output += includeFractions ? "." + milliseconds : "" 
   return output

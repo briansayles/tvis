@@ -79,6 +79,7 @@ class TournamentDetailsScreen extends React.Component {
     this.state = {
       modalVisible: false,
       time: new Date(),
+      currentSegmentIndex: 0,
     }
   }
 
@@ -126,26 +127,42 @@ class TournamentDetailsScreen extends React.Component {
     clearInterval(this.clockInterval)
   }
 
-  _timeRemaining() {
+  _timerCalcs() {
+    if (this.props.getTournament.loading) {return}
     const tourney = this.props.getTournament.Tournament
     const segments = tourney.segments
     const timer = tourney.timer
-    const totalElapsedMS = timer.active?
-      timer.elapsed + this.state.time.valueOf() - new Date(timer.updatedAt).valueOf()
-      :
-      timer.elapsed
+    const totalElapsedMS = timer.active ? timer.elapsed + this.state.time.valueOf() - new Date(timer.updatedAt).valueOf() : timer.elapsed
     var cumulativeMS = 0
-    var currentSegmentIndex = 0
+    var currentSegmentIndex = null
     for (var i = 0, len = segments.length; i < len; i++) {
-      if (totalElapsedMS >= cumulativeMS && totalElapsedMS < (cumulativeMS + segments[currentSegmentIndex].duration * 60 * 1000)) {currentSegmentIndex = i}
-      cumulativeMS += segments[currentSegmentIndex].duration * 60 * 1000
+      if (totalElapsedMS >= cumulativeMS && totalElapsedMS < (cumulativeMS + segments[i].duration * 60 * 1000)) {
+        currentSegmentIndex = i
+        break
+      }
+      cumulativeMS += segments[i].duration * 60 * 1000
     }
-    const duration = segments[currentSegmentIndex].duration * 60 * 1000
-    const ms = timer.active ? 
-      Math.floor(duration - totalElapsedMS)
-      :
-      Math.floor(duration - totalElapsedMS)
-    return {display: msToTime(ms), segment: segments[currentSegmentIndex], csi: currentSegmentIndex}
+
+    if(currentSegmentIndex==null) {
+      return {
+        display: "00:00",
+        segment: segments[segments.length-1],
+        csi: segments.length-1,
+        currentDuration: segments[segments.length-1].duration,
+        totalDuration: cumulativeMS,
+        percentage: 0,
+      }
+    }
+    const duration = cumulativeMS + segments[currentSegmentIndex].duration * 60 * 1000
+    const ms = duration - totalElapsedMS
+    return {
+      display: msToTime(ms),
+      segment: segments[currentSegmentIndex],
+      csi: currentSegmentIndex,
+      currentDuration: segments[currentSegmentIndex].duration, 
+      totalDuration: duration,
+      percentage: ms/(segments[currentSegmentIndex].duration * 60 * 1000),
+    }
   }
 
   _closeButtonPressed() {
@@ -192,9 +209,9 @@ class TournamentDetailsScreen extends React.Component {
   }
 
   render() {
-    const { getTournament: { loading, error, Tournament } } = this.props;
+    const { getTournament: { loading, error, Tournament } } = this.props
     if (loading) {
-      return (<Text>Loading...</Text>)
+      return (<Text>Loading</Text>)
     } else if (error) {
       return(<Text>Error!</Text>)
     } else {
@@ -210,24 +227,11 @@ class TournamentDetailsScreen extends React.Component {
               <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
             </View>
           </Modal>
-          <Text>
-            {Tournament.title}{"\n\n"}
-            {Tournament.segments.length} Levels, starting at BB={Tournament.segments[0].bBlind}{"\n\n"}
-            {this._timeRemaining().display}{"\n\n"}
-            {this._timeRemaining().csi}{"\n\n"}
-            {this._timeRemaining().segment.sBlind} / {this._timeRemaining().segment.bBlind}{"\n\n"}
-            Timer Status: {Tournament.timer.active ? "Running" : "Stopped"}{"\n\n"}
-            Timer Elapsed (Previously): {Tournament.timer.elapsed}{"\n\n"}
-          </Text>
-          <TouchableHighlight onPress={this._toggleTimerButtonPressed.bind(this)}>
-            <Text>Start/Stop{"\n\n"}</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={this._resetTimerButtonPressed.bind(this)}>
-            <Text>Reset Timer{"\n\n"}</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={this._changeNameButtonPressed.bind(this)}>
-            <Text>Update Name{"\n\n"}</Text>
-          </TouchableHighlight>
+          <Text style={styles.titleText}>{Tournament.title}{"\n"}</Text>
+          <Text style={styles.blindsText}>{this._timerCalcs().segment.sBlind} / {this._timerCalcs().segment.bBlind}</Text>
+          <Text style={styles.timerText}>{this._timerCalcs().display} / {msToTime(this._timerCalcs().currentDuration * 60 * 1000)}</Text>
+          <Button onPress={this._toggleTimerButtonPressed.bind(this)} title="start/stop"></Button>
+          <Button onPress={this._resetTimerButtonPressed.bind(this)} title="Reset"></Button>
         </View>
       )
     }
@@ -240,3 +244,22 @@ export default compose(
   graphql(updateTournamentTimer, {name: 'updateTournamentTimerMutation'}),
   graphql(changeTitle, { name: 'changeTitleMutation'}),
 )(TournamentDetailsScreen)
+
+const styles = StyleSheet.create({
+  titleText: {
+    fontSize: 12,
+    textAlign: 'center'
+  },
+  blindsText: {
+    fontSize: 30,
+    color: 'rgba(96,100,109, 1)',
+    lineHeight: 40,
+    textAlign: 'center',
+  },
+  timerText: {
+    fontSize: 20,
+    color: 'rgba(96,100,109,1)',
+    lineHeight: 30,
+    textAlign: 'center'
+  }
+});
