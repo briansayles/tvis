@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import Expo from 'expo';
+import Expo, { KeepAwake } from 'expo';
 import {client} from '../main';
 import {msToTime} from '../utilities/functions';
 
@@ -79,7 +79,6 @@ class TournamentDetailsScreen extends React.Component {
     this.state = {
       modalVisible: false,
       time: new Date(),
-      currentSegmentIndex: 0,
     }
   }
 
@@ -119,7 +118,6 @@ class TournamentDetailsScreen extends React.Component {
     });
     this.clockInterval = setInterval(()=> {
       this.setState({time: new Date()})
-      if (this.props.navigator.getCurrentRoute().routeName !== 'tournamentDetails') {clearInterval(this.clockInterval)}
     },100);
   }
 
@@ -128,7 +126,8 @@ class TournamentDetailsScreen extends React.Component {
   }
 
   _timerCalcs() {
-    if (this.props.getTournament.loading) {return}
+    if (this.props.getTournament.loading || this.props.getTournament.error) {return}
+    const msPerMinute = 60 * 1000
     const tourney = this.props.getTournament.Tournament
     const segments = tourney.segments
     const timer = tourney.timer
@@ -136,11 +135,11 @@ class TournamentDetailsScreen extends React.Component {
     var cumulativeMS = 0
     var currentSegmentIndex = null
     for (var i = 0, len = segments.length; i < len; i++) {
-      if (totalElapsedMS >= cumulativeMS && totalElapsedMS < (cumulativeMS + segments[i].duration * 60 * 1000)) {
+      if (totalElapsedMS >= cumulativeMS && totalElapsedMS < (cumulativeMS + segments[i].duration * msPerMinute)) {
         currentSegmentIndex = i
         break
       }
-      cumulativeMS += segments[i].duration * 60 * 1000
+      cumulativeMS += segments[i].duration * msPerMinute
     }
 
     if(currentSegmentIndex==null) {
@@ -153,7 +152,7 @@ class TournamentDetailsScreen extends React.Component {
         percentage: 0,
       }
     }
-    const duration = cumulativeMS + segments[currentSegmentIndex].duration * 60 * 1000
+    const duration = cumulativeMS + segments[currentSegmentIndex].duration * msPerMinute
     const ms = duration - totalElapsedMS
     return {
       display: msToTime(ms),
@@ -161,7 +160,7 @@ class TournamentDetailsScreen extends React.Component {
       csi: currentSegmentIndex,
       currentDuration: segments[currentSegmentIndex].duration, 
       totalDuration: duration,
-      percentage: ms/(segments[currentSegmentIndex].duration * 60 * 1000),
+      percentage: ms/(segments[currentSegmentIndex].duration * msPerMinute),
     }
   }
 
@@ -211,9 +210,9 @@ class TournamentDetailsScreen extends React.Component {
   render() {
     const { getTournament: { loading, error, Tournament } } = this.props
     if (loading) {
-      return (<Text>Loading</Text>)
+      return <Text>Loading</Text>
     } else if (error) {
-      return(<Text>Error!</Text>)
+      return <Text>Error!</Text>
     } else {
       return (
         <View style={{flex: 1, paddingTop: 22}}>
@@ -227,6 +226,7 @@ class TournamentDetailsScreen extends React.Component {
               <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
             </View>
           </Modal>
+          <KeepAwake/>
           <Text style={styles.titleText}>{Tournament.title}{"\n"}</Text>
           <Text style={styles.blindsText}>{this._timerCalcs().segment.sBlind} / {this._timerCalcs().segment.bBlind}</Text>
           <Text style={styles.timerText}>{this._timerCalcs().display} / {msToTime(this._timerCalcs().currentDuration * 60 * 1000)}</Text>

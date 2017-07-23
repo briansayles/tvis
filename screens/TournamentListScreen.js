@@ -115,7 +115,6 @@ class TournamentListScreen extends React.Component {
   }
 
   componentDidMount() {
-    console.log('currentUserQuery')
     client.query({query: currentUser}).then(
       result => {
         if (result.data.user) {
@@ -204,7 +203,7 @@ class TournamentListScreen extends React.Component {
     if (loading) {
       return (<Text>Loading...</Text>)
     } else if (error) {
-      return(<Text>Error!</Text>)
+      return <Text>Error!</Text>
     } else {
       return (
         <View style={{flex: 1, paddingTop: 22}}>

@@ -23,14 +23,11 @@ export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: new Date(),
-      renderedTime: new Date(),
     };
   }
 
   componentDidMount() {
     this.setState({renderedTime: new Date()});
-    const clockInterval = setInterval(()=> {this.setState({time: new Date()})},250);
   }
 
   componentWillUnmount() {
@@ -53,10 +50,6 @@ export default class HomeScreen extends React.Component {
           <View style={styles.getStartedContainer}>
             <Text style={styles.getStartedText}>
               This is the application's home screen!{"\n"}{"\n"}
-              {this.state.time.toString()}{"\n"}{"\n"}
-              {this.state.renderedTime.toString()}{"\n"}{"\n"}
-              {Math.floor((this.state.time.valueOf() - this.state.renderedTime.valueOf())/60000)} Minutes{"\n"}
-              {Math.floor((this.state.time.valueOf() - this.state.renderedTime.valueOf() - 60000 * Math.floor((this.state.time.valueOf() - this.state.renderedTime.valueOf())/60000))/1000)} Seconds{"\n"}
             </Text>
             <View
               style={[
