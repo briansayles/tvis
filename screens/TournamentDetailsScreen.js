@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import Expo, { KeepAwake } from 'expo';
+import Expo, { KeepAwake, Audio } from 'expo';
 import {client} from '../main';
 import {msToTime, tick} from '../utilities/functions';
 
@@ -82,6 +82,7 @@ class TournamentDetailsScreen extends React.Component {
       ms: 0,
       display: "00:00",
       segment: {sBlind: 0, bBlind: 0, duration: 0, ante: 0},
+      nextSegment: null,
       csi: null,
       currentDuration: 0,
       totalDuration: 0,
@@ -102,7 +103,9 @@ class TournamentDetailsScreen extends React.Component {
           });
         }
       }
-    );  
+    );
+    this._loadSound()
+
      // Subscribe to `UPDATED`-mutations
     this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
       document: gql`
@@ -127,15 +130,42 @@ class TournamentDetailsScreen extends React.Component {
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
       tickfunction(
-        endOfRoundFunction= () => {alert('round ended')}, 
-        noticeSeconds = 59,
-        noticeFunction = () => {},
+        endOfRoundFunction = () => { 
+          try {
+            this.endOfRoundSoundObject.setVolumeAsync(0.85)
+            this.endOfRoundSoundObject.playAsync()
+          } catch (error) {
+            console.log(error)
+          }
+        },
+        noticeSeconds = 30,
+        noticeFunction = () => { 
+          try {
+            this.endOfRoundSoundObject.setVolumeAsync(0.50)
+            this.endOfRoundSoundObject.playAsync()
+          } catch (error) {
+            console.log(error)
+          }
+        },
       )
-    },1);
+    }, 100);
   }
 
   componentWillUnmount () {
     clearInterval(this.clockInterval)
+  }
+
+  async _loadSound() {
+    this.endOfRoundSoundObject = new Expo.Audio.Sound();
+    try {
+      await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/0925.aiff'));
+      await this.endOfRoundSoundObject.setCallback( async (playbackStatus) => {
+        if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
+          await this.endOfRoundSoundObject.stopAsync();
+        }        
+      })
+    } catch (error) {
+    }
   }
 
   _closeButtonPressed() {
@@ -203,6 +233,7 @@ class TournamentDetailsScreen extends React.Component {
           <KeepAwake/>
           <Text style={styles.titleText}>{Tournament.title}{"\n"}</Text>
           <Text style={this.state.noticeStatus ? styles.blindsNoticeText: styles.blindsText}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
+          {this.state.nextSegment && <Text style={this.state.noticeStatus ? styles.blindsNoticeText: styles.blindsText}>Next Round: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
           <Text style={styles.timerText}>{this.state.display} / {msToTime(this.state.currentDuration * 60 * 1000)}</Text>
           <Button onPress={this._toggleTimerButtonPressed.bind(this)} title="start/stop"></Button>
           <Button onPress={this._resetTimerButtonPressed.bind(this)} title="Reset"></Button>

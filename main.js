@@ -1,4 +1,4 @@
-import Expo from 'expo';
+import Expo, {Audio} from 'expo';
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native';
 import { NavigationProvider, StackNavigation } from '@expo/ex-navigation';
@@ -72,6 +72,13 @@ class AppContainer extends React.Component {
   }
 
   componentDidMount() {
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DUCK_OTHERS,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
+    });
   }  
 
   async _loadAssetsAsync() {
