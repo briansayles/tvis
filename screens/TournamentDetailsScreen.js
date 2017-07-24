@@ -4,7 +4,7 @@ import React from 'react'
 import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import Expo, { KeepAwake } from 'expo';
 import {client} from '../main';
-import {msToTime} from '../utilities/functions';
+import {msToTime, tick} from '../utilities/functions';
 
 const currentUserQuery = gql`
   query currentUser {
@@ -79,6 +79,14 @@ class TournamentDetailsScreen extends React.Component {
     this.state = {
       modalVisible: false,
       time: new Date(),
+      ms: 0,
+      display: "00:00",
+      segment: {sBlind: 0, bBlind: 0, duration: 0, ante: 0},
+      csi: null,
+      currentDuration: 0,
+      totalDuration: 0,
+      percentage: 0,
+      noticeStatus: false,
     }
   }
 
@@ -117,51 +125,17 @@ class TournamentDetailsScreen extends React.Component {
       },
     });
     this.clockInterval = setInterval(()=> {
-      this.setState({time: new Date()})
-    },100);
+      const tickfunction = tick.bind(this)
+      tickfunction(
+        endOfRoundFunction= () => {alert('round ended')}, 
+        noticeSeconds = 59,
+        noticeFunction = () => {},
+      )
+    },1);
   }
 
   componentWillUnmount () {
     clearInterval(this.clockInterval)
-  }
-
-  _timerCalcs() {
-    if (this.props.getTournament.loading || this.props.getTournament.error) {return}
-    const msPerMinute = 60 * 1000
-    const tourney = this.props.getTournament.Tournament
-    const segments = tourney.segments
-    const timer = tourney.timer
-    const totalElapsedMS = timer.active ? timer.elapsed + this.state.time.valueOf() - new Date(timer.updatedAt).valueOf() : timer.elapsed
-    var cumulativeMS = 0
-    var currentSegmentIndex = null
-    for (var i = 0, len = segments.length; i < len; i++) {
-      if (totalElapsedMS >= cumulativeMS && totalElapsedMS < (cumulativeMS + segments[i].duration * msPerMinute)) {
-        currentSegmentIndex = i
-        break
-      }
-      cumulativeMS += segments[i].duration * msPerMinute
-    }
-
-    if(currentSegmentIndex==null) {
-      return {
-        display: "00:00",
-        segment: segments[segments.length-1],
-        csi: segments.length-1,
-        currentDuration: segments[segments.length-1].duration,
-        totalDuration: cumulativeMS,
-        percentage: 0,
-      }
-    }
-    const duration = cumulativeMS + segments[currentSegmentIndex].duration * msPerMinute
-    const ms = duration - totalElapsedMS
-    return {
-      display: msToTime(ms),
-      segment: segments[currentSegmentIndex],
-      csi: currentSegmentIndex,
-      currentDuration: segments[currentSegmentIndex].duration, 
-      totalDuration: duration,
-      percentage: ms/(segments[currentSegmentIndex].duration * msPerMinute),
-    }
   }
 
   _closeButtonPressed() {
@@ -228,8 +202,8 @@ class TournamentDetailsScreen extends React.Component {
           </Modal>
           <KeepAwake/>
           <Text style={styles.titleText}>{Tournament.title}{"\n"}</Text>
-          <Text style={styles.blindsText}>{this._timerCalcs().segment.sBlind} / {this._timerCalcs().segment.bBlind}</Text>
-          <Text style={styles.timerText}>{this._timerCalcs().display} / {msToTime(this._timerCalcs().currentDuration * 60 * 1000)}</Text>
+          <Text style={this.state.noticeStatus ? styles.blindsNoticeText: styles.blindsText}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
+          <Text style={styles.timerText}>{this.state.display} / {msToTime(this.state.currentDuration * 60 * 1000)}</Text>
           <Button onPress={this._toggleTimerButtonPressed.bind(this)} title="start/stop"></Button>
           <Button onPress={this._resetTimerButtonPressed.bind(this)} title="Reset"></Button>
         </View>
@@ -254,6 +228,12 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'rgba(96,100,109, 1)',
     lineHeight: 40,
+    textAlign: 'center',
+  },
+  blindsNoticeText: {
+    fontSize: 45,
+    color: 'rgba(200, 0, 0, 1)',
+    lineHeight: 50,
     textAlign: 'center',
   },
   timerText: {

@@ -18,3 +18,54 @@ export function	msToTime(duration, includeFractions, includeHours) {
   output += includeFractions ? "." + milliseconds : "" 
   return output
 }
+
+export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
+
+	if (this.props.getTournament.loading || this.props.getTournament.error) {return}
+	const msPerMinute = 60 * 1000
+	const noticeMilliseconds = noticeSeconds * 1000
+	const tourney = this.props.getTournament.Tournament
+	const segments = tourney.segments
+	const timer = tourney.timer
+	const time = new Date()
+	const totalElapsedMS = timer.active ? timer.elapsed + time.valueOf() - new Date(timer.updatedAt).valueOf() : timer.elapsed
+	var cumulativeMS = 0
+	var currentSegmentIndex = null
+	for (var i = 0, len = segments.length; i < len; i++) {
+	  if (totalElapsedMS >= cumulativeMS && totalElapsedMS < (cumulativeMS + segments[i].duration * msPerMinute)) {
+	    currentSegmentIndex = i
+	    break
+	  }
+	  cumulativeMS += segments[i].duration * msPerMinute
+	}
+
+	if(currentSegmentIndex==null) {
+	  this.setState ({
+	    time: time,
+	    ms: 0,
+	    display: "00:00",
+	    segment: segments[segments.length-1],
+	    csi: segments.length-1,
+	    currentDuration: segments[segments.length-1].duration,
+	    totalDuration: cumulativeMS,
+	    percentage: 0,
+	    noticeStatus: false,
+	  })
+	  return
+	}
+	const duration = cumulativeMS + segments[currentSegmentIndex].duration * msPerMinute
+	const ms = duration - totalElapsedMS
+	if (ms < noticeMilliseconds && this.state.ms >= noticeMilliseconds) {noticeFunction()}
+	if (currentSegmentIndex > this.state.csi && currentSegmentIndex > 0 && this.state.csi != null) {endOfRoundFunction()}
+	this.setState ({
+	  time: time,
+	  ms: ms,
+	  display: timer.active ? msToTime(ms + 1000) : msToTime(ms),
+	  segment: segments[currentSegmentIndex],
+	  csi: currentSegmentIndex,
+	  currentDuration: segments[currentSegmentIndex].duration, 
+	  totalDuration: duration,
+	  percentage: ms/(segments[currentSegmentIndex].duration * msPerMinute),
+	  noticeStatus: ms < noticeMilliseconds,
+	})
+}
