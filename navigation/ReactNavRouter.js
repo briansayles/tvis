@@ -1,19 +1,14 @@
 import React from 'React'
 import {TabNavigator, StackNavigator} from 'react-navigation'
 import {Icon} from 'react-native-elements'
-import {Text} from 'react-native';
 
+import Auth from '../components/Auth'
 
-import HomeScreen from '../screens/HomeScreen';
-import LinksScreen from '../screens/LinksScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import TournamentListScreen from '../screens/TournamentListScreen';
-import RootNavigation from './RootNavigation';
-import TournamentDetailsScreen from '../screens/TournamentDetailsScreen';
-import TournamentEditScreen from '../screens/TournamentEditScreen';
+import HomeScreen from '../screens/HomeScreen'
+import TournamentListScreen from '../screens/TournamentListScreen'
+import TournamentTimerScreen from '../screens/TournamentTimerScreen'
+import TournamentEditScreen from '../screens/TournamentEditScreen'
 import ProfileScreen from '../screens/ProfileScreen'
-
-import Auth from '../components/Auth';
 
 export const TournamentsStack = StackNavigator({
 	List: {
@@ -23,9 +18,9 @@ export const TournamentsStack = StackNavigator({
 		}
 	},
 	Details: {
-		screen: TournamentDetailsScreen,
+		screen: TournamentTimerScreen,
 		navigationOptions: {
-			title: 'Timer',
+
 		}
 	},
 	Edit: {

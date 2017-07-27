@@ -9,6 +9,23 @@ export const currentUserQuery = gql`
   }
 `
 
+export const createUserMutation = gql`
+  mutation createUser($encodedToken: String!, $username: String!) {
+    createUser(
+      authProvider: {
+        auth0: {
+          idToken: $encodedToken
+        }
+      }
+      name: $username
+    )
+    {
+        id
+        name
+    }
+  }
+`
+
 export const allTournamentsQuery = gql`
   query allTournaments {
     allTournaments (orderBy: updatedAt_DESC) {
@@ -17,6 +34,19 @@ export const allTournamentsQuery = gql`
     }
   }
 `
+export const allTournamentsSubscription = gql`
+  subscription {
+    Tournament(filter: {
+      mutation_in: [CREATED, DELETED]
+    }) {
+      node {
+        id
+        title
+      }
+    }
+  }
+`
+
 export const getTournamentQuery = gql`
   query getTournament($id: ID) {
     Tournament(id: $id)
@@ -49,9 +79,20 @@ export const getTournamentQuery = gql`
     }
   }
 `
+export const tournamentSubscription = gql`
+  subscription {
+    Tournament(filter: {
+      mutation_in: [UPDATED]
+    }) {
+      node {
+        id
+      }
+    }
+  }
+`
 
 export const createTournamentMutation = gql`
-  mutation createTournament($title: String, $userId: ID) {
+  mutation createTournament($title: String, $userId: ID, $duration: Int) {
     createTournament (
       userId: $userId
       title:$title
@@ -62,32 +103,37 @@ export const createTournamentMutation = gql`
       }
       segments: [
         {
+          sBlind:5
+          bBlind:10
+          duration: $duration
+        }
+        {
           sBlind:10
           bBlind:20
-          duration:1
+          duration: $duration
         }
         {
           sBlind:15
           bBlind:30
-          duration:2
+          duration:$duration
         }
         {
           sBlind:20
           bBlind:40
-          duration:1
+          duration:$duration
         }      {
           sBlind:25
           bBlind:50
-          duration:2
+          duration:$duration
         }      {
           sBlind:50
           bBlind:100
-          duration:1
+          duration:$duration
         }      
         {
           sBlind:75
           bBlind:150
-          duration:2
+          duration:$duration
         }
       ]
       chips: [

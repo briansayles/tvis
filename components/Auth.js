@@ -5,32 +5,7 @@ import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, As
 import Expo from 'expo';
 import jwtDecoder from 'jwt-decode';
 import {redirect_uri, auth0_client_id, authorize_url, client} from '../main';
-import Router from '../navigation/Router';
-
-const currentUserQuery = gql`
-  query currentUser {
-      user {
-          id
-          name
-      }
-  }
-`
-const createUserMutation = gql`
-  mutation createUser($encodedToken: String!, $username: String!) {
-    createUser(
-      authProvider: {
-        auth0: {
-          idToken: $encodedToken
-        }
-      }
-      name: $username
-    )
-    {
-        id
-        name
-    }
-  }
-`
+import {currentUserQuery, createUserMutation} from '../constants/GQL'
 
 class Auth extends React.Component {
 

@@ -1,18 +1,18 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import Expo, { KeepAwake, Audio } from 'expo';
-import {client} from '../main';
-import {msToTime, tick} from '../utilities/functions';
-import {currentUserQuery, getTournamentQuery, changeTitleMutation, updateTournamentTimerMutation, getServerTimeMutation} from '../constants/GQL'
+import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import {Button} from 'react-native-elements'
+import Expo, { KeepAwake, Audio } from 'expo'
+import {client} from '../main'
+import {msToTime, tick} from '../utilities/functions'
+import {currentUserQuery, getTournamentQuery, changeTitleMutation, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 
-class TournamentDetailsScreen extends React.Component {
+class TournamentTimerScreen extends React.Component {
 
   static navigationOptions = {
-    title: "Tournament Details"
-  };
-  
+    title: 'TourneyVision'
+  }
 
   constructor(props) {
     super(props)
@@ -29,6 +29,7 @@ class TournamentDetailsScreen extends React.Component {
       percentage: 0,
       noticeStatus: false,
       offsetFromServerTime: 0,
+      timerActive: false,
     }
   }
 
@@ -47,23 +48,13 @@ class TournamentDetailsScreen extends React.Component {
               name: result.data.user.name,
               id: result.data.user.id,
             }
-          });
+          })
         }
       }
-    );
-    // Subscribe to `UPDATED`-mutations
+    )
+
     this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
-      document: gql`
-        subscription {
-          Tournament(filter: {
-            mutation_in: [UPDATED]
-          }) {
-            node {
-              id
-            }
-          }
-        }
-      `,
+      document: tournamentSubscription,
       updateQuery: (previous, {subscriptionData}) => {
         this.props.getTournament.refetch()
         return
@@ -71,7 +62,7 @@ class TournamentDetailsScreen extends React.Component {
       onError: (err) => {
         console.error(err)
       },
-    });
+    })
 
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
@@ -96,7 +87,7 @@ class TournamentDetailsScreen extends React.Component {
           }
         },
       )
-    }, 1);
+    }, 1)
   }
 
   componentWillUnmount () {
@@ -104,12 +95,12 @@ class TournamentDetailsScreen extends React.Component {
   }
 
   async _loadSound() {
-    this.endOfRoundSoundObject = new Expo.Audio.Sound();
+    this.endOfRoundSoundObject = new Expo.Audio.Sound()
     try {
-      await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/0925.aiff'));
+      await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/0925.aiff'))
       await this.endOfRoundSoundObject.setCallback( async (playbackStatus) => {
         if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-          await this.endOfRoundSoundObject.stopAsync();
+          await this.endOfRoundSoundObject.stopAsync()
         }        
       })
     } catch (error) {
@@ -117,7 +108,7 @@ class TournamentDetailsScreen extends React.Component {
   }
 
   _closeButtonPressed() {
-    this.setState({modalVisible: !this.state.modalVisible});
+    this.setState({modalVisible: !this.state.modalVisible})
   }
 
   _toggleTimerButtonPressed() {
@@ -167,7 +158,7 @@ class TournamentDetailsScreen extends React.Component {
       return <Text>Error!  {error.message}</Text>
     } else {
       return (
-        <View style={{flex: 1, paddingTop: 22}}>
+        <ScrollView style={{flex: 1, paddingTop: 22}}>
           <Modal
             animationType='slide'
             transparent={false}
@@ -179,13 +170,12 @@ class TournamentDetailsScreen extends React.Component {
             </View>
           </Modal>
           <KeepAwake/>
-          <Text style={styles.titleText}>{Tournament.title}{"\n"}</Text>
-          <Text style={this.state.noticeStatus ? styles.blindsNoticeText: styles.blindsText}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
-          {this.state.nextSegment && <Text style={this.state.noticeStatus ? styles.blindsNoticeText: styles.blindsText}>Next Round: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
-          <Text style={styles.timerText}>{this.state.display} / {msToTime(this.state.currentDuration * 60 * 1000)}</Text>
-          <Button onPress={this._toggleTimerButtonPressed.bind(this)} title="start/stop"></Button>
-          <Button onPress={this._resetTimerButtonPressed.bind(this)} title="Reset"></Button>
-        </View>
+          <Text style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
+          {this.state.nextSegment && <Text style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}>Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
+          <Text style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}>{this.state.display}</Text>
+          <Button icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>
+          <Button icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>
+        </ScrollView>
       )
     }
   }
@@ -197,29 +187,42 @@ export default compose(
   graphql(currentUserQuery, { name: 'currentUser', }),
   graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
   graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
-)(TournamentDetailsScreen)
+)(TournamentTimerScreen)
 
 const styles = StyleSheet.create({
   titleText: {
-    fontSize: 12,
+    fontSize: 16,
     textAlign: 'center',
   },
   blindsText: {
-    fontSize: 30,
+    fontSize: 50,
     color: 'rgba(96,100,109, 1)',
-    lineHeight: 40,
     textAlign: 'center',
+    fontWeight: '500',
   },
   blindsNoticeText: {
-    fontSize: 35,
-    color: 'rgba(200, 0, 0, 1)',
-    lineHeight: 40,
+    fontWeight: '300',
+  },
+  nextBlindsText: {
+    fontSize: 26,
+    lineHeight: 36,
+    color: 'grey',
     textAlign: 'center',
+    fontWeight: '300',
+  },
+  nextBlindsNoticeText: {
+    color: 'red',
+    fontSize: 34,
+    fontWeight: '500',
   },
   timerText: {
-    fontSize: 20,
+    fontSize: 40,
+    lineHeight: 50,
     color: 'rgba(96,100,109,1)',
-    lineHeight: 30,
     textAlign: 'center'
+  },
+  timerNoticeText: {
+    fontWeight: '900',
+    color: 'red'
   }
-});
+})

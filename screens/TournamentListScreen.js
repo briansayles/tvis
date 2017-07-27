@@ -1,19 +1,15 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import Expo from 'expo';
-import {client} from '../main';
-import Tournaments from './Tournaments';
-import {currentUserQuery, allTournamentsQuery, createTournamentMutation, deleteTournamentMutation, } from '../constants/GQL'
+import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import {List, ListItem, Button} from 'react-native-elements'
+import Expo from 'expo'
+import {client} from '../main'
+import Tournaments from './Tournaments'
+import {currentUserQuery, allTournamentsQuery, createTournamentMutation, allTournamentsSubscription} from '../constants/GQL'
 
 class TournamentListScreen extends React.Component {
-
-  static navigationOptions = {
-    title: "Tournaments"
-  };
   
-
   constructor(props) {
     super(props)
     this.state = {
@@ -31,25 +27,14 @@ class TournamentListScreen extends React.Component {
               name: result.data.user.name,
               id: result.data.user.id,
             }
-          });
+          })
         }
       }
-    );  
+    )  
 
     // Subscribe to `CREATED`-mutations
     this.tournamentsSubscription = this.props.allTournamentsQuery.subscribeToMore({
-      document: gql`
-        subscription {
-          Tournament(filter: {
-            mutation_in: [CREATED, DELETED]
-          }) {
-            node {
-              id
-              title
-            }
-          }
-        }
-      `,
+      document: allTournamentsSubscription,
       updateQuery: (previous, {subscriptionData}) => {
         this.props.allTournamentsQuery.refetch()
         return
@@ -66,7 +51,7 @@ class TournamentListScreen extends React.Component {
       onError: (err) => {
         console.error(err)
       },
-    });
+    })
   }
 
 
@@ -81,33 +66,28 @@ class TournamentListScreen extends React.Component {
       {
         variables:
         {
-          "title": "Tournament created on " + new Date().toString(),
+          "title": "Tournament #" + (this.props.allTournamentsQuery.allTournaments.length + 1),
           "userId": this.state.user.id,
+          "duration": 12,
         }
       }
     )
- }
-
+  }
 
   _refreshButtonPressed() {
     this.props.allTournamentsQuery.refetch()
   }
 
   _closeButtonPressed() {
-    this.setState({modalVisible: !this.state.modalVisible});
+    this.setState({modalVisible: !this.state.modalVisible})
   }
 
-  _routeToDetails(tournament) {
-    this.props.navigation.navigate('Details', {id: tournament.id})
+  _navigateToDetails(id) {
+    this.props.navigation.navigate('Details', {id: id})
   }
 
-  _routeToEdit(tournament) {
+  _navigateToEdit(tournament) {
     this.props.navigation.navigate('Edit', {id: tournament.id})
-  }
-
-  _deleteTournament = (tournament) => {
-    this.props.deleteTournamentMutation({variables: {id:tournament.id} }).then(
-    this.props.allTournamentsQuery.refetch())
   }
 
   render() {
@@ -118,7 +98,7 @@ class TournamentListScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
       return (
-        <View style={{flex: 1, paddingTop: 22}}>
+        <ScrollView style={{flex: 1}}>
           <Modal
             animationType='slide'
             transparent={false}
@@ -129,16 +109,21 @@ class TournamentListScreen extends React.Component {
               <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
             </View>
           </Modal>
-          <TouchableHighlight onPress={this._refreshButtonPressed.bind(this)}><Text>Refresh{"\n"}</Text></TouchableHighlight>
-          <Tournaments
-            tournaments={allTournaments || []}
-            endRef={this._endRef}
-            deleteTournamentFunction = {this._deleteTournament.bind(this)}
-            routeToDetailsFunction = {this._routeToDetails.bind(this)}
-            routeToEditFunction = {this._routeToEdit.bind(this)}
-          />
-          <TouchableHighlight onPress={this._addButtonPressed.bind(this)}><Text>Add Tournament</Text></TouchableHighlight>
-        </View>
+          <Button onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}}></Button>
+          <List>
+            {
+              allTournaments.map((item, i) => (
+                <ListItem
+                  key={i}
+                  title={item.title}
+                  leftIcon={{name: item.icon}}
+                  onPress={this._navigateToDetails.bind(this, item.id)}
+                />
+              ))
+            }
+          </List>
+          <Text>{"\n"}</Text>
+        </ScrollView>
       )
     }
   }
@@ -152,5 +137,4 @@ export default compose(
   graphql(currentUserQuery, { name: 'currentUserQuery' }),
   graphql(allTournamentsQuery, { name: 'allTournamentsQuery' }),
   graphql(createTournamentMutation, { name: 'createTournamentMutation'}),
-  graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
 )(TournamentListScreen)

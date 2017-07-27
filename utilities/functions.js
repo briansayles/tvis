@@ -51,6 +51,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	    totalDuration: cumulativeMS,
 	    percentage: 0,
 	    noticeStatus: false,
+	    timerActive: false,
 	  })
 	  return
 	}
@@ -69,5 +70,6 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  totalDuration: duration,
 	  percentage: ms/(segments[currentSegmentIndex].duration * msPerMinute),
 	  noticeStatus: ms < noticeMilliseconds,
+	  timerActive: timer.active,
 	})
 }

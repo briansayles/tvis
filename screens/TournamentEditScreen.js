@@ -1,20 +1,12 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
+import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import Expo, { KeepAwake, Audio } from 'expo';
 import {client} from '../main';
 import {msToTime, tick} from '../utilities/functions';
 import { List, ListItem, FormLabel, FormInput } from 'react-native-elements';
-import { currentUserQuery, getTournamentQuery, changeTitleMutation} from '../constants/GQL'
-
-export const changeTitle = gql`
-  mutation updateTournamentTitle ($id: ID!, $newTitle: String) {
-    updateTournament(id: $id, title: $newTitle) {
-      id
-    }
-  }
-`
+import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation} from '../constants/GQL'
 
 class TournamentEditScreen extends React.Component {
 
@@ -27,16 +19,6 @@ class TournamentEditScreen extends React.Component {
     this.state = {
       modalVisible: false,
       name: "",
-      // time: new Date(),
-      // ms: 0,
-      // display: "00:00",
-      // segment: {sBlind: 0, bBlind: 0, duration: 0, ante: 0},
-      // nextSegment: null,
-      // csi: null,
-      // currentDuration: 0,
-      // totalDuration: 0,
-      // percentage: 0,
-      // noticeStatus: false,
     }
   }
 
@@ -53,7 +35,6 @@ class TournamentEditScreen extends React.Component {
         }
       }
     );
-    // this._loadSound()
 
      // Subscribe to `UPDATED`-mutations
     this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
@@ -76,79 +57,13 @@ class TournamentEditScreen extends React.Component {
         console.error(err)
       },
     });
-    // this.clockInterval = setInterval(()=> {
-    //   const tickfunction = tick.bind(this)
-    //   tickfunction(
-    //     endOfRoundFunction = () => { 
-    //       try {
-    //         this.endOfRoundSoundObject.setVolumeAsync(0.85)
-    //         this.endOfRoundSoundObject.setRateAsync(0.25, false)
-    //         this.endOfRoundSoundObject.playAsync()
-    //       } catch (error) {
-    //         console.log(error)
-    //       }
-    //     },
-    //     noticeSeconds = 30,
-    //     noticeFunction = () => { 
-    //       try {
-    //         this.endOfRoundSoundObject.setVolumeAsync(0.50)
-    //         this.endOfRoundSoundObject.setRateAsync(0.5, false)
-    //         this.endOfRoundSoundObject.playAsync()
-    //       } catch (error) {
-    //         console.log(error)
-    //       }
-    //     },
-    //   )
-    // }, 100);
   }
 
   componentWillUnmount () {
-    // clearInterval(this.clockInterval)
-  }
-
-  async _loadSound() {
-    // this.endOfRoundSoundObject = new Expo.Audio.Sound();
-    // try {
-    //   await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/0925.aiff'));
-    //   await this.endOfRoundSoundObject.setCallback( async (playbackStatus) => {
-    //     if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-    //       await this.endOfRoundSoundObject.stopAsync();
-    //     }        
-    //   })
-    // } catch (error) {
-    // }
   }
 
   _closeButtonPressed() {
     this.setState({modalVisible: !this.state.modalVisible});
-  }
-
-  _toggleTimerButtonPressed() {
-    // const tourney = this.props.getTournament.Tournament
-    // this.props.updateTournamentTimerMutation(
-    //   { variables: {
-    //     id: tourney.timer.id,
-    //     now: new Date(), 
-    //     active: !tourney.timer.active,
-    //     tournamentId: tourney.id,
-    //     elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - new Date(tourney.timer.updatedAt).valueOf() : 0)
-    //     } 
-    //   }
-    // )
-  }
-
-  _resetTimerButtonPressed() {
-    // const tourney = this.props.getTournament.Tournament
-    // this.props.updateTournamentTimerMutation(
-    //   { variables: {
-    //     id: tourney.timer.id,
-    //     now: new Date(), 
-    //     active: false,
-    //     tournamentId: tourney.id,
-    //     elapsed: 0
-    //     } 
-    //   }
-    // )
   }
 
   _changeNameButtonPressed() {
@@ -162,6 +77,12 @@ class TournamentEditScreen extends React.Component {
     )
   }
 
+  _deleteTournamentButtonPressed() {
+    this.props.deleteTournamentMutation({variables: {id:this.props.getTournament.Tournament.id} }).then(
+    this.props.navigation.navigate('List')
+    )
+  }
+
   render() {
     const { getTournament: { loading, error, Tournament } } = this.props
     if (loading) {
@@ -170,7 +91,7 @@ class TournamentEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
       return (
-        <View style={{flex: 1, paddingTop: 22}}>
+        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}>
           <Modal
             animationType='slide'
             transparent={false}
@@ -195,7 +116,9 @@ class TournamentEditScreen extends React.Component {
               ))
             }
           </List>
-        </View>
+          <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>
+          <Text>{"\n"}</Text>
+        </ScrollView>
       )
     }
   }
@@ -205,6 +128,7 @@ export default compose(
   graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUser', }),
   graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
+  graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
 )(TournamentEditScreen)
 
 const styles = StyleSheet.create({
