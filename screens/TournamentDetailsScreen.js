@@ -5,74 +5,7 @@ import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, As
 import Expo, { KeepAwake, Audio } from 'expo';
 import {client} from '../main';
 import {msToTime, tick} from '../utilities/functions';
-
-const currentUserQuery = gql`
-  query currentUser {
-      user {
-          id
-          name
-      }
-  }
-`
-
-const getTournamentQuery = gql`
-  query getTournament($id: ID) {
-    Tournament(id: $id)
-    {
-      id
-      title
-      updatedAt
-      timer {
-        id
-        active
-        createdAt
-        updatedAt
-        elapsed
-      }
-      segments {
-        id
-        duration
-        sBlind
-        bBlind
-        ante
-        game
-      }
-      chips {
-        denom
-        color
-      }
-      tags {
-        name
-      }
-    }
-  }
-`
-
-const changeTitle = gql`
-  mutation updateTournamentTitle ($id: ID!, $newTitle: String) {
-    updateTournament(id: $id, title: $newTitle) {
-      id
-    }
-  }
-`
-
-const updateTournamentTimer = gql`
-  mutation updateTournamentTimer($id: ID!, $active: Boolean!, $tournamentId: ID!, $now: DateTime, $elapsed: Int) {
-    updateTimer(id: $id, active: $active, elapsed: $elapsed) {
-      id
-    }
-    updateTournament(id: $tournamentId, childrenUpdatedAt: $now) {
-      id
-    }
-  }
-`
-const getServerTimeMutation = gql`
-  mutation updateTime ($lastRequestedAt: DateTime!) {
-    updateTime(id: "cj5l33oih3t9y0193gnww7u55", lastRequestedAt: $lastRequestedAt) {
-      updatedAt
-    }
-  }
-`
+import {currentUserQuery, getTournamentQuery, changeTitleMutation, updateTournamentTimerMutation, getServerTimeMutation} from '../constants/GQL'
 
 class TournamentDetailsScreen extends React.Component {
 
@@ -262,8 +195,8 @@ export default compose(
   graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(getServerTimeMutation, { name: 'getServerTime', }),
   graphql(currentUserQuery, { name: 'currentUser', }),
-  graphql(updateTournamentTimer, {name: 'updateTournamentTimerMutation'}),
-  graphql(changeTitle, { name: 'changeTitleMutation'}),
+  graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
+  graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
 )(TournamentDetailsScreen)
 
 const styles = StyleSheet.create({

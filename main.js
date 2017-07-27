@@ -7,7 +7,7 @@ import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { ApolloProvider, graphql } from 'react-apollo';
 import {SubscriptionClient, addGraphQLSubscriptions} from 'subscriptions-transport-ws';
 
-import Router from './navigation/Router';
+// import Router from './navigation/Router';
 
 import {Tabs} from './navigation/ReactNavRouter';
 

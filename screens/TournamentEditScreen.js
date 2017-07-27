@@ -6,50 +6,9 @@ import Expo, { KeepAwake, Audio } from 'expo';
 import {client} from '../main';
 import {msToTime, tick} from '../utilities/functions';
 import { List, ListItem, FormLabel, FormInput } from 'react-native-elements';
+import { currentUserQuery, getTournamentQuery, changeTitleMutation} from '../constants/GQL'
 
-const currentUserQuery = gql`
-  query currentUser {
-      user {
-          id
-          name
-      }
-  }
-`
-
-const getTournamentQuery = gql`
-  query getTournament($id: ID) {
-    Tournament(id: $id)
-    {
-      id
-      title
-      updatedAt
-      timer {
-        id
-        active
-        createdAt
-        updatedAt
-        elapsed
-      }
-      segments {
-        id
-        duration
-        sBlind
-        bBlind
-        ante
-        game
-      }
-      chips {
-        denom
-        color
-      }
-      tags {
-        name
-      }
-    }
-  }
-`
-
-const changeTitle = gql`
+export const changeTitle = gql`
   mutation updateTournamentTitle ($id: ID!, $newTitle: String) {
     updateTournament(id: $id, title: $newTitle) {
       id
@@ -245,7 +204,7 @@ class TournamentEditScreen extends React.Component {
 export default compose(
   graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUser', }),
-  graphql(changeTitle, { name: 'changeTitleMutation'}),
+  graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
 )(TournamentEditScreen)
 
 const styles = StyleSheet.create({

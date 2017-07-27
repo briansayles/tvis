@@ -5,99 +5,7 @@ import {Text, View, ListView, StyleSheet, Modal, TouchableHighlight, Linking, As
 import Expo from 'expo';
 import {client} from '../main';
 import Tournaments from './Tournaments';
-
-const currentUser = gql`
-  query currentUser {
-      user {
-          id
-          name
-      }
-  }
-`
-const allTournaments = gql`
-  query allTournaments {
-    allTournaments (orderBy: updatedAt_DESC) {
-      id
-      title
-    }
-  }
-`
-const createTournament = gql`
-  mutation createTournament($title: String, $userId: ID) {
-    createTournament (
-      userId: $userId
-      title:$title
-      game:NLHE
-      timer: {
-        active: false
-        elapsed: 0
-      }
-      segments: [
-        {
-          sBlind:10
-          bBlind:20
-          duration:1
-        }
-        {
-          sBlind:15
-          bBlind:30
-          duration:2
-        }
-        {
-          sBlind:20
-          bBlind:40
-          duration:1
-        }      {
-          sBlind:25
-          bBlind:50
-          duration:2
-        }      {
-          sBlind:50
-          bBlind:100
-          duration:1
-        }      
-        {
-          sBlind:75
-          bBlind:150
-          duration:2
-        }
-      ]
-      chips: [
-        {
-          color:"#f00"
-          denom:5
-        }
-        {
-          color:"#0f0"
-          denom:25
-        }
-        {
-          color:"#000"
-          denom:100
-        }
-      ]
-    )
-    {
-      id
-      title
-      game
-      segments {
-        sBlind
-        duration
-      }
-      user {
-        name
-      }
-    }
-  }
-`
-const deleteTournament = gql`
-  mutation deleteTournament($id: ID!) {
-    deleteTournament(id: $id) {
-      id
-    }
-  }
-`
+import {currentUserQuery, allTournamentsQuery, createTournamentMutation, deleteTournamentMutation, } from '../constants/GQL'
 
 class TournamentListScreen extends React.Component {
 
@@ -115,7 +23,7 @@ class TournamentListScreen extends React.Component {
   }
 
   componentDidMount() {
-    client.query({query: currentUser}).then(
+    client.query({query: currentUserQuery}).then(
       result => {
         if (result.data.user) {
           this.setState({
@@ -129,11 +37,11 @@ class TournamentListScreen extends React.Component {
     );  
 
     // Subscribe to `CREATED`-mutations
-    this.createTournamentSubscription = this.props.allTournamentsQuery.subscribeToMore({
+    this.tournamentsSubscription = this.props.allTournamentsQuery.subscribeToMore({
       document: gql`
         subscription {
           Tournament(filter: {
-            mutation_in: [CREATED]
+            mutation_in: [CREATED, DELETED]
           }) {
             node {
               id
@@ -241,8 +149,8 @@ class TournamentListScreen extends React.Component {
 }
 
 export default compose(
-  graphql(allTournaments, { name: 'allTournamentsQuery' }),
-  graphql(createTournament, { name: 'createTournamentMutation'}),
-  graphql(currentUser, { name: 'currentUserQuery' }),
-  graphql(deleteTournament, { name: 'deleteTournamentMutation' }),
+  graphql(currentUserQuery, { name: 'currentUserQuery' }),
+  graphql(allTournamentsQuery, { name: 'allTournamentsQuery' }),
+  graphql(createTournamentMutation, { name: 'createTournamentMutation'}),
+  graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
 )(TournamentListScreen)
