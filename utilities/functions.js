@@ -21,14 +21,14 @@ export function	msToTime(duration, includeFractions, includeHours) {
 
 export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 
-	if (this.props.getTournament.loading || this.props.getTournament.error) {return}
+	if (this.props.getTournament.loading || this.props.getTournament.error || this.props.getServerTime.loading || this.props.getServerTime.error) {return}
 	const msPerMinute = 60 * 1000
 	const noticeMilliseconds = noticeSeconds * 1000
 	const tourney = this.props.getTournament.Tournament
 	const segments = tourney.segments
 	const timer = tourney.timer
 	const time = new Date()
-	const totalElapsedMS = timer.active ? timer.elapsed + time.valueOf() - new Date(timer.updatedAt).valueOf() : timer.elapsed
+	const totalElapsedMS = Math.max(0,timer.active ? timer.elapsed + time.valueOf() - this.state.offsetFromServerTime - new Date(timer.updatedAt).valueOf() : timer.elapsed)
 	var cumulativeMS = 0
 	var currentSegmentIndex = null
 	for (var i = 0, len = segments.length; i < len; i++) {

@@ -13,12 +13,6 @@ import Expo from 'expo';
 
 
 export default class HomeScreen extends React.Component {
-  static route = {
-  };
-  
-  static navigationOptions = {
-    title: "Home"
-  };
   
   constructor(props) {
     super(props);
@@ -43,23 +37,14 @@ export default class HomeScreen extends React.Component {
           contentContainerStyle={styles.contentContainer}>
           <View style={styles.welcomeContainer}>
             <Image
-              source={require('../assets/images/expo-icon@3x.png')}
+              source={require('../assets/images/expo-icon.png')}
               style={styles.welcomeImage}
             />
           </View>
           <View style={styles.getStartedContainer}>
             <Text style={styles.getStartedText}>
-              This is the application's home screen!{"\n"}{"\n"}
+              This is the application's home screen!
             </Text>
-            <View
-              style={[
-                styles.codeHighlightContainer,
-                styles.homeScreenFilename,
-              ]}>
-              <Text style={styles.codeHighlightText}>
-                screens/HomeScreen.js
-              </Text>
-            </View>
           </View>
         </ScrollView>
       </View>

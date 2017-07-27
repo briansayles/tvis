@@ -148,7 +148,7 @@ class Auth extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, paddingTop: 22}}>
+      <View style={{flex: 1, paddingTop: 12}}>
         {this.state.user ? 
           <TouchableHighlight
             onPress={() => this._logout()}>

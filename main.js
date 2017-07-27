@@ -1,13 +1,16 @@
 import Expo, {Audio} from 'expo';
 import React from 'react';
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native';
-import { NavigationProvider, StackNavigation } from '@expo/ex-navigation';
+// import { NavigationProvider, StackNavigation } from '@expo/ex-navigation';
 import { FontAwesome } from '@expo/vector-icons';
 import ApolloClient, { createNetworkInterface } from 'apollo-client';
 import { ApolloProvider, graphql } from 'react-apollo';
 import {SubscriptionClient, addGraphQLSubscriptions} from 'subscriptions-transport-ws';
 
 import Router from './navigation/Router';
+
+import {Tabs} from './navigation/ReactNavRouter';
+
 import cacheAssetsAsync from './utilities/cacheAssetsAsync';
 import Auth from './components/Auth';
 
@@ -84,7 +87,9 @@ class AppContainer extends React.Component {
   async _loadAssetsAsync() {
     try {
       await cacheAssetsAsync({
-        images: [require('./assets/images/expo-wordmark.png')],
+        images: [
+          require('./assets/images/expo-wordmark.png'),
+        ],
         fonts: [
           FontAwesome.font,
         ],
@@ -102,6 +107,11 @@ class AppContainer extends React.Component {
 
   render() {
     if (this.state.appIsReady) {
+      return (
+        <ApolloProvider client={client}>
+          <Tabs/>
+        </ApolloProvider>
+      )
       return (
       <ApolloProvider client={client}>
         <View style={styles.container}>

@@ -189,12 +189,16 @@ class TournamentListScreen extends React.Component {
     this.setState({modalVisible: !this.state.modalVisible});
   }
 
-  _routeToDetails(id) {
-      this.props.navigator.push('tournamentDetails', {id: id})
+  _routeToDetails(tournament) {
+    this.props.navigation.navigate('Details', {id: tournament.id})
   }
 
-  _deleteTournament = (id) => {
-    this.props.deleteTournamentMutation({variables: {id:id} }).then(
+  _routeToEdit(tournament) {
+    this.props.navigation.navigate('Edit', {id: tournament.id})
+  }
+
+  _deleteTournament = (tournament) => {
+    this.props.deleteTournamentMutation({variables: {id:tournament.id} }).then(
     this.props.allTournamentsQuery.refetch())
   }
 
@@ -223,6 +227,7 @@ class TournamentListScreen extends React.Component {
             endRef={this._endRef}
             deleteTournamentFunction = {this._deleteTournament.bind(this)}
             routeToDetailsFunction = {this._routeToDetails.bind(this)}
+            routeToEditFunction = {this._routeToEdit.bind(this)}
           />
           <TouchableHighlight onPress={this._addButtonPressed.bind(this)}><Text>Add Tournament</Text></TouchableHighlight>
         </View>

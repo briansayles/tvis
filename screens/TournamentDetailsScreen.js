@@ -66,6 +66,13 @@ const updateTournamentTimer = gql`
     }
   }
 `
+const getServerTimeMutation = gql`
+  mutation updateTime ($lastRequestedAt: DateTime!) {
+    updateTime(id: "cj5l33oih3t9y0193gnww7u55", lastRequestedAt: $lastRequestedAt) {
+      updatedAt
+    }
+  }
+`
 
 class TournamentDetailsScreen extends React.Component {
 
@@ -88,10 +95,17 @@ class TournamentDetailsScreen extends React.Component {
       totalDuration: 0,
       percentage: 0,
       noticeStatus: false,
+      offsetFromServerTime: 0,
     }
   }
 
   componentDidMount() {
+    this._loadSound()
+    this.props.getServerTime({ variables: {lastRequestedAt: new Date(), } }).then(
+      ({ data }) => {
+        this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
+      }
+    )
     client.query({query: currentUserQuery}).then(
       result => {
         if (result.data.user) {
@@ -104,9 +118,7 @@ class TournamentDetailsScreen extends React.Component {
         }
       }
     );
-    this._loadSound()
-
-     // Subscribe to `UPDATED`-mutations
+    // Subscribe to `UPDATED`-mutations
     this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
       document: gql`
         subscription {
@@ -127,12 +139,14 @@ class TournamentDetailsScreen extends React.Component {
         console.error(err)
       },
     });
+
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
       tickfunction(
         endOfRoundFunction = () => { 
           try {
             this.endOfRoundSoundObject.setVolumeAsync(0.85)
+            this.endOfRoundSoundObject.setRateAsync(0.25, false)
             this.endOfRoundSoundObject.playAsync()
           } catch (error) {
             console.log(error)
@@ -142,13 +156,14 @@ class TournamentDetailsScreen extends React.Component {
         noticeFunction = () => { 
           try {
             this.endOfRoundSoundObject.setVolumeAsync(0.50)
+            this.endOfRoundSoundObject.setRateAsync(0.5, false)
             this.endOfRoundSoundObject.playAsync()
           } catch (error) {
             console.log(error)
           }
         },
       )
-    }, 100);
+    }, 1);
   }
 
   componentWillUnmount () {
@@ -180,7 +195,7 @@ class TournamentDetailsScreen extends React.Component {
         now: new Date(), 
         active: !tourney.timer.active,
         tournamentId: tourney.id,
-        elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - new Date(tourney.timer.updatedAt).valueOf() : 0)
+        elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
         } 
       }
     )
@@ -212,11 +227,11 @@ class TournamentDetailsScreen extends React.Component {
   }
 
   render() {
-    const { getTournament: { loading, error, Tournament } } = this.props
+    const { getTournament: { loading, error, Tournament }, navigation } = this.props
     if (loading) {
       return <Text>Loading</Text>
     } else if (error) {
-      return <Text>Error!</Text>
+      return <Text>Error!  {error.message}</Text>
     } else {
       return (
         <View style={{flex: 1, paddingTop: 22}}>
@@ -244,7 +259,8 @@ class TournamentDetailsScreen extends React.Component {
 }
 
 export default compose(
-  graphql(getTournamentQuery, { name: 'getTournament', }),
+  graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  graphql(getServerTimeMutation, { name: 'getServerTime', }),
   graphql(currentUserQuery, { name: 'currentUser', }),
   graphql(updateTournamentTimer, {name: 'updateTournamentTimerMutation'}),
   graphql(changeTitle, { name: 'changeTitleMutation'}),
@@ -253,7 +269,7 @@ export default compose(
 const styles = StyleSheet.create({
   titleText: {
     fontSize: 12,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   blindsText: {
     fontSize: 30,
@@ -262,9 +278,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   blindsNoticeText: {
-    fontSize: 45,
+    fontSize: 35,
     color: 'rgba(200, 0, 0, 1)',
-    lineHeight: 50,
+    lineHeight: 40,
     textAlign: 'center',
   },
   timerText: {
