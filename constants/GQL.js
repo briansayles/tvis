@@ -61,7 +61,7 @@ export const getTournamentQuery = gql`
         updatedAt
         elapsed
       }
-      segments {
+      segments (orderBy: bBlind_ASC) {
         id
         duration
         sBlind
@@ -69,16 +69,17 @@ export const getTournamentQuery = gql`
         ante
         game
       }
-      chips {
+      chips (orderBy: denom_ASC) {
         denom
         color
       }
-      tags {
+      tags (orderBy: name_ASC) {
         name
       }
     }
   }
 `
+
 export const tournamentSubscription = gql`
   subscription {
     Tournament(filter: {
@@ -112,6 +113,7 @@ export const createTournamentMutation = gql`
           bBlind:20
           duration: $duration
         }
+        
         {
           sBlind:15
           bBlind:30
@@ -121,11 +123,13 @@ export const createTournamentMutation = gql`
           sBlind:20
           bBlind:40
           duration:$duration
-        }      {
+        }      
+        {
           sBlind:25
           bBlind:50
           duration:$duration
-        }      {
+        }      
+        {
           sBlind:50
           bBlind:100
           duration:$duration
@@ -192,8 +196,8 @@ export const updateTournamentTimerMutation = gql`
   }
 `
 export const getServerTimeMutation = gql`
-  mutation updateTime ($lastRequestedAt: DateTime!) {
-    updateTime(id: "cj5l33oih3t9y0193gnww7u55", lastRequestedAt: $lastRequestedAt) {
+  mutation updateTime ($id: ID! $lastRequestedAt: DateTime!) {
+    updateTime(id: $id, lastRequestedAt: $lastRequestedAt) {
       updatedAt
     }
   }

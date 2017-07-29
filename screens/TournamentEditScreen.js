@@ -10,10 +10,6 @@ import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTourna
 
 class TournamentEditScreen extends React.Component {
 
-  static navigationOptions = {
-    title: "Tournament Details"
-  };
-
   constructor(props) {
     super(props)
     this.state = {
@@ -22,20 +18,11 @@ class TournamentEditScreen extends React.Component {
     }
   }
 
-  componentDidMount() {
-    client.query({query: currentUserQuery}).then(
-      result => {
-        if (result.data.user) {
-          this.setState({
-            user: {
-              name: result.data.user.name,
-              id: result.data.user.id,
-            }
-          });
-        }
-      }
-    );
+  static navigationOptions = {
 
+  };
+
+  componentDidMount() {
      // Subscribe to `UPDATED`-mutations
     this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
       document: gql`
@@ -59,7 +46,22 @@ class TournamentEditScreen extends React.Component {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
+      const user = nextProps.currentUserQuery.user
+      this.setState({user: user})
+    }
+  }
+  
+  componentDidUpdate(prevProps) {
+
+  }
+
   componentWillUnmount () {
+  }
+
+  _navigateToTimerButtonPressed(id) {
+    this.props.navigation.navigate('Details', {id: id})
   }
 
   _closeButtonPressed() {
@@ -105,7 +107,8 @@ class TournamentEditScreen extends React.Component {
           <Text style={styles.titleText}>Tournament Editor{"\n"}</Text>
           <FormLabel>Name</FormLabel>
           <FormInput onChangeText={(val) => {this.setState({'name': val})}} value={this.state.name}/>
-          <Button title="Submit" onPress={this._changeNameButtonPressed.bind(this)}></Button>
+          {this.state.user && <Button title="Submit" onPress={this._changeNameButtonPressed.bind(this)}></Button>}
+          <Button title="Timer" onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}></Button>
           <List>
             {
               Tournament.segments.map((item, i) => (
@@ -116,7 +119,7 @@ class TournamentEditScreen extends React.Component {
               ))
             }
           </List>
-          <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>
+          {this.state.user && <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>}
           <Text>{"\n"}</Text>
         </ScrollView>
       )
@@ -126,7 +129,7 @@ class TournamentEditScreen extends React.Component {
 
 export default compose(
   graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(currentUserQuery, { name: 'currentUser', }),
+  graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
   graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
 )(TournamentEditScreen)

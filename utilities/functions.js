@@ -21,7 +21,7 @@ export function	msToTime(duration, includeFractions, includeHours) {
 
 export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 
-	if (this.props.getTournament.loading || this.props.getTournament.error || this.props.getServerTime.loading || this.props.getServerTime.error) {return}
+	if (this.props.getTournament.loading || this.props.getTournament.error || this.props.getServerTimeMutation.loading || this.props.getServerTimeMutation.error) {return}
 	const msPerMinute = 60 * 1000
 	const noticeMilliseconds = noticeSeconds * 1000
 	const tourney = this.props.getTournament.Tournament

@@ -27,6 +27,7 @@ export const TournamentsStack = StackNavigator({
 		screen: TournamentEditScreen,
 		navigationOptions: {
 			title: 'Editor',
+			
 		}
 	},
 }, 
@@ -69,6 +70,6 @@ export const Tabs = TabNavigator({
 	}
 },
 {
-	initialRouteName: 'Home',
+	initialRouteName: 'Tournaments',
 }
 )

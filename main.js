@@ -11,13 +11,14 @@ import {Tabs} from './navigation/ReactNavRouter'
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
 import Auth from './components/Auth'
 
-export const auth0_client_id = 'oLIFR3lBUMNljIfO8sCTjvasle4txNMt'
-export const authorize_url = 'https://tourneymanager.auth0.com/authorize'
-export const graphQL_endpoint = 'https://api.graph.cool/simple/v1/cj2af1mob3rg50199waj6qzyf'
+import {Auth0Config, GraphCoolConfig, ExpoConfig} from './config'
+export const auth0_client_id = Auth0Config.clientId
+export const authorize_url = Auth0Config.authorizeURI
+export const graphQL_endpoint = GraphCoolConfig.endpoint
 
 export let redirect_uri;
 if (Expo.Constants.manifest.xde) {
-  redirect_uri = 'exp://wy-8me.tourneymanager.tvis.exp.direct/+/redirect'
+  redirect_uri = ExpoConfig.redirectURI
 } else {
   // this URL will be used when you publish your app
   redirect_uri = `${Expo.Constants.linkingUri}/redirect`
@@ -27,11 +28,7 @@ const networkInterface = createNetworkInterface({
   uri: graphQL_endpoint,
 })
 
-const wsClient = new SubscriptionClient(`wss://subscriptions.graph.cool/v1/cj2af1mob3rg50199waj6qzyf`, {
-  reconnect: true,
-  connectionParams: {
-  }
-})
+const wsClient = new SubscriptionClient(GraphCoolConfig.wsClient, GraphCoolConfig.wsClientOptions)
 
 const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
   networkInterface,

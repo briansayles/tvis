@@ -7,6 +7,7 @@ import Expo, { KeepAwake, Audio } from 'expo'
 import {client} from '../main'
 import {msToTime, tick} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, changeTitleMutation, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
+import {GraphCoolConfig} from '../config'
 
 class TournamentTimerScreen extends React.Component {
 
@@ -28,31 +29,13 @@ class TournamentTimerScreen extends React.Component {
       totalDuration: 0,
       percentage: 0,
       noticeStatus: false,
-      offsetFromServerTime: 0,
+      offsetFromServerTime: null,
       timerActive: false,
     }
   }
 
   componentDidMount() {
     this._loadSound()
-    this.props.getServerTime({ variables: {lastRequestedAt: new Date(), } }).then(
-      ({ data }) => {
-        this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
-      }
-    )
-    client.query({query: currentUserQuery}).then(
-      result => {
-        if (result.data.user) {
-          this.setState({
-            user: {
-              name: result.data.user.name,
-              id: result.data.user.id,
-            }
-          })
-        }
-      }
-    )
-
     this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
       document: tournamentSubscription,
       updateQuery: (previous, {subscriptionData}) => {
@@ -63,6 +46,11 @@ class TournamentTimerScreen extends React.Component {
         console.error(err)
       },
     })
+    this.props.getServerTimeMutation().then( ({data}) =>
+      {
+        this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
+      }
+    )
 
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
@@ -88,6 +76,17 @@ class TournamentTimerScreen extends React.Component {
         },
       )
     }, 1)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
+      const user = nextProps.currentUserQuery.user
+      this.setState({user: user})
+    }
+  }
+  
+  componentDidUpdate(prevProps) {
+
   }
 
   componentWillUnmount () {
@@ -173,8 +172,8 @@ class TournamentTimerScreen extends React.Component {
           <Text style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
           {this.state.nextSegment && <Text style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}>Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
           <Text style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}>{this.state.display}</Text>
-          <Button icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>
-          <Button icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>
+          {this.state.user && <Button icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+          {this.state.user && <Button icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
         </ScrollView>
       )
     }
@@ -183,8 +182,8 @@ class TournamentTimerScreen extends React.Component {
 
 export default compose(
   graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(getServerTimeMutation, { name: 'getServerTime', }),
-  graphql(currentUserQuery, { name: 'currentUser', }),
+  graphql(getServerTimeMutation, { name: 'getServerTimeMutation', options: { variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), } }}),
+  graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
   graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
 )(TournamentTimerScreen)

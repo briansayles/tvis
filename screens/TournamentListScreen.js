@@ -18,20 +18,11 @@ class TournamentListScreen extends React.Component {
     }
   }
 
-  componentDidMount() {
-    client.query({query: currentUserQuery}).then(
-      result => {
-        if (result.data.user) {
-          this.setState({
-            user: {
-              name: result.data.user.name,
-              id: result.data.user.id,
-            }
-          })
-        }
-      }
-    )  
+  static navigationOptions = {
 
+  }
+
+  componentDidMount() {
     // Subscribe to `CREATED`-mutations
     this.tournamentsSubscription = this.props.allTournamentsQuery.subscribeToMore({
       document: allTournamentsSubscription,
@@ -54,6 +45,12 @@ class TournamentListScreen extends React.Component {
     })
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
+      const user = nextProps.currentUserQuery.user
+      this.setState({user: user})
+    }
+  }
 
   componentDidUpdate(prevProps) {
     if (prevProps.allTournamentsQuery.allTournaments !== this.props.allTournamentsQuery.allTournaments && this.endRef) {
@@ -67,7 +64,7 @@ class TournamentListScreen extends React.Component {
         variables:
         {
           "title": "Tournament #" + (this.props.allTournamentsQuery.allTournaments.length + 1),
-          "userId": this.state.user.id,
+          "userId": this.props.currentUserQuery.user.id,
           "duration": 12,
         }
       }
@@ -86,8 +83,8 @@ class TournamentListScreen extends React.Component {
     this.props.navigation.navigate('Details', {id: id})
   }
 
-  _navigateToEdit(tournament) {
-    this.props.navigation.navigate('Edit', {id: tournament.id})
+  _navigateToEdit(id) {
+    this.props.navigation.navigate('Edit', {id: id})
   }
 
   render() {
@@ -98,7 +95,7 @@ class TournamentListScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
       return (
-        <ScrollView style={{flex: 1}}>
+        <ScrollView style={{flex: 1, marginLeft: 5, marginRight: 5}}>
           <Modal
             animationType='slide'
             transparent={false}
@@ -109,7 +106,7 @@ class TournamentListScreen extends React.Component {
               <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
             </View>
           </Modal>
-          <Button onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}}></Button>
+          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
           <List>
             {
               allTournaments.map((item, i) => (
@@ -117,7 +114,7 @@ class TournamentListScreen extends React.Component {
                   key={i}
                   title={item.title}
                   leftIcon={{name: item.icon}}
-                  onPress={this._navigateToDetails.bind(this, item.id)}
+                  onPress={this._navigateToEdit.bind(this, item.id)}
                 />
               ))
             }
