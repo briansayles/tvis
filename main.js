@@ -1,11 +1,11 @@
-import Expo, {Audio} from 'expo'
+import Expo, {Audio, Notifications} from 'expo'
 import React from 'react'
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
 import ApolloClient, { createNetworkInterface } from 'apollo-client'
 import { ApolloProvider, graphql } from 'react-apollo'
 import {SubscriptionClient, addGraphQLSubscriptions} from 'subscriptions-transport-ws'
-
+import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync';
 import {Tabs} from './navigation/ReactNavRouter'
 
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
@@ -69,6 +69,7 @@ class AppContainer extends React.Component {
   }
 
   componentDidMount() {
+    this._notificationSubscription = this._registerForPushNotifications();
     Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DUCK_OTHERS,
@@ -77,6 +78,24 @@ class AppContainer extends React.Component {
       interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
     })
   }  
+
+  _registerForPushNotifications() {
+    // Send our push token over to our backend so we can receive notifications
+    // You can comment the following line out if you want to stop receiving
+    // a notification every time you open the app. Check out the source
+    // for this function in api/registerForPushNotificationsAsync.js
+
+    // registerForPushNotificationsAsync();
+
+    // Watch for incoming notifications
+    this._notificationSubscription = Notifications.addListener(
+      this._handleNotification
+    );
+  }
+
+  _handleNotification = ({ origin, data }) => {
+    alert('Push notification ${origin} with data: ${JSON.stringify(data)}')
+  }
 
   async _loadAssetsAsync() {
     try {

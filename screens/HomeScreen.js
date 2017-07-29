@@ -9,29 +9,26 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Expo from 'expo';
-
 
 export default class HomeScreen extends React.Component {
   
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-    };
+    }
   }
 
   componentDidMount() {
-    this.setState({renderedTime: new Date()});
+    this.setState({renderedTime: new Date()})
   }
 
   componentWillUnmount() {
-    clockInterval(clockInterval);
+    clockInterval(clockInterval)
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Expo.KeepAwake />
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}>
@@ -48,7 +45,7 @@ export default class HomeScreen extends React.Component {
           </View>
         </ScrollView>
       </View>
-    );
+    )
   }
 }
 
@@ -96,4 +93,4 @@ const styles = StyleSheet.create({
   navigationFilename: {
     marginTop: 5,
   },
-});
+})

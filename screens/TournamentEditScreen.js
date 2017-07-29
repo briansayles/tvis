@@ -2,9 +2,6 @@ import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import Expo, { KeepAwake, Audio } from 'expo';
-import {client} from '../main';
-import {msToTime, tick} from '../utilities/functions';
 import { List, ListItem, FormLabel, FormInput } from 'react-native-elements';
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation} from '../constants/GQL'
 

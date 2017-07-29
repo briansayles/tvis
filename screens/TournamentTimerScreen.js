@@ -3,8 +3,7 @@ import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {Button} from 'react-native-elements'
-import Expo, { KeepAwake, Audio } from 'expo'
-import {client} from '../main'
+import { KeepAwake, Audio } from 'expo'
 import {msToTime, tick} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, changeTitleMutation, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
@@ -94,7 +93,7 @@ class TournamentTimerScreen extends React.Component {
   }
 
   async _loadSound() {
-    this.endOfRoundSoundObject = new Expo.Audio.Sound()
+    this.endOfRoundSoundObject = new Audio.Sound()
     try {
       await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/0925.aiff'))
       await this.endOfRoundSoundObject.setCallback( async (playbackStatus) => {
