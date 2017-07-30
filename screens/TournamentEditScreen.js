@@ -3,6 +3,7 @@ import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import { List, ListItem, FormLabel, FormInput } from 'react-native-elements';
+import { Form, Separator,InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation} from '../constants/GQL'
 
 class TournamentEditScreen extends React.Component {
@@ -12,6 +13,7 @@ class TournamentEditScreen extends React.Component {
     this.state = {
       modalVisible: false,
       name: "",
+      formData: {},
     }
   }
 
@@ -20,7 +22,7 @@ class TournamentEditScreen extends React.Component {
   };
 
   componentDidMount() {
-     // Subscribe to `UPDATED`-mutations
+    // Subscribe to `UPDATED`-mutations
     this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
       document: gql`
         subscription {
@@ -47,6 +49,9 @@ class TournamentEditScreen extends React.Component {
     if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
       const user = nextProps.currentUserQuery.user
       this.setState({user: user})
+    }
+    if (nextProps.getTournamentQuery) {
+      this.setState({formData: nextProps.getTournamentQuery.Tournament})
     }
   }
   
@@ -82,6 +87,28 @@ class TournamentEditScreen extends React.Component {
     )
   }
 
+  handleFormChange(formData){
+    /*
+    formData will contain all the values of the form,
+    in this example.
+
+    formData = {
+    first_name:"",
+    last_name:"",
+    gender: '',
+    birthday: Date,
+    has_accepted_conditions: bool
+    }
+    */
+
+    this.setState({formData:formData})
+    this.props.onFormChange && this.props.onFormChange(formData)
+  }
+
+  handleFormFocus(e, component){
+    //console.log(e, component);
+  }
+
   render() {
     const { getTournament: { loading, error, Tournament } } = this.props
     if (loading) {
@@ -101,6 +128,25 @@ class TournamentEditScreen extends React.Component {
               <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
             </View>
           </Modal>
+
+          <Form ref='tournamentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
+            <Separator />
+            <InputField ref='title' placeholder='Tournament Title' value={Tournament.title}/>
+            <PickerField ref='game' placeholder='Game Type' value={Tournament.game} 
+              options={{"":"", NLHE: "NL Holdem", PLO: "PotLO"}}
+            />
+
+
+
+
+
+
+
+          </Form>
+          
+
+
+
           <Text style={styles.titleText}>Tournament Editor{"\n"}</Text>
           <FormLabel>Name</FormLabel>
           <FormInput onChangeText={(val) => {this.setState({'name': val})}} value={this.state.name}/>
