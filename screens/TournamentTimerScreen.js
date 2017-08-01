@@ -17,6 +17,7 @@ class TournamentTimerScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      user: null,
       modalVisible: false,
       time: new Date(),
       ms: 0,
@@ -34,30 +35,37 @@ class TournamentTimerScreen extends React.Component {
   }
 
   componentDidMount() {
+    // alert('did mount')
     this._loadSound()
-    this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
+    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
       document: tournamentSubscription,
       updateQuery: (previous, {subscriptionData}) => {
-        this.props.getTournament.refetch()
+        this.props.getTournamentQuery.refetch()
         return
       },
       onError: (err) => {
         console.error(err)
       },
     })
-    this.props.getServerTimeMutation().then( ({data}) =>
+    this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {
         this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
       }
     )
-
+    setTimeout(()=> {
+      this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
+        {
+          this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
+        }
+      )
+    }, 5000)
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
       tickfunction(
         endOfRoundFunction = () => { 
           try {
             this.endOfRoundSoundObject.setVolumeAsync(0.85)
-            this.endOfRoundSoundObject.setRateAsync(0.25, false)
+            this.endOfRoundSoundObject.setRateAsync(0.60, false)
             this.endOfRoundSoundObject.playAsync()
           } catch (error) {
             console.log(error)
@@ -67,14 +75,14 @@ class TournamentTimerScreen extends React.Component {
         noticeFunction = () => { 
           try {
             this.endOfRoundSoundObject.setVolumeAsync(0.50)
-            this.endOfRoundSoundObject.setRateAsync(0.5, false)
+            this.endOfRoundSoundObject.setRateAsync(1, false)
             this.endOfRoundSoundObject.playAsync()
           } catch (error) {
             console.log(error)
           }
         },
       )
-    }, 1)
+    }, 250)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -85,7 +93,6 @@ class TournamentTimerScreen extends React.Component {
   }
   
   componentDidUpdate(prevProps) {
-
   }
 
   componentWillUnmount () {
@@ -95,7 +102,7 @@ class TournamentTimerScreen extends React.Component {
   async _loadSound() {
     this.endOfRoundSoundObject = new Audio.Sound()
     try {
-      await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/0925.aiff'))
+      await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/3beeps.aiff'))
       await this.endOfRoundSoundObject.setCallback( async (playbackStatus) => {
         if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
           await this.endOfRoundSoundObject.stopAsync()
@@ -110,7 +117,7 @@ class TournamentTimerScreen extends React.Component {
   }
 
   _toggleTimerButtonPressed() {
-    const tourney = this.props.getTournament.Tournament
+    const tourney = this.props.getTournamentQuery.Tournament
     this.props.updateTournamentTimerMutation(
       { variables: {
         id: tourney.timer.id,
@@ -120,11 +127,27 @@ class TournamentTimerScreen extends React.Component {
         elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
         } 
       }
+    ).then(()=>{
+      this.props.getTournamentQuery.refetch()
+    })
+  }
+
+  _fwdButtonPressed() {
+    const tourney = this.props.getTournamentQuery.Tournament
+    this.props.updateTournamentTimerMutation(
+      { variables: {
+        id: tourney.timer.id,
+        now: new Date(),
+        tournamentId: tourney.id,
+        elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
+
+        }
+      }
     )
   }
 
   _resetTimerButtonPressed() {
-    const tourney = this.props.getTournament.Tournament
+    const tourney = this.props.getTournamentQuery.Tournament
     this.props.updateTournamentTimerMutation(
       { variables: {
         id: tourney.timer.id,
@@ -141,7 +164,7 @@ class TournamentTimerScreen extends React.Component {
     this.props.changeTitleMutation(
       {
         variables: {
-          "id": this.props.getTournament.Tournament.id,
+          "id": this.props.getTournamentQuery.Tournament.id,
           "newTitle": "Tournament name updated on " + new Date().toString()
         }
       }
@@ -149,7 +172,7 @@ class TournamentTimerScreen extends React.Component {
   }
 
   render() {
-    const { getTournament: { loading, error, Tournament }, navigation } = this.props
+    const { getTournamentQuery: { loading, error, Tournament }, navigation } = this.props
     if (loading) {
       return <Text>Loading</Text>
     } else if (error) {
@@ -172,6 +195,7 @@ class TournamentTimerScreen extends React.Component {
           {this.state.nextSegment && <Text style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}>Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
           <Text style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}>{this.state.display}</Text>
           {this.state.user && <Button icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+          {this.state.user && <Button icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
           {this.state.user && <Button icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
         </ScrollView>
       )
@@ -180,8 +204,8 @@ class TournamentTimerScreen extends React.Component {
 }
 
 export default compose(
-  graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(getServerTimeMutation, { name: 'getServerTimeMutation', options: { variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), } }}),
+  graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  graphql(getServerTimeMutation, { name: 'getServerTimeMutation', }),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
   graphql(changeTitleMutation, { name: 'changeTitleMutation'}),

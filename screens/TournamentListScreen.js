@@ -59,9 +59,7 @@ class TournamentListScreen extends React.Component {
       {
         variables:
         {
-          "title": "Tournament #" + (this.props.allTournamentsQuery.allTournaments.length + 1),
           "userId": this.props.currentUserQuery.user.id,
-          "duration": 12,
         }
       }
     )

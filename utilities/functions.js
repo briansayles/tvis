@@ -21,11 +21,11 @@ export function	msToTime(duration, includeFractions, includeHours) {
 
 export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 
-	if (this.props.getTournament.loading || this.props.getTournament.error || this.props.getServerTimeMutation.loading || this.props.getServerTimeMutation.error) {return}
+	if (this.props.getTournamentQuery.loading || this.props.getTournamentQuery.error || this.props.getServerTimeMutation.loading || this.props.getServerTimeMutation.error) {return}
 	const msPerMinute = 60 * 1000
 	const noticeMilliseconds = noticeSeconds * 1000
-	const tourney = this.props.getTournament.Tournament
-	const segments = tourney.segments
+	const tourney = this.props.getTournamentQuery.Tournament
+	const segments = sortSegments(tourney.segments) //.sort( (a,b) => {
 	const timer = tourney.timer
 	const time = new Date()
 	const totalElapsedMS = Math.max(0,timer.active ? timer.elapsed + time.valueOf() - this.state.offsetFromServerTime - new Date(timer.updatedAt).valueOf() : timer.elapsed)
@@ -71,5 +71,17 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  percentage: ms/(segments[currentSegmentIndex].duration * msPerMinute),
 	  noticeStatus: ms < noticeMilliseconds,
 	  timerActive: timer.active,
+	})
+}
+
+export function sortSegments (segments) {
+	return segments.sort((a,b) => {
+		return (a.sBlind + a.bBlind + a.ante - b.sBlind - b.bBlind - b.ante)
+	})
+}
+
+export function sortChips (chips) {
+	return chips.sort((a,b) => {
+		return (a.denom - b.denom)
 	})
 }

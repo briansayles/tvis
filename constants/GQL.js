@@ -37,7 +37,7 @@ export const allTournamentsQuery = gql`
 export const allTournamentsSubscription = gql`
   subscription {
     Tournament(filter: {
-      mutation_in: [CREATED, DELETED]
+      mutation_in: [CREATED, DELETED, UPDATED]
     }) {
       node {
         id
@@ -54,6 +54,7 @@ export const getTournamentQuery = gql`
       id
       title
       updatedAt
+      game
       timer {
         id
         active
@@ -72,6 +73,8 @@ export const getTournamentQuery = gql`
       chips (orderBy: denom_ASC) {
         denom
         color
+        rimColor
+        textColor
       }
       tags (orderBy: name_ASC) {
         name
@@ -93,7 +96,7 @@ export const tournamentSubscription = gql`
 `
 
 export const createTournamentMutation = gql`
-  mutation createTournament($title: String, $userId: ID, $duration: Int) {
+  mutation createTournament( $userId: ID, $title: String="Default Tournament Title", $duration: Int=20) {
     createTournament (
       userId: $userId
       title:$title
@@ -109,19 +112,25 @@ export const createTournamentMutation = gql`
           duration: $duration
         }
         {
-          sBlind:10
-          bBlind:20
-          duration: $duration
-        }
-        
-        {
           sBlind:15
           bBlind:30
           duration:$duration
         }
         {
+          sBlind:10
+          bBlind:20
+          duration: $duration
+        }
+        {
           sBlind:20
           bBlind:40
+          duration:$duration
+        }      
+
+        {
+          sBlind:25
+          bBlind:50
+          ante: 10
           duration:$duration
         }      
         {
@@ -130,27 +139,40 @@ export const createTournamentMutation = gql`
           duration:$duration
         }      
         {
+          sBlind:5
+          bBlind:5
+          duration:$duration
+        }      
+        {
           sBlind:50
           bBlind:100
+          ante: 20
           duration:$duration
         }      
         {
           sBlind:75
           bBlind:150
+          ante: 25
           duration:$duration
         }
       ]
       chips: [
         {
           color:"#f00"
+          rimColor: "#fff"
+          textColor: "#fff"
           denom:5
         }
         {
           color:"#0f0"
+          rimColor: "#000"
+          textColor: "#000"
           denom:25
         }
         {
           color:"#000"
+          rimColor: "#fff"
+          textColor: "#fff"
           denom:100
         }
       ]
@@ -185,8 +207,16 @@ export const changeTitleMutation = gql`
   }
 `
 
+export const updateTournamentMutation = gql`
+  mutation updateTournament ($id: ID!, $title: String, $game: TOURNAMENT_GAME) {
+    updateTournament(id: $id, title: $title, game: $game) {
+      id
+    }
+  }
+`
+
 export const updateTournamentTimerMutation = gql`
-  mutation updateTournamentTimer($id: ID!, $active: Boolean!, $tournamentId: ID!, $now: DateTime, $elapsed: Int) {
+  mutation updateTournamentTimer($id: ID!, $active: Boolean, $tournamentId: ID!, $now: DateTime, $elapsed: Int) {
     updateTimer(id: $id, active: $active, elapsed: $elapsed) {
       id
     }

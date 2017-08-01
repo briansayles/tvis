@@ -2,9 +2,10 @@ import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import { List, ListItem, FormLabel, FormInput } from 'react-native-elements';
+import { List, ListItem, } from 'react-native-elements';
 import { Form, Separator,InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
-import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation} from '../constants/GQL'
+import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation, updateTournamentMutation, tournamentSubscription} from '../constants/GQL'
+import { sortSegments, sortChips } from '../utilities/functions'
 
 class TournamentEditScreen extends React.Component {
 
@@ -23,20 +24,10 @@ class TournamentEditScreen extends React.Component {
 
   componentDidMount() {
     // Subscribe to `UPDATED`-mutations
-    this.updateTournamentSubscription = this.props.getTournament.subscribeToMore({
-      document: gql`
-        subscription {
-          Tournament(filter: {
-            mutation_in: [UPDATED]
-          }) {
-            node {
-              id
-            }
-          }
-        }
-      `,
+    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
+      document: tournamentSubscription,
       updateQuery: (previous, {subscriptionData}) => {
-        this.props.getTournament.refetch()
+        this.props.getTournamentQuery.refetch()
         return
       },
       onError: (err) => {
@@ -50,7 +41,7 @@ class TournamentEditScreen extends React.Component {
       const user = nextProps.currentUserQuery.user
       this.setState({user: user})
     }
-    if (nextProps.getTournamentQuery) {
+    if (nextProps.getTournament) {
       this.setState({formData: nextProps.getTournamentQuery.Tournament})
     }
   }
@@ -70,37 +61,25 @@ class TournamentEditScreen extends React.Component {
     this.setState({modalVisible: !this.state.modalVisible});
   }
 
-  _changeNameButtonPressed() {
-    this.props.changeTitleMutation(
+  _submitButtonPressed() {
+    this.props.updateTournamentMutation(
       {
         variables: {
-          "id": this.props.getTournament.Tournament.id,
-          "newTitle": this.state.name,
+          "id": this.props.getTournamentQuery.Tournament.id,
+          "title": this.state.formData.title,
+          "game": this.state.formData.game
         }
       }
     )
   }
 
   _deleteTournamentButtonPressed() {
-    this.props.deleteTournamentMutation({variables: {id:this.props.getTournament.Tournament.id} }).then(
+    this.props.deleteTournamentMutation({variables: {id:this.props.getTournamentQuery.Tournament.id} }).then(
     this.props.navigation.navigate('List')
     )
   }
 
   handleFormChange(formData){
-    /*
-    formData will contain all the values of the form,
-    in this example.
-
-    formData = {
-    first_name:"",
-    last_name:"",
-    gender: '',
-    birthday: Date,
-    has_accepted_conditions: bool
-    }
-    */
-
     this.setState({formData:formData})
     this.props.onFormChange && this.props.onFormChange(formData)
   }
@@ -110,12 +89,14 @@ class TournamentEditScreen extends React.Component {
   }
 
   render() {
-    const { getTournament: { loading, error, Tournament } } = this.props
+    const { getTournamentQuery: { loading, error, Tournament } } = this.props
     if (loading) {
       return <Text>Loading</Text>
     } else if (error) {
       return <Text>Error!</Text>
     } else {
+      const segments = sortSegments(Tournament.segments)
+      const chips = sortChips(Tournament.chips)
       return (
         <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}>
           <Modal
@@ -128,41 +109,35 @@ class TournamentEditScreen extends React.Component {
               <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
             </View>
           </Modal>
-
+          <Button title="Timer" onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}></Button>
           <Form ref='tournamentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
             <Separator />
             <InputField ref='title' placeholder='Tournament Title' value={Tournament.title}/>
-            <PickerField ref='game' placeholder='Game Type' value={Tournament.game} 
-              options={{"":"", NLHE: "NL Holdem", PLO: "PotLO"}}
-            />
-
-
-
-
-
-
-
+            <PickerField ref='game' placeholder='Game Type' value={Tournament.game} options={{"":"", NLHE: "NL Holdem", PLO: "PotLO"}}/>
           </Form>
-          
-
-
-
-          <Text style={styles.titleText}>Tournament Editor{"\n"}</Text>
-          <FormLabel>Name</FormLabel>
-          <FormInput onChangeText={(val) => {this.setState({'name': val})}} value={this.state.name}/>
-          {this.state.user && <Button title="Submit" onPress={this._changeNameButtonPressed.bind(this)}></Button>}
-          <Button title="Timer" onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}></Button>
           <List>
             {
-              Tournament.segments.map((item, i) => (
+              segments.map((item, i) => (
                 <ListItem
                   key={i}
-                  title={item.sBlind}
+                  title={item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "" )}
+                />
+              ))
+            }
+          </List>
+          <List>
+            {
+              chips.map((item, i) => (
+                <ListItem
+                  key={i}
+                  titleStyle={{backgroundColor: item.color, borderWidth: 2, borderColor: item.rimColor, color: item.textColor, width: 50, textAlign: 'center', borderRadius: 1000}}
+                  title={item.denom}
                 />
               ))
             }
           </List>
           {this.state.user && <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>}
+          {this.state.user && <Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}
           <Text>{"\n"}</Text>
         </ScrollView>
       )
@@ -171,10 +146,10 @@ class TournamentEditScreen extends React.Component {
 }
 
 export default compose(
-  graphql(getTournamentQuery, { name: 'getTournament', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
   graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
+  graphql(updateTournamentMutation, { name: 'updateTournamentMutation'}),
 )(TournamentEditScreen)
 
 const styles = StyleSheet.create({
