@@ -178,6 +178,7 @@ class TournamentTimerScreen extends React.Component {
     } else if (error) {
       return <Text>Error!  {error.message}</Text>
     } else {
+      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       return (
         <ScrollView style={{flex: 1, paddingTop: 22}}>
           <Modal
@@ -194,9 +195,9 @@ class TournamentTimerScreen extends React.Component {
           <Text style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
           {this.state.nextSegment && <Text style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}>Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
           <Text style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}>{this.state.display}</Text>
-          {this.state.user && <Button icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-          {this.state.user && <Button icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
-          {this.state.user && <Button icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+          {userIsOwner && <Button icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+          {userIsOwner && <Button icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+          {userIsOwner && <Button icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
         </ScrollView>
       )
     }

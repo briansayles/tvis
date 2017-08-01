@@ -79,6 +79,10 @@ export const getTournamentQuery = gql`
       tags (orderBy: name_ASC) {
         name
       }
+      user {
+        id
+        name
+      }
     }
   }
 `
@@ -187,6 +191,7 @@ export const createTournamentMutation = gql`
       }
       user {
         name
+        id
       }
     }
   }

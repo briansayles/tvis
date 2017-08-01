@@ -95,6 +95,7 @@ class TournamentEditScreen extends React.Component {
     } else if (error) {
       return <Text>Error!</Text>
     } else {
+      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const segments = sortSegments(Tournament.segments)
       const chips = sortChips(Tournament.chips)
       return (
@@ -136,8 +137,8 @@ class TournamentEditScreen extends React.Component {
               ))
             }
           </List>
-          {this.state.user && <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>}
-          {this.state.user && <Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}
+          {userIsOwner && <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>}
+          {userIsOwner && <Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}
           <Text>{"\n"}</Text>
         </ScrollView>
       )
