@@ -1,14 +1,5 @@
 import gql from 'graphql-tag'
 
-export const currentUserQuery = gql`
-  query currentUser {
-      user {
-          id
-          name
-      }
-  }
-`
-
 export const createUserMutation = gql`
   mutation createUser($encodedToken: String!, $username: String!) {
     createUser(
@@ -20,20 +11,59 @@ export const createUserMutation = gql`
       name: $username
     )
     {
+      id
+      name
+    }
+  }
+`
+
+export const currentUserQuery = gql`
+  query currentUser {
+    user {
+      id
+      name
+    }
+  }
+`
+
+export const currentUserTournamentsQuery = gql`
+  query currentUserTournaments {
+    user {
+      id
+      name
+      tournaments {
         id
-        name
+        title
+      }
+    }
+  }
+`
+
+export const currentUserTournamentsSubscription = gql`
+  subscription {
+    Tournament(filter: {
+      mutation_in: [CREATED, DELETED, UPDATED]
+    }) {
+      node {
+        id
+        title
+      }
     }
   }
 `
 
 export const allTournamentsQuery = gql`
   query allTournaments {
-    allTournaments (orderBy: updatedAt_DESC) {
+    allTournaments (
+      orderBy: updatedAt_DESC,
+    )
+    {
       id
       title
     }
   }
 `
+
 export const allTournamentsSubscription = gql`
   subscription {
     Tournament(filter: {
@@ -94,6 +124,37 @@ export const tournamentSubscription = gql`
     }) {
       node {
         id
+        title
+        updatedAt
+        game
+        timer {
+          id
+          active
+          createdAt
+          updatedAt
+          elapsed
+        }
+        segments (orderBy: bBlind_ASC) {
+          id
+          duration
+          sBlind
+          bBlind
+          ante
+          game
+        }
+        chips (orderBy: denom_ASC) {
+          denom
+          color
+          rimColor
+          textColor
+        }
+        tags (orderBy: name_ASC) {
+          name
+        }
+        user {
+          id
+          name
+        }
       }
     }
   }
@@ -213,7 +274,7 @@ export const changeTitleMutation = gql`
 `
 
 export const updateTournamentMutation = gql`
-  mutation updateTournament ($id: ID!, $title: String, $game: TOURNAMENT_GAME) {
+  mutation updateTournament ($id: ID!, $title: String, $game: Game) {
     updateTournament(id: $id, title: $title, game: $game) {
       id
     }
@@ -230,6 +291,37 @@ export const updateTournamentTimerMutation = gql`
     }
   }
 `
+
+export const getSegmentQuery = gql`
+  query getSegment($id: ID) {
+    Segment(id: $id)
+    {
+      id
+      duration
+      sBlind
+      bBlind
+      ante
+      game
+    }
+  }
+`
+
+export const updateSegmentMutation = gql`
+  mutation updateSegment($id: ID!, $duration: Int, $sBlind: Int, $bBlind: Int, $ante: Int, $game: Game) {
+    updateSegment(id: $id, duration: $duration, sBlind: $sBlind, bBlind: $bBlind, ante: $ante, game: $game) {
+      id
+    }
+  }
+`
+
+export const deleteSegmentMutation = gql`
+  mutation deleteSegment($id: ID!) {
+    deleteSegment(id: $id) {
+      id
+    }
+  }
+`
+
 export const getServerTimeMutation = gql`
   mutation updateTime ($id: ID! $lastRequestedAt: DateTime!) {
     updateTime(id: $id, lastRequestedAt: $lastRequestedAt) {

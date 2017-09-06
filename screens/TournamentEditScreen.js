@@ -1,9 +1,9 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
+import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import { List, ListItem, } from 'react-native-elements';
-import { Form, Separator,InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
+import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation, updateTournamentMutation, tournamentSubscription} from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
 
@@ -15,6 +15,7 @@ class TournamentEditScreen extends React.Component {
       modalVisible: false,
       name: "",
       formData: {},
+      refreshing: false,
     }
   }
 
@@ -24,16 +25,16 @@ class TournamentEditScreen extends React.Component {
 
   componentDidMount() {
     // Subscribe to `UPDATED`-mutations
-    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-      document: tournamentSubscription,
-      updateQuery: (previous, {subscriptionData}) => {
-        this.props.getTournamentQuery.refetch()
-        return
-      },
-      onError: (err) => {
-        console.error(err)
-      },
-    });
+    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
+    //   document: tournamentSubscription,
+    //   updateQuery: (previous, {subscriptionData}) => {
+    //     this.props.getTournamentQuery.refetch()
+    //     return
+    //   },
+    //   onError: (err) => {
+    //     console.error(err)
+    //   },
+    // });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -41,8 +42,9 @@ class TournamentEditScreen extends React.Component {
       const user = nextProps.currentUserQuery.user
       this.setState({user: user})
     }
-    if (nextProps.getTournament) {
+    if (nextProps.getTournamentQuery) {
       this.setState({formData: nextProps.getTournamentQuery.Tournament})
+      console.log('getTournament props received' + JSON.stringify(this.state.formData))
     }
   }
   
@@ -57,11 +59,16 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('Details', {id: id})
   }
 
+  _navigateToSegmentEdit(id) {
+    this.props.navigation.navigate('SegmentEdit', {id: id})
+  }
+
   _closeButtonPressed() {
     this.setState({modalVisible: !this.state.modalVisible});
   }
 
   _submitButtonPressed() {
+    console.log(JSON.stringify(this.state.formData))
     this.props.updateTournamentMutation(
       {
         variables: {
@@ -88,6 +95,10 @@ class TournamentEditScreen extends React.Component {
     //console.log(e, component);
   }
 
+  _refreshButtonPressed() {
+    this.props.getTournamentQuery.refetch()
+  }
+
   render() {
     const { getTournamentQuery: { loading, error, Tournament } } = this.props
     if (loading) {
@@ -99,17 +110,14 @@ class TournamentEditScreen extends React.Component {
       const segments = sortSegments(Tournament.segments)
       const chips = sortChips(Tournament.chips)
       return (
-        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}>
-          <Modal
-            animationType='slide'
-            transparent={false}
-            visible={this.state.modalVisible}
-          >
-            <View style={{backgroundColor: '#060'}}>
-              <Text>{"\n"}{"\n"}{"\n"}{"\n"}</Text>
-              <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
-            </View>
-          </Modal>
+        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this._refreshButtonPressed.bind(this)}
+            />
+          }
+        >
           <Button title="Timer" onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}></Button>
           <Form ref='tournamentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
             <Separator />
@@ -121,7 +129,8 @@ class TournamentEditScreen extends React.Component {
               segments.map((item, i) => (
                 <ListItem
                   key={i}
-                  title={item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "" )}
+                  title={item.duration + " minutes: " + item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "")}
+                  onPress={this._navigateToSegmentEdit.bind(this, item.id)}
                 />
               ))
             }

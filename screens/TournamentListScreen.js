@@ -1,8 +1,9 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
-import {currentUserQuery, allTournamentsQuery, createTournamentMutation, allTournamentsSubscription} from '../constants/GQL'
+import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, } from '../constants/GQL'
+import {Auth} from '../components/Auth'
 
 class TournamentListScreen extends React.Component {
   
@@ -11,6 +12,7 @@ class TournamentListScreen extends React.Component {
     this.state = {
       modalVisible: false,
       user: null,
+      refreshing: false,
     }
   }
 
@@ -19,39 +21,41 @@ class TournamentListScreen extends React.Component {
   }
 
   componentDidMount() {
+    console.log('didmount')
     // Subscribe to `CREATED`-mutations
-    this.tournamentsSubscription = this.props.allTournamentsQuery.subscribeToMore({
-      document: allTournamentsSubscription,
-      updateQuery: (previous, {subscriptionData}) => {
-        this.props.allTournamentsQuery.refetch()
-        return
-        const newAlltournaments = [
-          subscriptionData.data.Tournament.node,
-          ...previous.allTournaments
-        ]
-        const result = {
-          ...previous,
-          allTournaments: newAlltournaments
-        }
-        return result
-      },
-      onError: (err) => {
-        console.error(err)
-      },
-    })
+    // this.tournamentsSubscription = this.props.currentUserTournamentsQuery.subscribeToMore({
+    //   document: allTournamentsSubscription,
+    //   updateQuery: (previous, {subscriptionData}) => {
+    //     this.props.currentUserTournamentsQuery.refetch()
+    //     return
+    //     const newAlltournaments = [
+    //       subscriptionData.data.Tournament.node,
+    //       ...previous.allTournaments
+    //     ]
+    //     const result = {
+    //       ...previous,
+    //       allTournaments: newAlltournaments
+    //     }
+    //     return result
+    //   },
+    //   onError: (err) => {
+    //     console.error(err)
+    //   },
+    // })
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
       const user = nextProps.currentUserQuery.user
       this.setState({user: user})
+      this.props.currentUserTournamentsQuery.refetch()
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.allTournamentsQuery.allTournaments !== this.props.allTournamentsQuery.allTournaments && this.endRef) {
-      this.endRef.scrollIntoView()
-    }
+    // if (prevProps.currentUserTournamentsQuery.allTournaments !== this.props.currentUserTournamentsQuery.allTournaments && this.endRef) {
+    //   this.endRef.scrollIntoView()
+    // }
   }
 
   _addButtonPressed() {
@@ -66,7 +70,7 @@ class TournamentListScreen extends React.Component {
   }
 
   _refreshButtonPressed() {
-    this.props.allTournamentsQuery.refetch()
+    this.props.currentUserTournamentsQuery.refetch()
   }
 
   _closeButtonPressed() {
@@ -82,35 +86,35 @@ class TournamentListScreen extends React.Component {
   }
 
   render() {
-    const { allTournamentsQuery: { loading, error, allTournaments } } = this.props
+    const { currentUserTournamentsQuery: { loading, error, user } } = this.props
     if (loading) {
-      return (<Text>Loading...</Text>)
+      return <Text>Loading...</Text>
     } else if (error) {
-      return <Text>Error!</Text>
+      return (<Text>{error.message}</Text>)
+    } else if (user === null) {
+      return <Text>need to login</Text>
     } else {
       return (
-        <ScrollView style={{flex: 1, marginLeft: 5, marginRight: 5}}>
-          <Modal
-            animationType='slide'
-            transparent={false}
-            visible={this.state.modalVisible}
-          >
-            <View style={{backgroundColor: '#060'}}>
-              <Text>{"\n"}{"\n"}{"\n"}{"\n"}</Text>
-              <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
-            </View>
-          </Modal>
+        <ScrollView 
+          style={{flex: 1, marginLeft: 5, marginRight: 5}}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this._refreshButtonPressed.bind(this)}
+            />
+          }
+        >
           {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
           <List>
             {
-              allTournaments.map((item, i) => (
+              user.tournaments.map((item, i) => (
                 <ListItem
                   key={i}
                   title={item.title}
-                  leftIcon={{name: item.icon}}
                   onPress={this._navigateToEdit.bind(this, item.id)}
                 />
-              ))
+                )
+              )
             }
           </List>
           <Text>{"\n"}</Text>
@@ -126,6 +130,6 @@ class TournamentListScreen extends React.Component {
 
 export default compose(
   graphql(currentUserQuery, { name: 'currentUserQuery' }),
-  graphql(allTournamentsQuery, { name: 'allTournamentsQuery' }),
+  graphql(currentUserTournamentsQuery, { name: 'currentUserTournamentsQuery' }),
   graphql(createTournamentMutation, { name: 'createTournamentMutation'}),
 )(TournamentListScreen)
