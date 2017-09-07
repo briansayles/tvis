@@ -117,6 +117,24 @@ export const getTournamentQuery = gql`
   }
 `
 
+export const getTournamentSegmentsQuery = gql`
+  query getTournament($id: ID) {
+    Tournament(id: $id)
+    {
+      id
+      user { id }
+      segments (orderBy: bBlind_ASC) {
+        id
+        duration
+        sBlind
+        bBlind
+        ante
+        game
+      }
+    }
+  }
+`
+
 export const tournamentSubscription = gql`
   subscription {
     Tournament(filter: {
@@ -302,6 +320,9 @@ export const getSegmentQuery = gql`
       bBlind
       ante
       game
+      tournament {
+        id
+      }
     }
   }
 `

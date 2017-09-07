@@ -6,6 +6,7 @@ import { List, ListItem, } from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation, updateTournamentMutation, tournamentSubscription} from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
+import Events from '../api/events'
 
 class TournamentEditScreen extends React.Component {
 
@@ -24,6 +25,7 @@ class TournamentEditScreen extends React.Component {
   };
 
   componentDidMount() {
+    this.refreshEvent = Events.subscribe('RefreshEditor', () => this._refreshButtonPressed())
     // Subscribe to `UPDATED`-mutations
     // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
     //   document: tournamentSubscription,
@@ -53,6 +55,7 @@ class TournamentEditScreen extends React.Component {
   }
 
   componentWillUnmount () {
+    this.refreshEvent.remove()
   }
 
   _navigateToTimerButtonPressed(id) {
@@ -61,6 +64,10 @@ class TournamentEditScreen extends React.Component {
 
   _navigateToSegmentEdit(id) {
     this.props.navigation.navigate('SegmentEdit', {id: id})
+  }
+
+  _navigateToSegmentList(id) {
+    this.props.navigation.navigate('SegmentList', {id: id})
   }
 
   _closeButtonPressed() {
@@ -77,13 +84,13 @@ class TournamentEditScreen extends React.Component {
           "game": this.state.formData.game
         }
       }
-    )
+    ).then(() => Events.publish('RefreshList')).then(() => alert('Saved'))
   }
 
   _deleteTournamentButtonPressed() {
     this.props.deleteTournamentMutation({variables: {id:this.props.getTournamentQuery.Tournament.id} }).then(
-    this.props.navigation.navigate('List')
-    )
+      () => this.props.navigation.navigate('List')
+    ).then(() => alert ('Nuked it!'))
   }
 
   handleFormChange(formData){
@@ -97,6 +104,7 @@ class TournamentEditScreen extends React.Component {
 
   _refreshButtonPressed() {
     this.props.getTournamentQuery.refetch()
+    // alert('Editor refreshed')
   }
 
   render() {
@@ -124,17 +132,8 @@ class TournamentEditScreen extends React.Component {
             <InputField ref='title' placeholder='Tournament Title' value={Tournament.title}/>
             <PickerField ref='game' placeholder='Game Type' value={Tournament.game} options={{"":"", NLHE: "NL Holdem", PLO: "PotLO"}}/>
           </Form>
-          <List>
-            {
-              segments.map((item, i) => (
-                <ListItem
-                  key={i}
-                  title={item.duration + " minutes: " + item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "")}
-                  onPress={this._navigateToSegmentEdit.bind(this, item.id)}
-                />
-              ))
-            }
-          </List>
+          {userIsOwner && <Button title="Blinds Schedule..." onPress={this._navigateToSegmentList.bind(this, Tournament.id)}></Button>}
+ 
           <List>
             {
               chips.map((item, i) => (

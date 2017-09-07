@@ -10,6 +10,7 @@ import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
 import SegmentEditScreen from '../screens/SegmentEditScreen'
 import ProfileScreen from '../screens/ProfileScreen'
+import SegmentListScreen from '../screens/SegmentListScreen'
 
 export const TournamentsStack = StackNavigator({
 	List: {
@@ -29,6 +30,12 @@ export const TournamentsStack = StackNavigator({
 		navigationOptions: {
 			title: 'Editor',
 			
+		}
+	},
+	SegmentList: {
+		screen: SegmentListScreen,
+		navigationOptions: {
+			title: 'Blinds Schedule'
 		}
 	},
 	SegmentEdit: {

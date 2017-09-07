@@ -4,6 +4,7 @@ import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, Tou
 import {List, ListItem, Button} from 'react-native-elements'
 import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, } from '../constants/GQL'
 import {Auth} from '../components/Auth'
+import Events from '../api/events'
 
 class TournamentListScreen extends React.Component {
   
@@ -22,6 +23,7 @@ class TournamentListScreen extends React.Component {
 
   componentDidMount() {
     console.log('didmount')
+    this.refreshEvent = Events.subscribe('RefreshList', () => this._refreshButtonPressed())
     // Subscribe to `CREATED`-mutations
     // this.tournamentsSubscription = this.props.currentUserTournamentsQuery.subscribeToMore({
     //   document: allTournamentsSubscription,
@@ -58,6 +60,10 @@ class TournamentListScreen extends React.Component {
     // }
   }
 
+  componentWillUnmount () {
+    this.refreshEvent.remove()
+  }
+
   _addButtonPressed() {
     this.props.createTournamentMutation(
       {
@@ -66,11 +72,12 @@ class TournamentListScreen extends React.Component {
           "userId": this.props.currentUserQuery.user.id,
         }
       }
-    )
+    ).then(() => this._refreshButtonPressed()).then(() => alert('Tournament added'))
   }
 
   _refreshButtonPressed() {
     this.props.currentUserTournamentsQuery.refetch()
+    // alert('List refreshed')
   }
 
   _closeButtonPressed() {

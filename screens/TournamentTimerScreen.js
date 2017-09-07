@@ -5,7 +5,7 @@ import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight,
 import {Button} from 'react-native-elements'
 import { KeepAwake, Audio } from 'expo'
 import {msToTime, tick} from '../utilities/functions'
-import {currentUserQuery, getTournamentQuery, changeTitleMutation, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
+import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
 
 class TournamentTimerScreen extends React.Component {
@@ -37,16 +37,16 @@ class TournamentTimerScreen extends React.Component {
   componentDidMount() {
     // alert('did mount')
     this._loadSound()
-    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-      document: tournamentSubscription,
-      updateQuery: (previous, {subscriptionData}) => {
-        this.props.getTournamentQuery.refetch()
-        return
-      },
-      onError: (err) => {
-        console.error(err)
-      },
-    })
+    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
+    //   document: tournamentSubscription,
+    //   updateQuery: (previous, {subscriptionData}) => {
+    //     this.props.getTournamentQuery.refetch()
+    //     return
+    //   },
+    //   onError: (err) => {
+    //     console.error(err)
+    //   },
+    // })
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {
         this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
@@ -82,7 +82,7 @@ class TournamentTimerScreen extends React.Component {
           }
         },
       )
-    }, 250)
+    }, 100)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -143,7 +143,9 @@ class TournamentTimerScreen extends React.Component {
 
         }
       }
-    )
+    ).then(()=>{
+      this.props.getTournamentQuery.refetch()
+    })
   }
 
   _resetTimerButtonPressed() {
@@ -157,18 +159,9 @@ class TournamentTimerScreen extends React.Component {
         elapsed: 0
         } 
       }
-    )
-  }
-
-  _changeNameButtonPressed() {
-    this.props.changeTitleMutation(
-      {
-        variables: {
-          "id": this.props.getTournamentQuery.Tournament.id,
-          "newTitle": "Tournament name updated on " + new Date().toString()
-        }
-      }
-    )
+    ).then(()=>{
+      this.props.getTournamentQuery.refetch()
+    })
   }
 
   render() {
@@ -209,7 +202,6 @@ export default compose(
   graphql(getServerTimeMutation, { name: 'getServerTimeMutation', }),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
-  graphql(changeTitleMutation, { name: 'changeTitleMutation'}),
 )(TournamentTimerScreen)
 
 const styles = StyleSheet.create({

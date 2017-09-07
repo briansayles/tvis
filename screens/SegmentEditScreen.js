@@ -5,6 +5,7 @@ import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, Tou
 import { List, ListItem, } from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getSegmentQuery, deleteSegmentMutation, updateSegmentMutation} from '../constants/GQL'
+import Events from '../api/events'
 
 class SegmentEditScreen extends React.Component {
 
@@ -39,29 +40,31 @@ class SegmentEditScreen extends React.Component {
   }
 
   _deleteSegmentButtonPressed() {
-  	const tournamentId = this.props.getSegmentQuery.Segment.tournamentId
+  	const tournamentId = this.props.getSegmentQuery.Segment.tournament.id
     this.props.deleteSegmentMutation({variables: {id:this.props.getSegmentQuery.Segment.id} }).then(
-    	this.props.navigation.navigate('Edit', {id: tournamentId})
-    )
+    	() => Events.publish('RefreshEditor')).then(
+    	() => alert('Nuked it!')).then(
+    	() => this.props.navigation.navigate('SegmentList', {id: tournamentId}))
   }
 
   _submitButtonPressed() {
     // alert(this.props.getSegmentQuery.Segment.id + ": " + JSON.stringify(this.state.formData))
     const oldData = this.props.getSegmentQuery.Segment
     const newData = this.state.formData
+    // alert (newData.duration) 
     const variables = {
       "id": this.props.getSegmentQuery.Segment.id,
-      "duration": parseInt(newData.duration ? newData.duration : oldData.duration),
-      "sBlind": parseInt(newData.sBlind ? newData.sBlind : oldData.sBlind),
-      "bBlind": parseInt(newData.bBlind ? newData.bBlind : oldData.bBlind),
-      "ante": parseInt(newData.ante ? newData.ante : oldData.ante || 0)
+      "duration": parseInt(newData.duration == undefined ? oldData.duration : newData.duration),
+      "sBlind": parseInt(newData.sBlind == undefined ? oldData.sBlind : newData.sBlind),
+      "bBlind": parseInt(newData.bBlind == undefined ? oldData.bBlind : newData.bBlind),
+      "ante": parseInt(newData.ante == undefined ? oldData.ante : newData.ante),
     }
     // alert(JSON.stringify(variables))
     this.props.updateSegmentMutation(
       {
         variables: variables
       }
-    )
+    ).then(() => Events.publish('RefreshEditor')).then(() => alert('Saved'))
   }
 
   _refreshButtonPressed() {
