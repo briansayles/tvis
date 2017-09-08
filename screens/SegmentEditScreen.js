@@ -24,34 +24,29 @@ class SegmentEditScreen extends React.Component {
       this.setState({user: user})
     }
     if (nextProps.getSegmentQuery && nextProps.getSegmentQuery.Segment) {
-    	// alert(nextProps.getSegmentQuery.Segment.id)
       this.setState({formData: nextProps.getSegmentQuery.Segment})
     }
   }
 
   handleFormChange(formData){
     this.setState({formData:formData})
-    console.log(this.state.formData)
-    // this.props.onFormChange && this.props.onFormChange(formData)
   }
 
   handleFormFocus(e, component){
-    //console.log(e, component);
   }
 
   _deleteSegmentButtonPressed() {
   	const tournamentId = this.props.getSegmentQuery.Segment.tournament.id
     this.props.deleteSegmentMutation({variables: {id:this.props.getSegmentQuery.Segment.id} }).then(
-    	() => Events.publish('RefreshEditor')).then(
+    	() => Events.publish('RefreshSegmentList')).then(
     	() => alert('Nuked it!')).then(
-    	() => this.props.navigation.navigate('SegmentList', {id: tournamentId}))
+    	() => this.props.navigation.goBack()
+    )
   }
 
   _submitButtonPressed() {
-    // alert(this.props.getSegmentQuery.Segment.id + ": " + JSON.stringify(this.state.formData))
     const oldData = this.props.getSegmentQuery.Segment
     const newData = this.state.formData
-    // alert (newData.duration) 
     const variables = {
       "id": this.props.getSegmentQuery.Segment.id,
       "duration": parseInt(newData.duration == undefined ? oldData.duration : newData.duration),
@@ -59,12 +54,11 @@ class SegmentEditScreen extends React.Component {
       "bBlind": parseInt(newData.bBlind == undefined ? oldData.bBlind : newData.bBlind),
       "ante": parseInt(newData.ante == undefined ? oldData.ante : newData.ante),
     }
-    // alert(JSON.stringify(variables))
     this.props.updateSegmentMutation(
       {
         variables: variables
       }
-    ).then(() => Events.publish('RefreshEditor')).then(() => alert('Saved'))
+    ).then(() => Events.publish('RefreshSegmentList')).then(() => alert('Saved'))
   }
 
   _refreshButtonPressed() {
@@ -91,10 +85,10 @@ class SegmentEditScreen extends React.Component {
 	  	  >
 	      	<Form ref='segmentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
             <Separator />
- 	          <InputField ref='duration' placeholder='duration (minutes)' value={(Segment.duration || 0).toString()}/>      		
- 	          <InputField ref='sBlind' placeholder='small blind' value={(Segment.sBlind || 0).toString()}/>      		
- 	          <InputField ref='bBlind' placeholder='big blind' value={(Segment.bBlind || 0).toString()}/>      		
- 	          <InputField ref='ante' placeholder='ante' value={(Segment.ante || 0).toString()}/>      		
+ 	          <InputField ref='duration' label='Duration (minutes)' placeholder='duration (minutes)' value={(Segment.duration || 0).toString()}/>      		
+ 	          <InputField ref='sBlind' label='Small Blind' placeholder='small blind' value={(Segment.sBlind || 0).toString()}/>      		
+ 	          <InputField ref='bBlind' label='Big Blind' placeholder='big blind' value={(Segment.bBlind || 0).toString()}/>      		
+ 	          <InputField ref='ante' label='Ante' placeholder='ante' value={(Segment.ante || 0).toString()}/>      		
 	      	</Form>
           {<Button title="DELETE THIS SEGMENT" onPress={this._deleteSegmentButtonPressed.bind(this)}></Button>}
           {<Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}

@@ -4,7 +4,7 @@ import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {Button} from 'react-native-elements'
 import { KeepAwake, Audio } from 'expo'
-import {msToTime, tick} from '../utilities/functions'
+import {msToTime, tick, sortChips} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
 
@@ -35,18 +35,7 @@ class TournamentTimerScreen extends React.Component {
   }
 
   componentDidMount() {
-    // alert('did mount')
     this._loadSound()
-    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-    //   document: tournamentSubscription,
-    //   updateQuery: (previous, {subscriptionData}) => {
-    //     this.props.getTournamentQuery.refetch()
-    //     return
-    //   },
-    //   onError: (err) => {
-    //     console.error(err)
-    //   },
-    // })
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {
         this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
@@ -172,26 +161,72 @@ class TournamentTimerScreen extends React.Component {
       return <Text>Error!  {error.message}</Text>
     } else {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
+      const chips = sortChips(Tournament.chips)
       return (
-        <ScrollView style={{flex: 1, paddingTop: 22}}>
-          <Modal
-            animationType='slide'
-            transparent={false}
-            visible={this.state.modalVisible}
-          >
-            <View style={{backgroundColor: '#060'}}>
-              <Text>{"\n"}{"\n"}{"\n"}{"\n"}</Text>
-              <Button title="close" onPress={this._closeButtonPressed.bind(this)}></Button>
-            </View>
-          </Modal>
+        <View style={{flex: 1, flexDirection: 'column', paddingTop: 22, backgroundColor: 'green'}}>
           <KeepAwake/>
-          <Text style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
-          {this.state.nextSegment && <Text style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}>Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
-          <Text style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}>{this.state.display}</Text>
-          {userIsOwner && <Button icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-          {userIsOwner && <Button icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
-          {userIsOwner && <Button icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-        </ScrollView>
+          <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
+            <Text style={{fontSize: 25, textAlign: 'center'}}>{Tournament.title}</Text>
+          </View>
+          <View style={{flex: 6, flexDirection:'row'}}>
+            <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
+              <View style={{flex: 3}}>
+                <Text>Average Chipstack: _____</Text>
+                <Text>Players Remaining: _____</Text>
+                <Text>Total Chips in Play: _____</Text>
+                <Text>Active Tables: _____</Text>
+              </View>
+              <View style={{flex: 6}}>
+                <Text>Other Info:</Text>
+                <Text>__________</Text>
+              </View>
+            </View>
+            <View style={{flex: 6, flexDirection: 'column', backgroundColor: 'green'}}>
+              <Text style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText, {flex: 3, fontSize: 100, padding: 5}]}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
+              {this.state.nextSegment && <Text style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText, {flex: 1.5, fontSize: 50, padding: 5}]}>Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
+              <Text style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText, {flex: 2, fontSize: 75, padding: 5}]}>{this.state.display}</Text>
+            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: 40}}>
+              {userIsOwner && <Button style={{flex: 2, margin: 10, padding: 10, textAlign: 'center', backgroundColor: 'transparent'}} icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+              {userIsOwner && <Button style={{flex: 2, margin: 10, padding: 10, textAlign: 'center'}} icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+              {userIsOwner && <Button style={{flex: 2, margin: 10, padding: 10, textAlign: 'center'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+            </View>
+            </View>
+            <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
+              <View style={{flex: 3}}>
+                <Text>Total Buy-Ins: _____</Text>
+                <Text>Total Prize Pool: _____</Text>
+                <Text>Players to be Paid: _____</Text>
+                <Text>Players to Bubble: _____</Text>
+              </View>
+              <View style={{flex: 6}}>
+                <Text>Payout Table</Text>
+                <ScrollView>
+                  <Text>1: _____</Text>
+                  <Text>2: _____</Text>
+                  <Text>3: _____</Text>
+                  <Text>4: _____</Text>
+                  <Text>5: _____</Text>
+                  <Text>6: _____</Text>
+                  <Text>7: _____</Text>
+                  <Text>8: _____</Text>
+                  <Text>9: _____</Text>
+                  <Text>10: _____</Text>
+                  <Text>11: _____</Text>
+                  <Text>12: _____</Text>
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+
+
+          <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', margin: 40}}>
+            {chips.map((item, i) => (
+              <View style={{flex: 1, flexDirection: 'row', maxWidth: 100, backgroundColor: item.color, alignItems: 'center', justifyContent: 'center', borderWidth: 5, borderColor: item.rimColor, borderRadius: 50}}>
+                <Text style={{backgroundColor: 'transparent', fontSize: 50, lineHeight: 90, fontWeight: 'bold', color: item.textColor}}>{item.denom}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
       )
     }
   }
@@ -205,13 +240,8 @@ export default compose(
 )(TournamentTimerScreen)
 
 const styles = StyleSheet.create({
-  titleText: {
-    fontSize: 16,
-    textAlign: 'center',
-  },
   blindsText: {
-    fontSize: 50,
-    color: 'rgba(96,100,109, 1)',
+    color: 'rgba(225,225,225,1)',
     textAlign: 'center',
     fontWeight: '500',
   },
@@ -219,21 +249,16 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   nextBlindsText: {
-    fontSize: 26,
-    lineHeight: 36,
-    color: 'grey',
+    color: 'rgba(150,150,150,1)',
     textAlign: 'center',
     fontWeight: '300',
   },
   nextBlindsNoticeText: {
     color: 'red',
-    fontSize: 34,
     fontWeight: '500',
   },
   timerText: {
-    fontSize: 40,
-    lineHeight: 50,
-    color: 'rgba(96,100,109,1)',
+    color: 'rgba(225,225,225,1)',
     textAlign: 'center'
   },
   timerNoticeText: {

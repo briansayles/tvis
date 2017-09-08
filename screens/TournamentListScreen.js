@@ -3,7 +3,7 @@ import React from 'react'
 import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
 import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, } from '../constants/GQL'
-import {Auth} from '../components/Auth'
+import Auth from '../components/Auth'
 import Events from '../api/events'
 
 class TournamentListScreen extends React.Component {
@@ -11,7 +11,6 @@ class TournamentListScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      modalVisible: false,
       user: null,
       refreshing: false,
     }
@@ -22,28 +21,7 @@ class TournamentListScreen extends React.Component {
   }
 
   componentDidMount() {
-    console.log('didmount')
-    this.refreshEvent = Events.subscribe('RefreshList', () => this._refreshButtonPressed())
-    // Subscribe to `CREATED`-mutations
-    // this.tournamentsSubscription = this.props.currentUserTournamentsQuery.subscribeToMore({
-    //   document: allTournamentsSubscription,
-    //   updateQuery: (previous, {subscriptionData}) => {
-    //     this.props.currentUserTournamentsQuery.refetch()
-    //     return
-    //     const newAlltournaments = [
-    //       subscriptionData.data.Tournament.node,
-    //       ...previous.allTournaments
-    //     ]
-    //     const result = {
-    //       ...previous,
-    //       allTournaments: newAlltournaments
-    //     }
-    //     return result
-    //   },
-    //   onError: (err) => {
-    //     console.error(err)
-    //   },
-    // })
+    this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refreshButtonPressed())
   }
 
   componentWillReceiveProps(nextProps) {
@@ -55,9 +33,6 @@ class TournamentListScreen extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    // if (prevProps.currentUserTournamentsQuery.allTournaments !== this.props.currentUserTournamentsQuery.allTournaments && this.endRef) {
-    //   this.endRef.scrollIntoView()
-    // }
   }
 
   componentWillUnmount () {
@@ -77,7 +52,6 @@ class TournamentListScreen extends React.Component {
 
   _refreshButtonPressed() {
     this.props.currentUserTournamentsQuery.refetch()
-    // alert('List refreshed')
   }
 
   _closeButtonPressed() {
@@ -99,7 +73,7 @@ class TournamentListScreen extends React.Component {
     } else if (error) {
       return (<Text>{error.message}</Text>)
     } else if (user === null) {
-      return <Text>need to login</Text>
+      return (<Auth/>)
     } else {
       return (
         <ScrollView 

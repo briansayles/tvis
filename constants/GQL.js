@@ -135,6 +135,23 @@ export const getTournamentSegmentsQuery = gql`
   }
 `
 
+export const getTournamentChipsQuery = gql`
+  query getTournament($id: ID) {
+    Tournament(id: $id)
+    {
+      id
+      user { id }
+      chips (orderBy: denom_ASC) {
+        id
+        denom
+        color
+        rimColor
+        textColor
+      }
+    }
+  }
+`
+
 export const tournamentSubscription = gql`
   subscription {
     Tournament(filter: {
@@ -177,13 +194,30 @@ export const tournamentSubscription = gql`
     }
   }
 `
+export const createTournamentSegmentMutation = gql`
+  mutation createTournamentSegment( $tournamentId: ID!, $sBlind: Int=1, $bBlind: Int=2, $duration: Int=20) {
+    createSegment (
+      tournamentId: $tournamentId
+      sBlind: $sBlind 
+      bBlind: $bBlind
+      duration: $duration
+    )
+    {
+      id
+      tournament { id }
+      sBlind
+      bBlind
+      duration
+    }
+  }
+`
 
 export const createTournamentMutation = gql`
   mutation createTournament( $userId: ID, $title: String="Default Tournament Title", $duration: Int=20) {
     createTournament (
       userId: $userId
-      title:$title
-      game:NLHE
+      title: $title
+      game: NLHE
       timer: {
         active: false
         elapsed: 0
@@ -275,6 +309,7 @@ export const createTournamentMutation = gql`
     }
   }
 `
+
 export const deleteTournamentMutation = gql`
   mutation deleteTournament($id: ID!) {
     deleteTournament(id: $id) {
@@ -338,6 +373,38 @@ export const updateSegmentMutation = gql`
 export const deleteSegmentMutation = gql`
   mutation deleteSegment($id: ID!) {
     deleteSegment(id: $id) {
+      id
+    }
+  }
+`
+
+export const getChipQuery = gql`
+  query getChip($id: ID) {
+    Chip(id: $id)
+    {
+      id
+      denom
+      color
+      textColor
+      rimColor
+      tournament {
+        id
+      }
+    }
+  }
+`
+
+export const updateChipMutation = gql`
+  mutation updateChip($id: ID!, $denom: Int, $color: String, $textColor: String, $rimColor: String, ) {
+    updateChip(id: $id, denom: $denom, color: $color, textColor: $textColor, rimColor: $rimColor) {
+      id
+    }
+  }
+`
+
+export const deleteChipMutation = gql`
+  mutation deleteChip($id: ID!) {
+    deleteChip(id: $id) {
       id
     }
   }

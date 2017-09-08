@@ -6,6 +6,7 @@ import Expo from 'expo';
 import jwtDecoder from 'jwt-decode';
 import {redirect_uri, auth0_client_id, authorize_url, client} from '../main';
 import {currentUserQuery, createUserMutation} from '../constants/GQL'
+import Events from '../api/events'
 
 class Auth extends React.Component {
 
@@ -44,6 +45,7 @@ class Auth extends React.Component {
         redirect_uri,
         state: redirect_uri,
       });
+    Events.publish('RefreshTournamentList')
     Expo.WebBrowser.openBrowserAsync(redirectionURL);
   }
 
@@ -53,6 +55,7 @@ class Auth extends React.Component {
       ...this.state,
       user: undefined,
     });
+    Events.publish('RefreshTournamentList')
   }
 
   _handleAuth0Redirect = async (event) => {
@@ -127,15 +130,15 @@ class Auth extends React.Component {
         {this.state.user ? 
           <TouchableHighlight
             onPress={() => this._logout()}>
-            <Text>
+            <Text style={styles.signOutButton}>
               SignOut {this.state.user.name}
             </Text>
           </TouchableHighlight>
         :
           <TouchableHighlight
             onPress={() => this._loginWithAuth0()}>
-            <Text>
-              Signin to get started
+            <Text style={styles.signInButton}>
+              Sign In or Sign Up for FREE to get started
             </Text>
           </TouchableHighlight>
         }
@@ -148,3 +151,16 @@ export default compose(
   graphql(currentUserQuery, { name: 'fetchCurrentUser' }),
   graphql(createUserMutation, { name: 'createUser' }),
 )(Auth);
+
+const styles = StyleSheet.create({
+  signInButton: {
+    fontSize: 30,
+    textAlign: 'center',
+    backgroundColor: 'green'
+  },
+  signOutButton: {
+    fontSize: 30,
+    textAlign: 'center',
+    backgroundColor: 'red',
+  },
+})

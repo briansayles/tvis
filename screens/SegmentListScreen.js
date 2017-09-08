@@ -1,10 +1,10 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import { List, ListItem, } from 'react-native-elements';
+import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import { List, ListItem, Button, } from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
-import { currentUserQuery, getTournamentSegmentsQuery, changeTitleMutation, deleteTournamentMutation, updateTournamentMutation, tournamentSubscription} from '../constants/GQL'
+import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation} from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
 import Events from '../api/events'
 
@@ -48,9 +48,36 @@ class SegmentListScreen extends React.Component {
     this.props.getTournamentSegmentsQuery.refetch()
     // alert('Editor refreshed')
   }
-  _navigateToSegmentEdit(id) {
+
+  _addButtonPressed(location, existingSegment) {
+  	var sBlind, bBlind, duration
+  	if (location == "before") {
+  		sBlind = parseInt(existingSegment.sBlind / 2)
+  		bBlind = 2 * sBlind
+  		duration = existingSegment.duration
+  	} else {
+  		sBlind = existingSegment.sBlind * 2
+  		bBlind = 2 * sBlind
+  		duration = existingSegment.duration
+  	}
+
+    this.props.createTournamentSegmentMutation(
+      {
+        variables:
+        {
+          "tournamentId": this.props.getTournamentSegmentsQuery.Tournament.id,
+          "sBlind": sBlind,
+          "bBlind": bBlind,
+          "duration": duration,
+        }
+      }
+    ).then(() => this._refreshButtonPressed()).then(() => alert('Segment added'))
+  }
+
+	_navigateToSegmentEdit(id) {
     this.props.navigation.navigate('SegmentEdit', {id: id})
   }
+
   render() {
     const { getTournamentSegmentsQuery: { loading, error, Tournament } } = this.props
     if (loading) {
@@ -69,6 +96,7 @@ class SegmentListScreen extends React.Component {
             />
           }
         >
+          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "before", segments[0])} icon={{name: 'playlist-add'}} title="Add"></Button>}
           <List>
             {
               segments.map((item, i) => (
@@ -80,6 +108,7 @@ class SegmentListScreen extends React.Component {
               ))
             }
           </List>
+          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", segments[segments.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
           <Text>{"\n"}</Text>
         </ScrollView>
       )
@@ -90,4 +119,5 @@ class SegmentListScreen extends React.Component {
 export default compose(
   graphql(getTournamentSegmentsQuery, { name: 'getTournamentSegmentsQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
+  graphql(createTournamentSegmentMutation, {name: 'createTournamentSegmentMutation'}),
 )(SegmentListScreen)

@@ -13,30 +13,16 @@ class TournamentEditScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      modalVisible: false,
-      name: "",
       formData: {},
       refreshing: false,
     }
   }
 
   static navigationOptions = {
-
   };
 
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshEditor', () => this._refreshButtonPressed())
-    // Subscribe to `UPDATED`-mutations
-    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-    //   document: tournamentSubscription,
-    //   updateQuery: (previous, {subscriptionData}) => {
-    //     this.props.getTournamentQuery.refetch()
-    //     return
-    //   },
-    //   onError: (err) => {
-    //     console.error(err)
-    //   },
-    // });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -46,12 +32,10 @@ class TournamentEditScreen extends React.Component {
     }
     if (nextProps.getTournamentQuery) {
       this.setState({formData: nextProps.getTournamentQuery.Tournament})
-      console.log('getTournament props received' + JSON.stringify(this.state.formData))
     }
   }
   
   componentDidUpdate(prevProps) {
-
   }
 
   componentWillUnmount () {
@@ -62,16 +46,12 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('Details', {id: id})
   }
 
-  _navigateToSegmentEdit(id) {
-    this.props.navigation.navigate('SegmentEdit', {id: id})
-  }
-
   _navigateToSegmentList(id) {
     this.props.navigation.navigate('SegmentList', {id: id})
   }
 
-  _closeButtonPressed() {
-    this.setState({modalVisible: !this.state.modalVisible});
+  _navigateToChipList(id) {
+    this.props.navigation.navigate('ChipList', {id: id})
   }
 
   _submitButtonPressed() {
@@ -84,12 +64,13 @@ class TournamentEditScreen extends React.Component {
           "game": this.state.formData.game
         }
       }
-    ).then(() => Events.publish('RefreshList')).then(() => alert('Saved'))
+    ).then(() => Events.publish('RefreshTournamentList')).then(() => alert('Saved'))
   }
 
   _deleteTournamentButtonPressed() {
     this.props.deleteTournamentMutation({variables: {id:this.props.getTournamentQuery.Tournament.id} }).then(
-      () => this.props.navigation.navigate('List')
+      () => Events.publish('RefreshTournamentList')).then(
+      () => this.props.navigation.goBack()
     ).then(() => alert ('Nuked it!'))
   }
 
@@ -99,12 +80,10 @@ class TournamentEditScreen extends React.Component {
   }
 
   handleFormFocus(e, component){
-    //console.log(e, component);
   }
 
   _refreshButtonPressed() {
     this.props.getTournamentQuery.refetch()
-    // alert('Editor refreshed')
   }
 
   render() {
@@ -132,19 +111,8 @@ class TournamentEditScreen extends React.Component {
             <InputField ref='title' placeholder='Tournament Title' value={Tournament.title}/>
             <PickerField ref='game' placeholder='Game Type' value={Tournament.game} options={{"":"", NLHE: "NL Holdem", PLO: "PotLO"}}/>
           </Form>
-          {userIsOwner && <Button title="Blinds Schedule..." onPress={this._navigateToSegmentList.bind(this, Tournament.id)}></Button>}
- 
-          <List>
-            {
-              chips.map((item, i) => (
-                <ListItem
-                  key={i}
-                  titleStyle={{backgroundColor: item.color, borderWidth: 2, borderColor: item.rimColor, color: item.textColor, width: 50, textAlign: 'center', borderRadius: 1000}}
-                  title={item.denom}
-                />
-              ))
-            }
-          </List>
+          {<Button title="Blinds Schedule..." onPress={this._navigateToSegmentList.bind(this, Tournament.id)}></Button>}
+          {<Button title="Chips Schedule..." onPress={this._navigateToChipList.bind(this, Tournament.id)}></Button>}
           {userIsOwner && <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>}
           {userIsOwner && <Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}
           <Text>{"\n"}</Text>

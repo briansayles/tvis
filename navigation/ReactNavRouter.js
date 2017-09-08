@@ -8,12 +8,14 @@ import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
 import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
-import SegmentEditScreen from '../screens/SegmentEditScreen'
-import ProfileScreen from '../screens/ProfileScreen'
 import SegmentListScreen from '../screens/SegmentListScreen'
+import SegmentEditScreen from '../screens/SegmentEditScreen'
+import ChipListScreen from '../screens/ChipListScreen'
+import ChipEditScreen from '../screens/ChipEditScreen'
+import ProfileScreen from '../screens/ProfileScreen'
 
 export const TournamentsStack = StackNavigator({
-	List: {
+	TournamentList: {
 		screen: TournamentListScreen,
 		navigationOptions: {
 			title: 'Tournament List',
@@ -42,6 +44,18 @@ export const TournamentsStack = StackNavigator({
 		screen: SegmentEditScreen,
 		navigationOptions: {
 			title: 'Segment Editor',
+		}
+	},
+	ChipList: {
+		screen: ChipListScreen,
+		navigationOptions: {
+			title: 'Chip Schedule'
+		}
+	},
+	ChipEdit: {
+		screen: ChipEditScreen,
+		navigationOptions: {
+			title: 'Chip Editor',
 		}
 	},
 }, 
