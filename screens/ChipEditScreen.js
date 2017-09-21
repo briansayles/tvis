@@ -14,6 +14,18 @@ class ChipEditScreen extends React.Component {
     this.state = {
       formData: {},
       refreshing: false,
+      colorOptions: {
+        '#f00' : 'Red',
+        '#fff' : 'White',
+        '#0f0' : 'Green',
+        '#00f' : 'Blue',
+        '#000' : 'Black',
+        '#f90' : 'Orange',
+        '#808' : 'Purple',
+        '#888' : 'Grey',
+        '#ff0' : 'Yellow',
+        '#cff' : 'Light Blue',
+     },
     }
   }
 
@@ -85,9 +97,9 @@ class ChipEditScreen extends React.Component {
 	      	<Form ref='chipForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
             <Separator />
  	          <InputField ref='denom' placeholder='denomination' value={(Chip.denom || 0).toString()}/>      		
- 	          <InputField ref='color' placeholder='color' value={(Chip.color || 0).toString()}/>      		
- 	          <InputField ref='textColor' placeholder='text color' value={(Chip.textColor || 0).toString()}/>      		
- 	          <InputField ref='rimColor' placeholder='rim color' value={(Chip.rimColor || 0).toString()}/>      		
+ 	          <PickerField ref='color' options={this.state.colorOptions} value={(Chip.color || 0).toString()}/>      		
+ 	          <PickerField ref='textColor' options={this.state.colorOptions} value={(Chip.textColor || 0).toString()}/>      		
+ 	          <PickerField ref='rimColor' options={this.state.colorOptions} value={(Chip.rimColor || 0).toString()}/>      		
 	      	</Form>
           {<Button title="DELETE THIS Chip" onPress={this._deleteChipButtonPressed.bind(this)}></Button>}
           {<Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}

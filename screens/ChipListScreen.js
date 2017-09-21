@@ -1,8 +1,8 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import { List, ListItem, } from 'react-native-elements';
+import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, Button, } from 'react-native'
+import { List, ListItem, Avatar} from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentChipsQuery} from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
@@ -69,18 +69,20 @@ class ChipListScreen extends React.Component {
             />
           }
         >
-          <List>
-            {
-              chips.map((item, i) => (
-                <ListItem
-                  key={i}
-                  titleStyle={{backgroundColor: item.color, borderWidth: 2, borderColor: item.rimColor, color: item.textColor, width: 50, textAlign: 'center', borderRadius: 1000}}
-                  title={item.denom}
-                  onPress={this._navigateToChipEdit.bind(this, item.id)}
-                />
-              ))
-            }
-          </List>
+          {chips.map((item, i) => (
+            <Avatar
+              key={i}
+              xlarge
+              rounded
+              title={item.denom}
+              titleStyle={{color: item.textColor, fontSize: 20}}
+              activeOpacity={1}
+              overlayContainerStyle={{backgroundColor: item.color}}
+              onPress={this._navigateToChipEdit.bind(this, item.id)}
+              containerStyle={{margin: 10, borderWidth: 5, borderColor: item.rimColor}}
+            />
+          ))
+          }
           <Text>{"\n"}</Text>
         </ScrollView>
       )

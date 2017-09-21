@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import { List, ListItem, } from 'react-native-elements';
+import { List, ListItem, Slider} from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getSegmentQuery, deleteSegmentMutation, updateSegmentMutation} from '../constants/GQL'
 import Events from '../api/events'
@@ -15,6 +15,10 @@ class SegmentEditScreen extends React.Component {
       name: "",
       formData: {},
       refreshing: false,
+      sbSliderStep: 1,
+      durationSliderStep: 1,
+      sbSliderMax: 100,
+      autoBB: true,
     }
   }
 
@@ -24,7 +28,14 @@ class SegmentEditScreen extends React.Component {
       this.setState({user: user})
     }
     if (nextProps.getSegmentQuery && nextProps.getSegmentQuery.Segment) {
-      this.setState({formData: nextProps.getSegmentQuery.Segment})
+    	const segment = nextProps.getSegmentQuery.Segment
+      this.setState({
+      	formData: segment,
+				sbSliderStep: segment.sBlind > 9 ? (segment.sBlind  > 74 ? 25: 5) : 1,
+				durationSliderStep: segment.duration > 14 ? 5 : 1,
+				sbSliderMax: segment.sBlind > 50 ? 1000 : 100,
+				autoBB: segment.bBlind == 2*segment.sBlind
+      })
     }
   }
 
@@ -71,7 +82,7 @@ class SegmentEditScreen extends React.Component {
       return <Text>Loading</Text>
     } else if (error) {
       return <Text>Error!</Text>
-    } else {
+    } else {  
     	console.log(JSON.stringify(Segment))
      	return (
 	  	  <ScrollView
@@ -84,11 +95,61 @@ class SegmentEditScreen extends React.Component {
           }
 	  	  >
 	      	<Form ref='segmentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
-            <Separator />
- 	          <InputField ref='duration' label='Duration (minutes)' placeholder='duration (minutes)' value={(Segment.duration || 0).toString()}/>      		
- 	          <InputField ref='sBlind' label='Small Blind' placeholder='small blind' value={(Segment.sBlind || 0).toString()}/>      		
- 	          <InputField ref='bBlind' label='Big Blind' placeholder='big blind' value={(Segment.bBlind || 0).toString()}/>      		
- 	          <InputField ref='ante' label='Ante' placeholder='ante' value={(Segment.ante || 0).toString()}/>      		
+						<Text style={{marginLeft: 10, marginRight: 10}}>Duration: {this.state.formData.duration || Segment.duration} minutes </Text>
+						<Slider
+								minimumValue={0}
+								maximumValue={60}
+								step={this.state.durationSliderStep}
+								animateTransitions={true}
+						    value={(Segment.duration)}
+						    onValueChange={(value) => {
+						    	this.setState({formData: {...this.state.formData, duration: value}, durationSliderStep: value > 14 ? 5 : 1})
+						    }}
+						    style={{marginLeft: 10, marginRight: 10, marginBottom: 15}}
+						/>
+						<Text style={{marginLeft: 10, marginRight: 10, marginTop: 15}}>Small Blind: {this.state.formData.sBlind || Segment.sBlind} </Text>
+						<Slider
+								minimumValue={0}
+								maximumValue={this.state.sbSliderMax}
+								step={this.state.sbSliderStep}
+						    value={(Segment.sBlind)}
+						    onValueChange={(value) => {
+						    	this.state.autoBB ? 
+						    		this.setState({formData: {...this.state.formData, sBlind: value, bBlind: value * 2}, sbSliderStep: value > 9 ? (value > 74 ? 25: 5) : 1})
+						    	:
+						    		this.setState({formData: {...this.state.formData, sBlind: value}, sbSliderStep: value > 9 ? (value > 74 ? 25: 5) : 1})						    		
+						    }} 
+						    style={{marginLeft: 10, marginRight: 10, marginBottom: 15}}
+						 />
+	        	<SwitchField
+	        		value={this.state.autoBB}
+	        		label='Auto BB (2x SB)'
+	          	ref="autoBB"
+	          	onValueChange={(value) => {this.setState({autoBB: value})}}
+	          />
+          	<Text style={{marginLeft: 10, marginRight: 10, marginTop: 15}}>Big Blind: {this.state.formData.bBlind || Segment.bBlind} </Text>
+						<Slider
+								disabled={this.state.autoBB}
+								minimumValue={0}
+								maximumValue={this.state.sbSliderMax}
+								step={this.state.sbSliderStep}
+						    value={(this.state.autoBB ? this.state.formData.bBlind : Segment.bBlind)}
+						    onValueChange={(value) => {
+						    	this.setState({formData: {...this.state.formData, bBlind: value}, sbSliderStep: value > 9 ? (value > 74 ? 25: 5) : 1})
+						    }} 
+						    style={{marginLeft: 10, marginRight: 10}}
+						 />
+          	<Text style={{marginLeft: 10, marginRight: 10, marginTop: 15}}>Ante: {this.state.formData.ante || Segment.ante} </Text>
+						<Slider
+								minimumValue={0}
+								maximumValue={this.state.sbSliderMax}
+								step={this.state.sbSliderStep}
+						    value={(Segment.ante)}
+						    onValueChange={(value) => {
+						    	this.setState({formData: {...this.state.formData, ante: value}})
+						    }} 
+						    style={{marginLeft: 10, marginRight: 10}}
+						 />
 	      	</Form>
           {<Button title="DELETE THIS SEGMENT" onPress={this._deleteSegmentButtonPressed.bind(this)}></Button>}
           {<Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}
