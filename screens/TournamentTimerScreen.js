@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import {Button} from 'react-native-elements'
+import {Button, Avatar} from 'react-native-elements'
 import { KeepAwake, Audio } from 'expo'
 import {msToTime, tick, sortChips} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
@@ -166,53 +166,74 @@ class TournamentTimerScreen extends React.Component {
         <View style={{flex: 1, flexDirection: 'column', paddingTop: 22, backgroundColor: 'green'}}>
           <KeepAwake/>
           <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
-            <Text style={{fontSize: 25, textAlign: 'center'}}>{Tournament.title}</Text>
+            <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true} style={{textAlign: 'center'}}>{Tournament.title}</Text>
           </View>
           <View style={{flex: 6, flexDirection:'row'}}>
             <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
               <View style={{flex: 3}}>
-                <Text>Average Chipstack: _____</Text>
-                <Text>Players Remaining: _____</Text>
-                <Text>Total Chips in Play: _____</Text>
-                <Text>Active Tables: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Average Chipstack: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players Remaining: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Chips in Play: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Active Tables: _____</Text>
               </View>
               <View style={{flex: 6}}>
-                <Text>Other Info:</Text>
-                <Text>__________</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Other Info:</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>__________</Text>
               </View>
             </View>
-            <View style={{flex: 6, flexDirection: 'column', backgroundColor: 'green'}}>
-              <Text style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText, {flex: 3, fontSize: 100, padding: 5}]}>{this.state.segment.sBlind} / {this.state.segment.bBlind}</Text>
-              {this.state.nextSegment && <Text style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText, {flex: 1.5, fontSize: 50, padding: 5}]}>Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}</Text>}
-              <Text style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText, {flex: 2, fontSize: 75, padding: 5}]}>{this.state.display}</Text>
-            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', margin: 40}}>
-              {userIsOwner && <Button style={{flex: 2, margin: 10, padding: 10, textAlign: 'center', backgroundColor: 'transparent'}} icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-              {userIsOwner && <Button style={{flex: 2, margin: 10, padding: 10, textAlign: 'center'}} icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
-              {userIsOwner && <Button style={{flex: 2, margin: 10, padding: 10, textAlign: 'center'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-            </View>
+            <View style={{flex: 6, flexDirection: 'column', backgroundColor: 'green', alignItems: 'center'}}>
+              <Text 
+                adjustFontSizeToFit={true}
+                style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText, {flex: 3, padding: 5}]}
+              >
+                {this.state.segment.sBlind} / {this.state.segment.bBlind}
+              </Text>
+              {this.state.nextSegment && 
+                <Text 
+                  adjustFontSizeToFit={true} 
+                  numberOfLines={1} 
+                  allowFontScaling={true} 
+                  style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText, {flex: 1.5, padding: 5}]}
+                >
+                  Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}
+                </Text>
+              }
+              <Text 
+                style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText, {flex: 2, padding: 5}]}
+                adjustFontSizeToFit={true} 
+                numberOfLines={1} 
+                allowFontScaling={true} 
+              >
+                {this.state.display}
+              </Text>
+              <View style={{flex: 1.5, flexDirection: 'row', justifyContent: 'space-around'}}>
+                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+              </View>
             </View>
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
               <View style={{flex: 3}}>
-                <Text>Total Buy-Ins: _____</Text>
-                <Text>Total Prize Pool: _____</Text>
-                <Text>Players to be Paid: _____</Text>
-                <Text>Players to Bubble: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Buy-Ins: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Prize Pool: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players to be Paid: _____</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players to Bubble: _____</Text>
               </View>
               <View style={{flex: 6}}>
-                <Text>Payout Table</Text>
+                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Payout Table</Text>
                 <ScrollView>
-                  <Text>1: _____</Text>
-                  <Text>2: _____</Text>
-                  <Text>3: _____</Text>
-                  <Text>4: _____</Text>
-                  <Text>5: _____</Text>
-                  <Text>6: _____</Text>
-                  <Text>7: _____</Text>
-                  <Text>8: _____</Text>
-                  <Text>9: _____</Text>
-                  <Text>10: _____</Text>
-                  <Text>11: _____</Text>
-                  <Text>12: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>1: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>2: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>3: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>4: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>5: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>6: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>7: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>8: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>9: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>10: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>11: _____</Text>
+                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>12: _____</Text>
                 </ScrollView>
               </View>
             </View>
@@ -221,10 +242,18 @@ class TournamentTimerScreen extends React.Component {
 
           <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', margin: 40}}>
             {chips.map((item, i) => (
-              <View style={{flex: 1, flexDirection: 'row', maxWidth: 100, backgroundColor: item.color, alignItems: 'center', justifyContent: 'center', borderWidth: 5, borderColor: item.rimColor, borderRadius: 50}}>
-                <Text style={{backgroundColor: 'transparent', fontSize: 50, lineHeight: 90, fontWeight: 'bold', color: item.textColor}}>{item.denom}</Text>
-              </View>
-            ))}
+              <Avatar
+                key={i}
+                large
+                rounded
+                title={item.denom}
+                titleStyle={{color: item.textColor, fontSize: 20}}
+                activeOpacity={1}
+                overlayContainerStyle={{backgroundColor: item.color}}
+                containerStyle={{margin: 10, borderWidth: 4, borderColor: item.rimColor}}
+              />
+            ))
+            }
           </View>
         </View>
       )
@@ -244,6 +273,7 @@ const styles = StyleSheet.create({
     color: 'rgba(225,225,225,1)',
     textAlign: 'center',
     fontWeight: '500',
+    fontSize: '54',
   },
   blindsNoticeText: {
     fontWeight: '300',
@@ -252,6 +282,7 @@ const styles = StyleSheet.create({
     color: 'rgba(150,150,150,1)',
     textAlign: 'center',
     fontWeight: '300',
+    fontSize: '18',
   },
   nextBlindsNoticeText: {
     color: 'red',
@@ -259,7 +290,8 @@ const styles = StyleSheet.create({
   },
   timerText: {
     color: 'rgba(225,225,225,1)',
-    textAlign: 'center'
+    textAlign: 'center',
+    fontSize: '54'
   },
   timerNoticeText: {
     fontWeight: '900',

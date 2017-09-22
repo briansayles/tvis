@@ -1,8 +1,8 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import { List, ListItem, } from 'react-native-elements';
+import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import { List, ListItem, Card, Button} from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation, updateTournamentMutation, tournamentSubscription} from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
@@ -52,6 +52,22 @@ class TournamentEditScreen extends React.Component {
 
   _navigateToChipList(id) {
     this.props.navigation.navigate('ChipList', {id: id})
+  }
+
+  _navigateToTableList(id) {
+    this.props.navigation.navigate('TableList', {id: id})
+  }
+
+  _navigateToPlayerList(id) {
+    this.props.navigation.navigate('PlayerList', {id: id})
+  }
+
+  _navigateToCostList(id) {
+    this.props.navigation.navigate('CostList', {id: id})
+  }
+
+  _navigateToPrizeList(id) {
+    this.props.navigation.navigate('PrizeList', {id: id})
   }
 
   _submitButtonPressed() {
@@ -105,14 +121,96 @@ class TournamentEditScreen extends React.Component {
             />
           }
         >
-          <Button title="Timer" onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}></Button>
+          <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-around', marginBottom: 10}}>
+            {userIsOwner && 
+              <Button
+                style={{flex: 0.5}}
+                icon={{name: 'line-chart', type: 'font-awesome'}}
+                backgroundColor='#03A9F4'
+                fontFamily='Lato'
+                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                title='Blinds' 
+                onPress={this._navigateToSegmentList.bind(this, Tournament.id)}
+              />
+            }
+            {userIsOwner && 
+              <Button 
+                style={{flex: 0.5}}
+                icon={{name: 'ios-disc', type: 'ionicon'}}
+                backgroundColor='#03A9F4'
+                fontFamily='Lato'
+                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                title='Chips' 
+                onPress={this._navigateToChipList.bind(this, Tournament.id)}>
+              </Button>
+            }
+          </View>
+          <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-around', marginBottom: 10}}>
+            {userIsOwner && 
+              <Button
+                style={{flex: 0.5}}
+                icon={{name: 'event-seat'}}
+                backgroundColor='#03A9F4'
+                fontFamily='Lato'
+                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                title='Tables' 
+                onPress={this._navigateToTableList.bind(this, Tournament.id)}
+              />
+            }
+            {userIsOwner && 
+              <Button 
+                style={{flex: 0.5}}
+                icon={{name: 'ios-people', type: 'ionicon'}}
+                backgroundColor='#03A9F4'
+                fontFamily='Lato'
+                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                title='Players' 
+                onPress={this._navigateToPlayerList.bind(this, Tournament.id)}>
+              </Button>
+            }
+          </View>
+          <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-around', marginBottom: 10}}>
+            {userIsOwner && 
+              <Button
+                style={{flex: 0.5}}
+                icon={{name: 'ios-pricetags-outline', type: 'ionicon'}}
+                backgroundColor='#03A9F4'
+                fontFamily='Lato'
+                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                title='Costs' 
+                onPress={this._navigateToCostList.bind(this, Tournament.id)}
+              />
+            }
+            {userIsOwner && 
+              <Button 
+                style={{flex: 0.5}}
+                icon={{name: 'ios-trophy', type: 'ionicon'}}
+                backgroundColor='#03A9F4'
+                fontFamily='Lato'
+                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                title='Prizes' 
+                onPress={this._navigateToPrizeList.bind(this, Tournament.id)}>
+              </Button>
+            }
+          </View>
+          <Card
+            title="Tournament Timer"
+          >
+            <Button 
+              icon={{name: 'ios-timer-outline', type: 'ionicon'}}
+              backgroundColor='#080'
+              fontFamily='Lato'
+              fontSize={24}
+              buttonStyle={{borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+              title='Timer' 
+              onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}>
+            </Button>
+          </Card>
           <Form ref='tournamentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
             <Separator />
             <InputField ref='title' placeholder='Tournament Title' value={Tournament.title}/>
             <PickerField ref='game' placeholder='Game Type' value={Tournament.game} options={{"":"", NLHE: "NL Holdem", PLO: "PotLO"}}/>
           </Form>
-          {<Button title="Blinds Schedule..." onPress={this._navigateToSegmentList.bind(this, Tournament.id)}></Button>}
-          {<Button title="Chips Schedule..." onPress={this._navigateToChipList.bind(this, Tournament.id)}></Button>}
           {userIsOwner && <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>}
           {userIsOwner && <Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}
           <Text>{"\n"}</Text>

@@ -30,8 +30,7 @@ export const TournamentsStack = StackNavigator({
 	Edit: {
 		screen: TournamentEditScreen,
 		navigationOptions: {
-			title: 'Editor',
-			
+			title: 'Tourney Dashboard',
 		}
 	},
 	SegmentList: {

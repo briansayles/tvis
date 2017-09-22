@@ -61,30 +61,34 @@ class ChipListScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const chips = sortChips(Tournament.chips)
       return (
-        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._refreshButtonPressed.bind(this)}
-            />
-          }
-        >
-          {chips.map((item, i) => (
-            <Avatar
-              key={i}
-              xlarge
-              rounded
-              title={item.denom}
-              titleStyle={{color: item.textColor, fontSize: 20}}
-              activeOpacity={1}
-              overlayContainerStyle={{backgroundColor: item.color}}
-              onPress={this._navigateToChipEdit.bind(this, item.id)}
-              containerStyle={{margin: 10, borderWidth: 5, borderColor: item.rimColor}}
-            />
-          ))
-          }
-          <Text>{"\n"}</Text>
-        </ScrollView>
+        <View style={{flexDirection: 'column', flex: 1}}>
+          <Text style={{flex: 0.1, marginLeft: 10, marginRight: 10, marginBottom: 20, textAlign: 'center'}}>
+            Tap on a chip to modify it's denomination or colors.
+          </Text>
+          <ScrollView style={{flexDirection: 'column', flex: 1, alignItems: 'center'}}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this._refreshButtonPressed.bind(this)}
+              />
+            }
+          >          
+            {chips.map((item, i) => (
+              <Avatar
+                key={i}
+                large
+                rounded
+                title={item.denom}
+                titleStyle={{color: item.textColor, fontSize: 20}}
+                activeOpacity={1}
+                overlayContainerStyle={{backgroundColor: item.color}}
+                onPress={this._navigateToChipEdit.bind(this, item.id)}
+                containerStyle={{flex: 0.2, margin: 10, borderWidth: 4, borderColor: item.rimColor}}
+              />
+            ))
+            }
+          </ScrollView>
+        </View>
       )
     }
   }
