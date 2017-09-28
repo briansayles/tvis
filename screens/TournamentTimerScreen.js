@@ -166,47 +166,52 @@ class TournamentTimerScreen extends React.Component {
         <View style={{flex: 1, flexDirection: 'column', paddingTop: 22, backgroundColor: 'green'}}>
           <KeepAwake/>
           <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
-            <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true} style={{textAlign: 'center'}}>{Tournament.title}</Text>
+            <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true} style={{textAlign: 'center'}}>{Tournament.title}</Text>
           </View>
           <View style={{flex: 6, flexDirection:'row'}}>
             <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
               <View style={{flex: 3}}>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Average Chipstack: _____</Text>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players Remaining: _____</Text>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Chips in Play: _____</Text>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Active Tables: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Average Chipstack: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players Remaining: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Chips in Play: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Active Tables: _____</Text>
               </View>
               <View style={{flex: 6}}>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Other Info:</Text>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>__________</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Other Info:</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>__________</Text>
               </View>
             </View>
             <View style={{flex: 6, flexDirection: 'column', backgroundColor: 'green', alignItems: 'center'}}>
               <Text 
-                adjustFontSizeToFit={true}
-                style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText, {flex: 3, padding: 5}]}
+                adjustsFontSizeToFit={true}
+                style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText, {flex: 2, padding: 1}]}
               >
                 {this.state.segment.sBlind} / {this.state.segment.bBlind}
               </Text>
               {this.state.nextSegment && 
                 <Text 
-                  adjustFontSizeToFit={true} 
-                  numberOfLines={1} 
-                  allowFontScaling={true} 
-                  style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText, {flex: 1.5, padding: 5}]}
+                  adjustsFontSizeToFit={true} 
+                  style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText, {flex: 2, padding: 5}]}
                 >
                   Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}
                 </Text>
               }
+              {!this.state.nextSegment && 
+                <Text 
+                  adjustsFontSizeToFit={true} 
+                  style={[styles.nextBlindsText, styles.nextBlindsNoticeText, {flex: 2, padding: 5}]}
+                >
+                  No more levels scheduled.
+                </Text>
+              }
               <Text 
                 style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText, {flex: 2, padding: 5}]}
-                adjustFontSizeToFit={true} 
-                numberOfLines={1} 
-                allowFontScaling={true} 
+                adjustsFontSizeToFit={true}
+                numberOfLines={1}
               >
                 {this.state.display}
               </Text>
-              <View style={{flex: 1.5, flexDirection: 'row', justifyContent: 'space-around'}}>
+              <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around'}}>
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
@@ -214,26 +219,26 @@ class TournamentTimerScreen extends React.Component {
             </View>
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
               <View style={{flex: 3}}>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Buy-Ins: _____</Text>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Prize Pool: _____</Text>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players to be Paid: _____</Text>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players to Bubble: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Total Buy-Ins: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Total Prize Pool: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players to be Paid: _____</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Players to Bubble: _____</Text>
               </View>
               <View style={{flex: 6}}>
-                <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Payout Table</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>Payout Table</Text>
                 <ScrollView>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>1: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>2: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>3: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>4: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>5: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>6: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>7: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>8: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>9: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>10: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>11: _____</Text>
-                  <Text adjustFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>12: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>1: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>2: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>3: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>4: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>5: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>6: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>7: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>8: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>9: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>10: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>11: _____</Text>
+                  <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true}>12: _____</Text>
                 </ScrollView>
               </View>
             </View>
@@ -244,7 +249,7 @@ class TournamentTimerScreen extends React.Component {
             {chips.map((item, i) => (
               <Avatar
                 key={i}
-                large
+                medium
                 rounded
                 title={item.denom}
                 titleStyle={{color: item.textColor, fontSize: 20}}
@@ -273,7 +278,6 @@ const styles = StyleSheet.create({
     color: 'rgba(225,225,225,1)',
     textAlign: 'center',
     fontWeight: '500',
-    fontSize: '54',
   },
   blindsNoticeText: {
     fontWeight: '300',

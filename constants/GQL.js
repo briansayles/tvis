@@ -151,6 +151,21 @@ export const getTournamentChipsQuery = gql`
     }
   }
 `
+export const getTournamentCostsQuery = gql`
+  query getTournament($id: ID) {
+    Tournament(id: $id)
+    {
+      id
+      user { id }
+      costs (orderBy: chipStack_DESC) {
+        id
+        price
+        chipStack
+        costType
+      }
+    }
+  }
+`
 
 export const tournamentSubscription = gql`
   subscription {
@@ -212,12 +227,54 @@ export const createTournamentSegmentMutation = gql`
   }
 `
 
+export const createTournamentChipMutation = gql`
+  mutation createTournamentChip( $tournamentId: ID!, $denom: Int=1, $color: String="#888", $textColor: String="#000", $rimColor: String="#fff") {
+    createChip (
+      tournamentId: $tournamentId
+      denom: $denom 
+      color: $color
+      textColor: $textColor
+      rimColor: $rimColor
+    )
+    {
+      id
+      tournament { id }
+      denom
+      color
+      textColor
+      rimColor
+    }
+  }
+`
+export const createTournamentCostMutation = gql`
+  mutation createTournamentCost( $tournamentId: ID!, $price: Int=20, $chipStack: Int=1000) {
+    createCost (
+      tournamentId: $tournamentId
+      price: $price
+      chipStack: $chipStack
+    )
+    {
+        id
+        price
+        chipStack
+        costType
+    }
+  }
+`
+
 export const createTournamentMutation = gql`
   mutation createTournament( $userId: ID, $title: String="Default Tournament Title", $duration: Int=20) {
     createTournament (
       userId: $userId
       title: $title
       game: NLHE
+      costs: [
+        {
+          price: 20
+          chipStack: 1000
+          costType: Buyin
+        }
+      ]
       timer: {
         active: false
         elapsed: 0
@@ -291,6 +348,13 @@ export const createTournamentMutation = gql`
           rimColor: "#fff"
           textColor: "#fff"
           denom:100
+        }
+      ]
+      costs: [
+        {
+          price: 20
+          chipStack: 1000
+          costType: Buyin
         }
       ]
     )
@@ -405,6 +469,36 @@ export const updateChipMutation = gql`
 export const deleteChipMutation = gql`
   mutation deleteChip($id: ID!) {
     deleteChip(id: $id) {
+      id
+    }
+  }
+`
+export const getCostQuery = gql`
+  query getCost($id: ID) {
+    Cost(id: $id)
+    {
+      id
+      price
+      chipStack
+      costType
+      tournament {
+        id
+      }
+    }
+  }
+`
+
+export const updateCostMutation = gql`
+  mutation updateCost ($id: ID!, $price: Int, $chipStack: Int, $costType: CostType, ) {
+    updateCost(id: $id, price: $price, chipStack: $chipStack, costType: $costType) {
+      id
+    }
+  }
+`
+
+export const deleteCostMutation = gql`
+  mutation deleteCost($id: ID!) {
+    deleteCost(id: $id) {
       id
     }
   }

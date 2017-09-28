@@ -12,6 +12,8 @@ import SegmentListScreen from '../screens/SegmentListScreen'
 import SegmentEditScreen from '../screens/SegmentEditScreen'
 import ChipListScreen from '../screens/ChipListScreen'
 import ChipEditScreen from '../screens/ChipEditScreen'
+import CostListScreen from '../screens/CostListScreen'
+import CostEditScreen from '../screens/CostEditScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 
 export const TournamentsStack = StackNavigator({
@@ -55,6 +57,18 @@ export const TournamentsStack = StackNavigator({
 		screen: ChipEditScreen,
 		navigationOptions: {
 			title: 'Chip Editor',
+		}
+	},
+	CostList: {
+		screen: CostListScreen,
+		navigationOptions: {
+			title: 'Cost Schedule'
+		}
+	},
+	CostEdit: {
+		screen: CostEditScreen,
+		navigationOptions: {
+			title: 'Cost Editor',
 		}
 	},
 }, 

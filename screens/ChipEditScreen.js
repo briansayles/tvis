@@ -47,7 +47,6 @@ class ChipEditScreen extends React.Component {
   }
 
   _deleteChipButtonPressed() {
-  	const tournamentId = this.props.getChipQuery.Chip.tournament.id
     this.props.deleteChipMutation({variables: {id:this.props.getChipQuery.Chip.id} }).then(
     	() => Events.publish('RefreshChipList')).then(
     	() => alert('Nuked it!')).then(

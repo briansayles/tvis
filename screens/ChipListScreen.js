@@ -1,10 +1,10 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, Button, } from 'react-native'
-import { List, ListItem, Avatar} from 'react-native-elements';
+import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
+import { List, ListItem, Avatar, Button} from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
-import { currentUserQuery, getTournamentChipsQuery} from '../constants/GQL'
+import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, } from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
 import Events from '../api/events'
 
@@ -48,6 +48,33 @@ class ChipListScreen extends React.Component {
     this.props.getTournamentChipsQuery.refetch()
     // alert('Editor refreshed')
   }
+
+  _addButtonPressed(location, existingChip) {
+    // var denom
+    // if (location == "before") {
+    //   sBlind = parseInt(existingSegment.sBlind / 2)
+    //   bBlind = 2 * sBlind
+    //   duration = existingSegment.duration
+    // } else {
+    //   sBlind = existingSegment.sBlind * 2
+    //   bBlind = 2 * sBlind
+    //   duration = existingSegment.duration
+    // }
+
+    this.props.createTournamentChipMutation(
+      {
+        variables:
+        {
+          "tournamentId": this.props.getTournamentChipsQuery.Tournament.id,
+          "denom": 500,
+          "color": "#",
+          "textColor": "#888",
+          "rimColor": "#f00"
+        }
+      }
+    ).then(() => this._refreshButtonPressed()).then(() => alert('Chip added'))
+  }
+
   _navigateToChipEdit(id) {
     this.props.navigation.navigate('ChipEdit', {id: id})
   }
@@ -79,7 +106,7 @@ class ChipListScreen extends React.Component {
                 large
                 rounded
                 title={item.denom}
-                titleStyle={{color: item.textColor, fontSize: 20}}
+                titleStyle={{color: item.textColor, fontSize: 14}}
                 activeOpacity={1}
                 overlayContainerStyle={{backgroundColor: item.color}}
                 onPress={this._navigateToChipEdit.bind(this, item.id)}
@@ -87,6 +114,7 @@ class ChipListScreen extends React.Component {
               />
             ))
             }
+          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", chips[chips.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
           </ScrollView>
         </View>
       )
@@ -97,4 +125,5 @@ class ChipListScreen extends React.Component {
 export default compose(
   graphql(getTournamentChipsQuery, { name: 'getTournamentChipsQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
+  graphql(createTournamentChipMutation, {name: 'createTournamentChipMutation'}),
 )(ChipListScreen)
