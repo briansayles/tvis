@@ -32,7 +32,6 @@ class CostListScreen extends React.Component {
     }
     if (nextProps.getTournamentCostsQuery) {
       this.setState({formData: nextProps.getTournamentCostsQuery})
-      console.log('getTournamentCosts props received' + JSON.stringify(this.state.formData))
     }
   }
   
