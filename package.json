@@ -4,6 +4,11 @@
   "description": "Hello Expo!",
   "author": null,
   "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/briansayles/tvis.git"
+  },
+  "private" : true,
   "scripts": {
     "test": "node node_modules/jest/bin/jest.js"
   },
