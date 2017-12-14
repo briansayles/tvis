@@ -44,7 +44,7 @@ class TournamentListScreen extends React.Component {
       {
         variables:
         {
-          "userId": this.props.currentUserQuery.user.id,
+          "user": this.props.currentUserQuery.user.id
         }
       }
     ).then(() => this._refreshButtonPressed()).then(() => alert('Tournament added'))

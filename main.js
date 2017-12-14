@@ -1,22 +1,27 @@
-import Expo, {Audio, Notifications} from 'expo'
+import Expo, { Audio, Notifications } from 'expo'
 import React from 'react'
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
-import ApolloClient, { createNetworkInterface } from 'apollo-client'
+
+import { ApolloClient } from 'apollo-client'
 import { ApolloProvider, graphql } from 'react-apollo'
-import {SubscriptionClient, addGraphQLSubscriptions} from 'subscriptions-transport-ws'
-import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync';
-import {Tabs} from './navigation/ReactNavRouter'
+import { HttpLink, createHttpLink } from 'apollo-link-http'
+import { InMemoryCache } from 'apollo-cache-inmemory'
+import { setContext } from 'apollo-link-context'
+
+import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws'
+import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
+import { Tabs } from './navigation/ReactNavRouter'
 
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
 import Auth from './components/Auth'
 
-import {Auth0Config, GraphCoolConfig, ExpoConfig} from './config'
+import { Auth0Config, GraphCoolConfig, ExpoConfig } from './config'
 export const auth0_client_id = Auth0Config.clientId
 export const authorize_url = Auth0Config.authorizeURI
 export const graphQL_endpoint = GraphCoolConfig.endpoint
 
-export let redirect_uri;
+export let redirect_uri
 if (Expo.Constants.manifest.xde) {
   redirect_uri = ExpoConfig.redirectURI
 } else {
@@ -24,39 +29,22 @@ if (Expo.Constants.manifest.xde) {
   redirect_uri = `${Expo.Constants.linkingUri}/redirect`
 }
 
-const networkInterface = createNetworkInterface({
-  uri: graphQL_endpoint,
-})
-
-const wsClient = new SubscriptionClient(GraphCoolConfig.wsClient, GraphCoolConfig.wsClientOptions)
-
-const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
-  networkInterface,
-  wsClient
-)
-
-networkInterfaceWithSubscriptions.use([{
-  applyMiddleware(req, next) {
-    if (!req.options.headers) {
-      req.options.headers = {}
+export let client
+AsyncStorage.getItem('token').then( encodedToken => {
+  const httpLink = createHttpLink({ uri: graphQL_endpoint })
+  const middlewareLink = setContext(() => ({
+    headers: { 
+      authorization: `Bearer ${encodedToken}`,
     }
-
-    AsyncStorage.getItem('token').then(
-      encodedToken => {
-        req.options.headers['authorization'] = `Bearer ${encodedToken}`
-        next()
-      },
-      failure => {
-        console.error('ERROR: no token', failure)
-        next()
-      })
+  }))
+  const link = middlewareLink.concat(httpLink)
+  client = new ApolloClient({
+    link: link,
+    dataIdFromObject: o => o.id,
+    cache: new InMemoryCache(),
+  })
   }
-}])
-
-export const client = new ApolloClient({
-  networkInterface: networkInterfaceWithSubscriptions,
-  dataIdFromObject: o => o.id,
-})
+)
 
 class AppContainer extends React.Component {
 

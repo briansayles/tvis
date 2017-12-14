@@ -19,23 +19,35 @@ class Auth extends React.Component {
 
   componentDidMount() {
     Linking.addEventListener('url', this._handleAuth0Redirect);
-
-    client.query({query: currentUserQuery}).then(
-      result => {
-        if (result.data.user) {
-          this.setState({
-            user: {
-              name: result.data.user.name,
-              id: result.data.user.id,
-            }
-          });
-        }
-      }
-    );
+    // this.setState({
+    //   user: {
+    //     name: this.props.fetchCurrentUser.user.name,
+    //     id: this.props.fetchCurrentUser.user.id,
+    //   }
+    // })
+    // client.query({query: currentUserQuery}).then(
+    //   result => {
+    //     if (result.data.user) {
+    //       this.setState({
+    //         user: {
+    //           name: result.data.user.name,
+    //           id: result.data.user.id,
+    //         }
+    //       });
+    //     }
+    //   }
+    // );
   }
 
   componentWillReceiveProps(nextProps) {
-  }
+    if (nextProps.fetchCurrentUser.user) {
+      const user = nextProps.fetchCurrentUser.user
+      this.setState({user: {
+        name: user.name,
+        id: user.id,
+      }})
+    }
+  } 
 
   _loginWithAuth0 = async () => {
     const redirectionURL = authorize_url + this._toQueryString({
@@ -72,8 +84,10 @@ class Auth extends React.Component {
     const encodedToken = responseObj.id_token;
     const decodedToken = jwtDecoder(encodedToken);
     const username = decodedToken.name;
+
     AsyncStorage.setItem('token', encodedToken).then(
       result => {
+        console.log(result)
         this.props.fetchCurrentUser.refetch().then(
           result => {
             if (result.data.user) {

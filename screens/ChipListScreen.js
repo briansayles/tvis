@@ -32,7 +32,6 @@ class ChipListScreen extends React.Component {
     }
     if (nextProps.getTournamentChipsQuery) {
       this.setState({formData: nextProps.getTournamentChipsQuery})
-      console.log('getTournamentChips props received' + JSON.stringify(this.state.formData))
     }
   }
   
@@ -46,21 +45,9 @@ class ChipListScreen extends React.Component {
 
   _refreshButtonPressed() {
     this.props.getTournamentChipsQuery.refetch()
-    // alert('Editor refreshed')
   }
 
   _addButtonPressed(location, existingChip) {
-    // var denom
-    // if (location == "before") {
-    //   sBlind = parseInt(existingSegment.sBlind / 2)
-    //   bBlind = 2 * sBlind
-    //   duration = existingSegment.duration
-    // } else {
-    //   sBlind = existingSegment.sBlind * 2
-    //   bBlind = 2 * sBlind
-    //   duration = existingSegment.duration
-    // }
-
     this.props.createTournamentChipMutation(
       {
         variables:

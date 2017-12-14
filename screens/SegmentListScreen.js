@@ -32,7 +32,6 @@ class SegmentListScreen extends React.Component {
     }
     if (nextProps.getTournamentSegmentsQuery) {
       this.setState({formData: nextProps.getTournamentSegmentsQuery.Tournament})
-      console.log('getTournamentSegments props received' + JSON.stringify(this.state.formData))
     }
   }
   

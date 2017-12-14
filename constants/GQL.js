@@ -39,18 +39,18 @@ export const currentUserTournamentsQuery = gql`
   }
 `
 
-export const currentUserTournamentsSubscription = gql`
-  subscription {
-    Tournament(filter: {
-      mutation_in: [CREATED, DELETED, UPDATED]
-    }) {
-      node {
-        id
-        title
-      }
-    }
-  }
-`
+// export const currentUserTournamentsSubscription = gql`
+//   subscription {
+//     Tournament(filter: {
+//       mutation_in: [CREATED, DELETED, UPDATED]
+//     }) {
+//       node {
+//         id
+//         title
+//       }
+//     }
+//   }
+// `
 
 export const allTournamentsQuery = gql`
   query allTournaments {
@@ -64,18 +64,18 @@ export const allTournamentsQuery = gql`
   }
 `
 
-export const allTournamentsSubscription = gql`
-  subscription {
-    Tournament(filter: {
-      mutation_in: [CREATED, DELETED, UPDATED]
-    }) {
-      node {
-        id
-        title
-      }
-    }
-  }
-`
+// export const allTournamentsSubscription = gql`
+//   subscription {
+//     Tournament(filter: {
+//       mutation_in: [CREATED, DELETED, UPDATED]
+//     }) {
+//       node {
+//         id
+//         title
+//       }
+//     }
+//   }
+// `
 
 export const getTournamentQuery = gql`
   query getTournament($id: ID) {
@@ -167,48 +167,48 @@ export const getTournamentCostsQuery = gql`
   }
 `
 
-export const tournamentSubscription = gql`
-  subscription {
-    Tournament(filter: {
-      mutation_in: [UPDATED]
-    }) {
-      node {
-        id
-        title
-        updatedAt
-        game
-        timer {
-          id
-          active
-          createdAt
-          updatedAt
-          elapsed
-        }
-        segments (orderBy: bBlind_ASC) {
-          id
-          duration
-          sBlind
-          bBlind
-          ante
-          game
-        }
-        chips (orderBy: denom_ASC) {
-          denom
-          color
-          rimColor
-          textColor
-        }
-        tags (orderBy: name_ASC) {
-          name
-        }
-        user {
-          id
-          name
-        }
-      }
-    }
-  }
-`
+// export const tournamentSubscription = gql`
+//   subscription {
+//     Tournament(filter: {
+//       mutation_in: [UPDATED]
+//     }) {
+//       node {
+//         id
+//         title
+//         updatedAt
+//         game
+//         timer {
+//           id
+//           active
+//           createdAt
+//           updatedAt
+//           elapsed
+//         }
+//         segments (orderBy: bBlind_ASC) {
+//           id
+//           duration
+//           sBlind
+//           bBlind
+//           ante
+//           game
+//         }
+//         chips (orderBy: denom_ASC) {
+//           denom
+//           color
+//           rimColor
+//           textColor
+//         }
+//         tags (orderBy: name_ASC) {
+//           name
+//         }
+//         user {
+//           id
+//           name
+//         }
+//       }
+//     }
+//   }
+// `
 export const createTournamentSegmentMutation = gql`
   mutation createTournamentSegment( $tournamentId: ID!, $sBlind: Int=1, $bBlind: Int=2, $duration: Int=20) {
     createSegment (
@@ -263,7 +263,7 @@ export const createTournamentCostMutation = gql`
 `
 
 export const createTournamentMutation = gql`
-  mutation createTournament( $userId: ID, $title: String="Default Tournament Title", $duration: Int=20) {
+  mutation createTournament( $userId: ID!, $title: String="Default Tournament Title", $duration: Int=20) {
     createTournament (
       userId: $userId
       title: $title
