@@ -15,6 +15,7 @@ class SegmentListScreen extends React.Component {
     this.state = {
       formData: {},
       refreshing: false,
+      user: null,
     }
   }
 
@@ -26,12 +27,12 @@ class SegmentListScreen extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-      const user = nextProps.currentUserQuery.user
-      this.setState({user: user})
+    if (nextProps.currentUserQuery) {
+      // const user = nextProps.currentUserQuery.user || null
+      this.setState({user: nextProps.currentUserQuery.user || null})
     }
     if (nextProps.getTournamentSegmentsQuery) {
-      this.setState({formData: nextProps.getTournamentSegmentsQuery.Tournament})
+      this.setState({formData: nextProps.getTournamentSegmentsQuery.Tournament || null})
     }
   }
   
@@ -107,7 +108,7 @@ class SegmentListScreen extends React.Component {
               ))
             }
           </List>
-          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", segments[segments.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
+          {userIsOwner && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", segments[segments.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
           <Text>{"\n"}</Text>
         </ScrollView>
       )

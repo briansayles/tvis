@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
-import { List, ListItem, Avatar, Button} from 'react-native-elements';
+import { List, ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, } from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
@@ -26,8 +26,8 @@ class ChipListScreen extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-      const user = nextProps.currentUserQuery.user
+    if (nextProps.currentUserQuery) {
+      const user = nextProps.currentUserQuery.user || null
       this.setState({user: user})
     }
     if (nextProps.getTournamentChipsQuery) {
@@ -77,7 +77,7 @@ class ChipListScreen extends React.Component {
       return (
         <View style={{flexDirection: 'column', flex: 1}}>
           <Text style={{flex: 0.1, marginLeft: 10, marginRight: 10, marginBottom: 20, textAlign: 'center'}}>
-            Tap on a chip to modify it's denomination or colors.
+            Tap on a chip to modify the denomination or colors.
           </Text>
           <ScrollView style={{flexDirection: 'column', flex: 1, alignItems: 'center'}}
             refreshControl={
@@ -86,7 +86,7 @@ class ChipListScreen extends React.Component {
                 onRefresh={this._refreshButtonPressed.bind(this)}
               />
             }
-          >          
+          >
             {chips.map((item, i) => (
               <Avatar
                 key={i}
@@ -101,7 +101,7 @@ class ChipListScreen extends React.Component {
               />
             ))
             }
-          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", chips[chips.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
+            {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", chips[chips.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
           </ScrollView>
         </View>
       )

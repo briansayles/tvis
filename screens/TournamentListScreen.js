@@ -4,6 +4,7 @@ import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, Tou
 import {List, ListItem, Button} from 'react-native-elements'
 import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, } from '../constants/GQL'
 import Auth from '../components/Auth'
+import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
 
 class TournamentListScreen extends React.Component {
@@ -25,10 +26,11 @@ class TournamentListScreen extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-      const user = nextProps.currentUserQuery.user
-      this.setState({user: user})
-      this.props.currentUserTournamentsQuery.refetch()
+    if (nextProps.currentUserQuery) {
+      if (nextProps.currentUserQuery.user !== this.state.user) {
+        this.props.currentUserTournamentsQuery.refetch()
+      }
+      this.setState({user: nextProps.currentUserQuery.user || null})
     }
   }
 
@@ -72,7 +74,7 @@ class TournamentListScreen extends React.Component {
       return <Text>Loading...</Text>
     } else if (error) {
       return (<Text>{error.message}</Text>)
-    } else if (user === null) {
+    } else if (!user) {
       return (<Auth/>)
     } else {
       return (
@@ -85,10 +87,10 @@ class TournamentListScreen extends React.Component {
             />
           }
         >
-          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+          {this.state.user && <Button style={{flex:-1}} backgroundColor="green" onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
           <List>
             {
-              user.tournaments.map((item, i) => (
+              user.tournaments && user.tournaments.map((item, i) => (
                 <ListItem
                   key={i}
                   title={item.title}

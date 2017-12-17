@@ -75,8 +75,8 @@ class TournamentTimerScreen extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-      const user = nextProps.currentUserQuery.user
+    if (nextProps.currentUserQuery) {
+      const user = nextProps.currentUserQuery.user || null
       this.setState({user: user})
     }
   }

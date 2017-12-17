@@ -3,11 +3,11 @@ import React from 'react'
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons'
 
-import { ApolloClient } from 'apollo-client'
-import { ApolloProvider, graphql } from 'react-apollo'
-import { HttpLink, createHttpLink } from 'apollo-link-http'
+import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
+import { ApolloClient } from 'apollo-client'
+import { ApolloProvider } from 'react-apollo'
 
 import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws'
 import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
@@ -21,30 +21,71 @@ export const auth0_client_id = Auth0Config.clientId
 export const authorize_url = Auth0Config.authorizeURI
 export const graphQL_endpoint = GraphCoolConfig.endpoint
 
-export let redirect_uri
-if (Expo.Constants.manifest.xde) {
-  redirect_uri = ExpoConfig.redirectURI
-} else {
-  // this URL will be used when you publish your app
-  redirect_uri = `${Expo.Constants.linkingUri}/redirect`
-}
+export const redirect_uri = Expo.Constants.manifest.xde
+  ? ExpoConfig.redirectURI
+  : `${Expo.Constants.linkingUri}/redirect`
 
-export let client
-AsyncStorage.getItem('token').then( encodedToken => {
-  const httpLink = createHttpLink({ uri: graphQL_endpoint })
-  const middlewareLink = setContext(() => ({
-    headers: { 
-      authorization: `Bearer ${encodedToken}`,
-    }
-  }))
-  const link = middlewareLink.concat(httpLink)
-  client = new ApolloClient({
-    link: link,
-    dataIdFromObject: o => o.id,
-    cache: new InMemoryCache(),
-  })
+// export let client
+// AsyncStorage.getItem('token').then( encodedToken => {
+//   console.log(encodedToken)
+//   const httpLink = createHttpLink({ uri: graphQL_endpoint })
+//   const middlewareLink = setContext(() => ({
+//     headers: { 
+//       authorization: `Bearer ${encodedToken}`,
+//     }
+//   }))
+//   const link = middlewareLink.concat(httpLink)
+//   client = new ApolloClient({
+//     link: link,
+//     dataIdFromObject: o => o.id,
+//     cache: new InMemoryCache(),
+//   })
+//   }
+// )
+
+// const networkInterface = createNetworkInterface({ uri: graphQL_endpoint })
+
+// networkInterface.use([{
+//   applyMiddleware(req, next) {
+//     if (!req.options.headers) req.options.headers = {}
+//     AsyncStorage.getItem('token')
+//       .then(encodedToken => {
+//         console.log('encodedToken')
+//         console.log(encodedToken)
+//         req.options.headers['authorization'] = `Bearer ${encodedToken}`
+//         next()
+//       })
+//       .catch(error => {
+//         console.error('ERROR: ', error)
+//         next()
+//       })
+//   }
+// }])
+
+const httpLink = createHttpLink({
+  uri: graphQL_endpoint,
+  // credentials: 'same-origin',
+})
+
+const cache = new InMemoryCache()
+
+const middlewareLink = setContext(async (req, { headers }) => {
+  // console.log('middleware token:') 
+  // console.log(await AsyncStorage.getItem('token'))
+  return {
+    ...headers,
+    headers: {
+      authorization: `Bearer ${await AsyncStorage.getItem('token')}`,
+    },
   }
-)
+})
+
+const link = middlewareLink.concat(httpLink)
+
+export const client = new ApolloClient({
+  link: link,
+  cache: cache,
+})
 
 class AppContainer extends React.Component {
 

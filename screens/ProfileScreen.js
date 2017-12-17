@@ -1,42 +1,29 @@
-import {graphql, compose} from 'react-apollo'
-import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import {client} from '../main';
-import Auth from '../components/Auth'
+import { graphql } from 'react-apollo'
+import { StyleSheet, Text, View, Button } from 'react-native'
 
-const currentUserQuery = gql`
-  query currentUser {
-      user {
-          id
-          name
-      }
-  }
-`
+import Auth, { logout } from '../components/Auth'
+import {currentUserQuery} from '../constants/GQL'
 
-class ProfileScreen extends React.Component {
-	render() {
-		return(
-      <View style={styles.container}>
-
-    			<Auth />
-
-
-			</View>
-		)
-	}
+const ProfileScreen = ({ fetchCurrentUser: { loading, user } }) => {
+  if (loading) return <View style={styles.container}><Text>Loading...</Text></View>
+  return (
+    <View style={styles.container}>
+      <Text>Profile</Text>
+      {user && <Text>Logged in as { user.name }</Text>}
+      {user && <Button onPress={logout} title='Logout' />}
+      {!user && <Auth/>}
+    </View>
+  )
 }
-
-export default compose(
-  graphql(currentUserQuery, { name: 'currentUser', }),
-)(ProfileScreen)
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  contentContainer: {
-    paddingTop: 80,
-  },
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 })
+
+export default graphql(currentUserQuery, { name: 'fetchCurrentUser' })(ProfileScreen)
