@@ -9,7 +9,6 @@ const ProfileScreen = ({ fetchCurrentUser: { loading, user } }) => {
   if (loading) return <View style={styles.container}><Text>Loading...</Text></View>
   return (
     <View style={styles.container}>
-      <Text>Profile</Text>
       {user && <Text>Logged in as { user.name }</Text>}
       {user && <Button onPress={logout} title='Logout' />}
       {!user && <Auth/>}

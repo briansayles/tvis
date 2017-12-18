@@ -350,13 +350,6 @@ export const createTournamentMutation = gql`
           denom:100
         }
       ]
-      costs: [
-        {
-          price: 20
-          chipStack: 1000
-          costType: Buyin
-        }
-      ]
     )
     {
       id

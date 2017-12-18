@@ -41,15 +41,16 @@ class TournamentListScreen extends React.Component {
     this.refreshEvent.remove()
   }
 
-  _addButtonPressed() {
+  _addButtonPressed = async () => {
     this.props.createTournamentMutation(
       {
-        variables:
-        {
-          "user": this.props.currentUserQuery.user.id
-        }
+        variables: { "userId": this.props.currentUserQuery.user.id }
       }
-    ).then(() => this._refreshButtonPressed()).then(() => alert('Tournament added'))
+    )
+    .then((result) => {
+      this._refreshButtonPressed()
+      // alert('tournament added')
+    })
   }
 
   _refreshButtonPressed() {
