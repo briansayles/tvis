@@ -72,6 +72,26 @@ class TournamentTimerScreen extends React.Component {
         },
       )
     }, 100)
+    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
+      document: gql`
+        subscription {
+          Tournament(filter: {
+            mutation_in: [UPDATED]
+          }) {
+            node {
+              id
+            }
+          }
+        }
+      `,
+      updateQuery: (previous, {subscriptionData}) => {
+        this.props.getTournamentQuery.refetch()
+        return
+      },
+      onError: (err) => {
+        console.error(err)
+      },
+    })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -183,14 +203,12 @@ class TournamentTimerScreen extends React.Component {
             </View>
             <View style={{flex: 6, flexDirection: 'column', backgroundColor: 'green', alignItems: 'center'}}>
               <Text 
-                adjustsFontSizeToFit={true}
                 style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText, {flex: 2, padding: 1}]}
               >
                 {this.state.segment.sBlind} / {this.state.segment.bBlind}
               </Text>
               {this.state.nextSegment && 
                 <Text 
-                  adjustsFontSizeToFit={true} 
                   style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText, {flex: 2, padding: 5}]}
                 >
                   Next: {this.state.nextSegment && this.state.nextSegment.sBlind} / {this.state.nextSegment && this.state.nextSegment.bBlind}
@@ -198,16 +216,13 @@ class TournamentTimerScreen extends React.Component {
               }
               {!this.state.nextSegment && 
                 <Text 
-                  adjustsFontSizeToFit={true} 
                   style={[styles.nextBlindsText, styles.nextBlindsNoticeText, {flex: 2, padding: 5}]}
                 >
                   No more levels scheduled.
                 </Text>
               }
               <Text 
-                style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText, {flex: 2, padding: 5}]}
-                adjustsFontSizeToFit={true}
-                numberOfLines={1}
+                style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText, {flex: 2, padding: 0}]}
               >
                 {this.state.display}
               </Text>
@@ -277,6 +292,7 @@ const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
     textAlign: 'center',
+    fontSize: '72',
     fontWeight: '500',
   },
   blindsNoticeText: {
@@ -286,7 +302,7 @@ const styles = StyleSheet.create({
     color: 'rgba(150,150,150,1)',
     textAlign: 'center',
     fontWeight: '300',
-    fontSize: '18',
+    fontSize: '48',
   },
   nextBlindsNoticeText: {
     color: 'red',
@@ -295,10 +311,10 @@ const styles = StyleSheet.create({
   timerText: {
     color: 'rgba(225,225,225,1)',
     textAlign: 'center',
-    fontSize: '54'
+    fontSize: '60',
   },
   timerNoticeText: {
     fontWeight: '900',
-    color: 'red'
+    color: 'red',
   }
 })
