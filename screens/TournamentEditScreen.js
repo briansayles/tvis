@@ -1,5 +1,4 @@
 import {graphql, compose} from 'react-apollo'
-import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { List, ListItem, Card, Button} from 'react-native-elements';
@@ -24,6 +23,16 @@ class TournamentEditScreen extends React.Component {
 
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshEditor', () => this._refreshButtonPressed())
+    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
+      document: tournamentSubscription,
+      updateQuery: (previous, {subscriptionData}) => {
+        this.props.getTournamentQuery.refetch()
+        return
+      },
+      onError: (err) => {
+        console.error(err)
+      },
+    })
   }
 
   componentWillReceiveProps(nextProps) {

@@ -4,9 +4,10 @@ import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { List, ListItem, Button, } from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
-import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation} from '../constants/GQL'
+import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
 import Events from '../api/events'
+import Swipeout from 'react-native-swipeout'
 
 class SegmentListScreen extends React.Component {
 
@@ -78,6 +79,13 @@ class SegmentListScreen extends React.Component {
     this.props.navigation.navigate('SegmentEdit', {id: id})
   }
 
+  _deleteSegmentButtonPressed(id) {
+    // const tournamentId = this.props.getSegmentQuery.Segment.tournament.id
+    this.props.deleteSegmentMutation({variables: {id: id} }).then(
+      () => Events.publish('RefreshSegmentList')
+    )
+  }
+
   render() {
     const { getTournamentSegmentsQuery: { loading, error, Tournament } } = this.props
     if (loading) {
@@ -87,6 +95,12 @@ class SegmentListScreen extends React.Component {
     } else {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const segments = sortSegments(Tournament.segments)
+      // const swipeoutButtons = [
+      //   {
+      //     text: 'Delete',
+      //     onPress: this._deleteSegmentButtonPressed(item.id)
+      //   },
+      // ]
       return (
         <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
           refreshControl={
@@ -100,11 +114,23 @@ class SegmentListScreen extends React.Component {
           <List>
             {
               segments.map((item, i) => (
-                <ListItem
+                <Swipeout
                   key={i}
+                  autoClose={true}
+                  right={[
+                    {
+                      text: 'DELETE',
+                      onPress: this._deleteSegmentButtonPressed.bind(this, item.id),
+                      backgroundColor: '#ff0000',
+                      type: 'delete',
+                    }
+                  ]}
+                >
+                <ListItem
                   title={item.duration + " minutes: " + item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "")}
                   onPress={this._navigateToSegmentEdit.bind(this, item.id)}
                 />
+                </Swipeout>
               ))
             }
           </List>
@@ -120,4 +146,5 @@ export default compose(
   graphql(getTournamentSegmentsQuery, { name: 'getTournamentSegmentsQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(createTournamentSegmentMutation, {name: 'createTournamentSegmentMutation'}),
+  graphql(deleteSegmentMutation, {name: 'deleteSegmentMutation'}),
 )(SegmentListScreen)

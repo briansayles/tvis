@@ -1,5 +1,4 @@
 import {graphql, compose} from 'react-apollo'
-import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {Button, Avatar} from 'react-native-elements'
@@ -73,17 +72,7 @@ class TournamentTimerScreen extends React.Component {
       )
     }, 100)
     this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-      document: gql`
-        subscription {
-          Tournament(filter: {
-            mutation_in: [UPDATED]
-          }) {
-            node {
-              id
-            }
-          }
-        }
-      `,
+      document: tournamentSubscription,
       updateQuery: (previous, {subscriptionData}) => {
         this.props.getTournamentQuery.refetch()
         return
@@ -292,7 +281,7 @@ const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
     textAlign: 'center',
-    fontSize: '72',
+    fontSize: '50',
     fontWeight: '500',
   },
   blindsNoticeText: {
@@ -302,7 +291,7 @@ const styles = StyleSheet.create({
     color: 'rgba(150,150,150,1)',
     textAlign: 'center',
     fontWeight: '300',
-    fontSize: '48',
+    fontSize: '25',
   },
   nextBlindsNoticeText: {
     color: 'red',
@@ -311,7 +300,7 @@ const styles = StyleSheet.create({
   timerText: {
     color: 'rgba(225,225,225,1)',
     textAlign: 'center',
-    fontSize: '60',
+    fontSize: '50',
   },
   timerNoticeText: {
     fontWeight: '900',

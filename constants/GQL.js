@@ -166,49 +166,18 @@ export const getTournamentCostsQuery = gql`
     }
   }
 `
+export const tournamentSubscription = gql`
+  subscription {
+    Tournament(filter: {
+      mutation_in: [UPDATED]
+    }) {
+      node {
+        id
+      }
+    }
+  }
+`
 
-// export const tournamentSubscription = gql`
-//   subscription {
-//     Tournament(filter: {
-//       mutation_in: [UPDATED]
-//     }) {
-//       node {
-//         id
-//         title
-//         updatedAt
-//         game
-//         timer {
-//           id
-//           active
-//           createdAt
-//           updatedAt
-//           elapsed
-//         }
-//         segments (orderBy: bBlind_ASC) {
-//           id
-//           duration
-//           sBlind
-//           bBlind
-//           ante
-//           game
-//         }
-//         chips (orderBy: denom_ASC) {
-//           denom
-//           color
-//           rimColor
-//           textColor
-//         }
-//         tags (orderBy: name_ASC) {
-//           name
-//         }
-//         user {
-//           id
-//           name
-//         }
-//       }
-//     }
-//   }
-// `
 export const createTournamentSegmentMutation = gql`
   mutation createTournamentSegment( $tournamentId: ID!, $sBlind: Int=1, $bBlind: Int=2, $duration: Int=20) {
     createSegment (
