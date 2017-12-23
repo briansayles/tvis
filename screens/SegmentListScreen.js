@@ -88,19 +88,16 @@ class SegmentListScreen extends React.Component {
 
   render() {
     const { getTournamentSegmentsQuery: { loading, error, Tournament } } = this.props
+
     if (loading) {
       return <Text>Loading</Text>
     } else if (error) {
       return <Text>Error!</Text>
     } else {
+
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const segments = sortSegments(Tournament.segments)
-      // const swipeoutButtons = [
-      //   {
-      //     text: 'Delete',
-      //     onPress: this._deleteSegmentButtonPressed(item.id)
-      //   },
-      // ]
+
       return (
         <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
           refreshControl={
@@ -119,11 +116,16 @@ class SegmentListScreen extends React.Component {
                   autoClose={true}
                   right={[
                     {
+                      text: 'Edit',
+                      onPress: this._navigateToSegmentEdit.bind(this, item.id),
+                      type: 'primary',
+                    },
+                    {
                       text: 'DELETE',
                       onPress: this._deleteSegmentButtonPressed.bind(this, item.id),
                       backgroundColor: '#ff0000',
                       type: 'delete',
-                    }
+                    },
                   ]}
                 >
                 <ListItem

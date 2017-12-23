@@ -1,3 +1,5 @@
+import { Dimensions } from 'react-native'
+
 export function	msToTime(duration, includeFractions, includeHours) {
   var negative = false
   if(duration<0) {
@@ -43,7 +45,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  this.setState ({
 	    time: time,
 	    ms: 0,
-	    display: "00:00",
+	    display: {timer: "00:00", currentBlinds: "0,000/0,000",},
 	    segment: segments[segments.length-1],
 	    nextSegment: null,
 	    csi: segments.length-1,
@@ -62,7 +64,10 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	this.setState ({
 	  time: time,
 	  ms: ms,
-	  display: timer.active ? msToTime(ms + 1000) : msToTime(ms),
+	  display: {
+	  	timer: timer.active ? msToTime(ms + 1000) : msToTime(ms),
+	  	currentBlinds: segments[currentSegmentIndex].sBlind.toLocaleString() + '/' + segments[currentSegmentIndex].bBlind.toLocaleString(),
+	  },
 	  segment: segments[currentSegmentIndex],
 	  nextSegment: currentSegmentIndex < segments.length -1 ? segments[currentSegmentIndex + 1] : null,
 	  csi: currentSegmentIndex,
@@ -85,3 +90,18 @@ export function sortChips (chips) {
 		return (a.denom - b.denom)
 	})
 }
+
+
+const {height, width} = Dimensions.get('window');
+
+export const responsiveHeight = (h) => {
+  return height*(h/100);
+};
+
+export const responsiveWidth = (w) => {
+  return width*(w/100);
+};
+
+export const responsiveFontSize = (f) => {
+  return Math.sqrt((height*height)+(width*width))*(f/100);
+};
