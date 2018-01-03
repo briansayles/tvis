@@ -21,6 +21,16 @@ export function	msToTime(duration, includeFractions, includeHours) {
   return output
 }
 
+export function numberToSuffixedString(number) {
+	if (number % 1000000 === 0 || (number > 1000000 && number % 1000000 === 500000)) {
+		return (number / 1000000).toLocaleString() + "M"	
+	}
+	if (number % 1000 === 0 || (number > 1000 && number % 1000000 === 500)) {
+		return (number / 1000).toLocaleString() + "k"
+	}
+	return number.toLocaleString()
+}
+
 export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 
 	if (this.props.getTournamentQuery.loading || this.props.getTournamentQuery.error || this.props.getServerTimeMutation.loading || this.props.getServerTimeMutation.error) {return}
@@ -45,7 +55,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  this.setState ({
 	    time: time,
 	    ms: 0,
-	    display: {timer: "00:00", currentBlinds: "0,000/0,000",},
+	    display: {timer: "", currentBlinds: "",},
 	    segment: segments[segments.length-1],
 	    nextSegment: null,
 	    csi: segments.length-1,
@@ -66,7 +76,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  ms: ms,
 	  display: {
 	  	timer: timer.active ? msToTime(ms + 1000) : msToTime(ms),
-	  	currentBlinds: segments[currentSegmentIndex].sBlind.toLocaleString() + '/' + segments[currentSegmentIndex].bBlind.toLocaleString(),
+	  	currentBlinds: numberToSuffixedString(segments[currentSegmentIndex].sBlind) + '/' + numberToSuffixedString(segments[currentSegmentIndex].bBlind),
 	  },
 	  segment: segments[currentSegmentIndex],
 	  nextSegment: currentSegmentIndex < segments.length -1 ? segments[currentSegmentIndex + 1] : null,

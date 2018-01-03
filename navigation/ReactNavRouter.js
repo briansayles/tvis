@@ -9,12 +9,13 @@ import TournamentListScreen from '../screens/TournamentListScreen'
 import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
 import SegmentListScreen from '../screens/SegmentListScreen'
-import SegmentEditScreen from '../screens/SegmentEditScreen'
+import SegmentEditScreen from '../screens/SegmentEditScreen2'
 import ChipListScreen from '../screens/ChipListScreen'
 import ChipEditScreen from '../screens/ChipEditScreen'
 import CostListScreen from '../screens/CostListScreen'
-import CostEditScreen from '../screens/CostEditScreen'
+import CostEditScreen from '../screens/CostEditScreen2'
 import ProfileScreen from '../screens/ProfileScreen'
+import GiftedFormModal from '../screens/GiftedFormModal'
 
 export const TournamentsStack = StackNavigator({
 	TournamentList: {
@@ -71,9 +72,14 @@ export const TournamentsStack = StackNavigator({
 			title: 'Cost Editor',
 		}
 	},
+	Modal: { 
+		screen: GiftedFormModal,
+	},
 }, 
 {
-	navigationOptions: {
+  	mode: 'modal',
+  	headerMode: 'screen',
+  	navigationOptions: {
 	}
 })
 

@@ -33,7 +33,7 @@ class SegmentEditScreen extends React.Component {
       	formData: segment,
 				sbSliderStep: segment.sBlind > 9 ? (segment.sBlind  > 74 ? 25: 5) : 1,
 				durationSliderStep: segment.duration > 14 ? 5 : 1,
-				sbSliderMax: segment.sBlind > 50 ? 1000 : 100,
+				sbSliderMax: segment.sBlind > 50 ? (segment.sBlind > 1000 ? 1000000 : 1000) : 100,
 				autoBB: segment.bBlind == 2*segment.sBlind
       })
     }
@@ -96,16 +96,16 @@ class SegmentEditScreen extends React.Component {
 	  	  >
 	      	<Form ref='segmentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
 						<Text style={{marginLeft: 10, marginRight: 10}}>Duration: {this.state.formData.duration || Segment.duration} minutes </Text>
-						<Slider
-								minimumValue={0}
-								maximumValue={60}
-								step={this.state.durationSliderStep}
-								animateTransitions={true}
-						    value={(Segment.duration)}
-						    onValueChange={(value) => {
-						    	this.setState({formData: {...this.state.formData, duration: value}, durationSliderStep: value > 14 ? 5 : 1})
-						    }}
-						    style={{marginLeft: 10, marginRight: 10, marginBottom: 15}}
+            <Slider
+							minimumValue={0}
+							maximumValue={60}
+							step={this.state.durationSliderStep}
+							animateTransitions={true}
+						  value={(Segment.duration)}
+						  onValueChange={(value) => {
+						  	this.setState({formData: {...this.state.formData, duration: value}, durationSliderStep: value > 14 ? 5 : 1})
+						  }}
+						  style={{marginLeft: 10, marginRight: 10, marginBottom: 15}}
 						/>
 						<Text style={{marginLeft: 10, marginRight: 10, marginTop: 15}}>Small Blind: {this.state.formData.sBlind || Segment.sBlind} </Text>
 						<Slider

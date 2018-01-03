@@ -3,7 +3,7 @@ import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {Button, Avatar} from 'react-native-elements'
 import { KeepAwake, Audio } from 'expo'
-import {msToTime, tick, sortChips, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
+import {msToTime, numberToSuffixedString, tick, sortChips, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
 
@@ -176,33 +176,40 @@ class TournamentTimerScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const chips = sortChips(Tournament.chips)
       return (
-        <View style={{flex: 1, flexDirection: 'column', paddingTop: 22, backgroundColor: 'green'}}>
+        <View style={{flex: 1, flexDirection: 'column', backgroundColor: 'green'}}>
           <KeepAwake/>
-          <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center'}}>
-            <Text adjustsFontSizeToFit={true} numberOfLines={1} allowFontScaling={true} style={{textAlign: 'center'}}>{Tournament.title}</Text>
+          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+            <Text style={[styles.titleText]}>{Tournament.title}</Text>
           </View>
-          <View style={{flex: 6, flexDirection:'row'}}>
+          <View style={{flex: 8, flexDirection:'row', }}>
             <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
-              <View style={{flex: 3}}>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Average Chipstack: _____</Text>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Players Remaining: _____</Text>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Total Chips in Play: _____</Text>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Active Tables: _____</Text>
+              <View>
+                <Text>Average Chipstack: _____</Text>
+                <Text>Players Remaining: _____</Text>
+                <Text>Total Chips in Play: _____</Text>
+                <Text>Active Tables: _____</Text>
               </View>
-              <View style={{flex: 6}}>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Other Info:</Text>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>__________</Text>
+              <View>
+                <Text>Other Info:</Text>
+                <Text>__________</Text>
               </View>
             </View>
-            <View style={{flex: 6, flexDirection: 'column', backgroundColor: 'brown'}}>
-              <View style={{flex: 3, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'orange'}}>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}
+            <View style={{flex: 4, flexDirection: 'column', }}>
+              <View style={{flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                <Text
                   style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
                 >
                   {this.state.display.currentBlinds}
                 </Text>
               </View>
-              <View style={{flex: 2, flexDirection: 'row',  justifyContent: 'center', backgroundColor: 'yellow'}}>
+              <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
+                <Text 
+                  style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
+                >
+                  {this.state.display.timer}
+                </Text>
+              </View>
+              <View style={{flex: 2, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                 <Text
                   style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                 >
@@ -210,14 +217,7 @@ class TournamentTimerScreen extends React.Component {
                   {!this.state.nextSegment && ("No more levels scheduled.")}
                 </Text>
               </View>
-              <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', backgroundColor: 'purple'}}>
-                <Text 
-                  style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
-                >
-                  {this.state.display.timer}
-                </Text>
-              </View>
-              <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around'}}>
+              <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
@@ -225,33 +225,22 @@ class TournamentTimerScreen extends React.Component {
             </View>
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
               <View style={{flex: 3}}>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Total Buy-Ins: _____</Text>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1}>Total Prize Pool: _____</Text>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1} >Players to be Paid: _____</Text>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1} >Players to Bubble: _____</Text>
+                <Text>Total Buy-Ins: _____</Text>
+                <Text>Total Prize Pool: _____</Text>
+                <Text>Players to be Paid: _____</Text>
+                <Text>Players to Bubble: _____</Text>
               </View>
               <View style={{flex: 6}}>
-                <Text adjustsFontSizeToFit={true} numberOfLines={1} >Payout Table</Text>
+                <Text>Payout Table</Text>
                 <ScrollView>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>1: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>2: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>3: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>4: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>5: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>6: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>7: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>8: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>9: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>10: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>11: _____</Text>
-                  <Text adjustsFontSizeToFit={true} numberOfLines={1}>12: _____</Text>
+                  <Text>1: _____</Text>
                 </ScrollView>
               </View>
             </View>
           </View>
 
 
-          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', margin: 40}}>
+          <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
             {chips.map((item, i) => (
               <Avatar
                 key={i}
@@ -282,9 +271,8 @@ export default compose(
 const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
-    backgroundColor: 'red',
     flex: '1',
-    fontSize: responsiveHeight(10),
+    fontSize: Math.min(responsiveHeight(8), responsiveWidth(8)),
     textAlign: 'center',
   },
   blindsNoticeText: {
@@ -292,9 +280,8 @@ const styles = StyleSheet.create({
   },
   nextBlindsText: {
     color: 'rgba(150,150,150,1)',
-    backgroundColor: 'orange',
     flex: '1',
-    fontSize: responsiveHeight(5),
+    fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
     textAlign: 'center',
   },
   nextBlindsNoticeText: {
@@ -302,13 +289,18 @@ const styles = StyleSheet.create({
   },
   timerText: {
     color: 'rgba(225,225,225,1)',
-    backgroundColor: 'blue',
     flex: '1',
     fontFamily: 'Menlo',
-    fontSize: responsiveHeight(8),
+    fontSize: Math.min(responsiveHeight(9), responsiveWidth(9)),
     textAlign: 'center',
   },
   timerNoticeText: {
     color: 'red',
+  },
+  titleText: {
+    flex: '1',
+    fontSize: Math.min(responsiveHeight(5), responsiveWidth(5)),
+    color: '#fff',
+    textAlign: 'center',
   }
 })

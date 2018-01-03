@@ -31,6 +31,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-24.0.0.tar.gz",
     "react-native-elements": "^0.17.0",
     "react-native-form-generator": "github:briansayles/react-native-form-generator",
+    "react-native-gifted-form": "^0.1.1",
     "react-native-swipeout": "^2.3.3",
     "react-navigation": "^1.0.0-beta.21",
     "subscriptions-transport-ws": "^0.9.1"
