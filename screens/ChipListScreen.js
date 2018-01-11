@@ -5,7 +5,7 @@ import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, Tou
 import { List, ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, } from '../constants/GQL'
-import { sortSegments, sortChips } from '../utilities/functions'
+import { sortSegments, sortChips, numberToSuffixedString } from '../utilities/functions'
 import Events from '../api/events'
 
 class ChipListScreen extends React.Component {
@@ -92,7 +92,7 @@ class ChipListScreen extends React.Component {
                 key={i}
                 large
                 rounded
-                title={item.denom}
+                title={numberToSuffixedString(item.denom)}
                 titleStyle={{color: item.textColor, fontSize: 14}}
                 activeOpacity={1}
                 overlayContainerStyle={{backgroundColor: item.color}}

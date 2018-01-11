@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { graphql, gql, compose } from 'react-apollo'
-import { Text, View, StyleSheet, Button, Linking, AsyncStorage } from 'react-native'
+import { Text, View, StyleSheet, Linking, AsyncStorage } from 'react-native'
+import { Button } from 'react-native-elements'
 import Expo from 'expo'
 import jwtDecoder from 'jwt-decode'
 
@@ -13,7 +14,7 @@ export const logout = async () => {
   await AsyncStorage.removeItem('token')
     .then(() => {
       client.resetStore()
-      alert('logged out')
+      // alert('logged out')
       this.props.fetchCurrentUser.refetch()     
     })
 }
@@ -90,10 +91,11 @@ class Auth extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>You can login</Text>
         <Button
+          buttonStyle={{textAlign: 'center'}}
+          backgroundColor='green'
           onPress={this.loginWithAuth0}
-          title='login'
+          title={"SIGN IN or SIGN UP (FREE!)"}
         />
       </View>
     )

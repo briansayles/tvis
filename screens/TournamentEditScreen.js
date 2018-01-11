@@ -1,11 +1,12 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { List, ListItem, Card, Button} from 'react-native-elements';
-import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
-import { currentUserQuery, getTournamentQuery, changeTitleMutation, deleteTournamentMutation, updateTournamentMutation, tournamentSubscription} from '../constants/GQL'
-import { sortSegments, sortChips } from '../utilities/functions'
+import { View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import { Text, List, ListItem, Card, Button, Avatar, Icon} from 'react-native-elements';
+// import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
+import { currentUserQuery, getTournamentQuery, changeTitleMutation, tournamentSubscription} from '../constants/GQL'
+import { sortSegments, sortChips, numberToSuffixedString } from '../utilities/functions'
 import Events from '../api/events'
+import dict from '../constants/Dictionary'
 
 class TournamentEditScreen extends React.Component {
 
@@ -23,16 +24,16 @@ class TournamentEditScreen extends React.Component {
 
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshEditor', () => this._refreshButtonPressed())
-    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-      document: tournamentSubscription,
-      updateQuery: (previous, {subscriptionData}) => {
-        this.props.getTournamentQuery.refetch()
-        return
-      },
-      onError: (err) => {
-        console.error(err)
-      },
-    })
+    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
+    //   document: tournamentSubscription,
+    //   updateQuery: (previous, {subscriptionData}) => {
+    //     this.props.getTournamentQuery.refetch()
+    //     return
+    //   },
+    //   onError: (err) => {
+    //     console.error(err)
+    //   },
+    // })
   }
 
   componentWillReceiveProps(nextProps) {
@@ -80,34 +81,6 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('PrizeList', {id: id})
   }
 
-  _submitButtonPressed() {
-    console.log(JSON.stringify(this.state.formData))
-    this.props.updateTournamentMutation(
-      {
-        variables: {
-          "id": this.props.getTournamentQuery.Tournament.id,
-          "title": this.state.formData.title,
-          "game": this.state.formData.game
-        }
-      }
-    ).then(() => Events.publish('RefreshTournamentList')).then(() => alert('Saved'))
-  }
-
-  _deleteTournamentButtonPressed() {
-    this.props.deleteTournamentMutation({variables: {id:this.props.getTournamentQuery.Tournament.id} }).then(
-      () => Events.publish('RefreshTournamentList')).then(
-      () => this.props.navigation.goBack()
-    ).then(() => alert ('Nuked it!'))
-  }
-
-  handleFormChange(formData){
-    this.setState({formData:formData})
-    this.props.onFormChange && this.props.onFormChange(formData)
-  }
-
-  handleFormFocus(e, component){
-  }
-
   _refreshButtonPressed() {
     this.props.getTournamentQuery.refetch()
   }
@@ -123,7 +96,7 @@ class TournamentEditScreen extends React.Component {
       const segments = sortSegments(Tournament.segments)
       const chips = sortChips(Tournament.chips)
       return (
-        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
+        <ScrollView style={{flex: 1}}
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
@@ -131,99 +104,117 @@ class TournamentEditScreen extends React.Component {
             />
           }
         >
-          <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-around', marginBottom: 10}}>
+          <Card title={Tournament.title} titleStyle={{fontSize: 34}} flexDirection='column'>
+            <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+              <Text h3>{dict[Tournament.game] + "\n"}</Text>
+              <Text h4 style={{textAlign: 'center'}}>
+                {Tournament.comments ? Tournament.comments.toString() : ''} 
+              </Text>
+            </View>
             {userIsOwner && 
-              <Button
-                style={{flex: 0.5}}
-                icon={{name: 'line-chart', type: 'font-awesome'}}
-                backgroundColor='#03A9F4'
-                fontFamily='Lato'
-                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                title='Blinds' 
-                onPress={this._navigateToSegmentList.bind(this, Tournament.id)}
-              />
+              <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                  <Icon name='edit' type='font-awesome' onPress={this._navigateToCostList.bind(this, Tournament.id)} color={dict.editButtonColor} reverse/>
+              </View>
+            }
+          </Card>
+
+          <Card
+          >
+            {
+              Tournament.costs.map((u, i) => {
+                return (
+                  <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                    <Text h4 style={{flex: 3, textAlign: 'center'}}>
+                      {u.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}) + " " + 
+                      dict[u.costType.toString()]}
+                    </Text>
+                    <Icon style={{flex: 1, textAlign: 'center'}} name="arrow-right" type="font-awesome"/> 
+                    <Text h4 style={{flex: 3, textAlign: 'center'}}>
+                      {u.chipStack.toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true}) + " Tournament Chips.\n"}
+                    </Text>
+                  </View>
+                )
+              })
             }
             {userIsOwner && 
-              <Button 
-                style={{flex: 0.5}}
-                icon={{name: 'ios-disc', type: 'ionicon'}}
-                backgroundColor='#03A9F4'
-                fontFamily='Lato'
-                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                title='Chips' 
-                onPress={this._navigateToChipList.bind(this, Tournament.id)}>
-              </Button>
+              <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                  <Icon name='edit' type='font-awesome' onPress={this._navigateToCostList.bind(this, Tournament.id)} color={dict.editButtonColor} color='#00a' reverse/>
+              </View>
             }
-          </View>
-          <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-around', marginBottom: 10}}>
-            {userIsOwner && 
-              <Button
-                style={{flex: 0.5}}
-                icon={{name: 'event-seat'}}
-                backgroundColor='#03A9F4'
-                fontFamily='Lato'
-                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                title='Tables' 
-                onPress={this._navigateToTableList.bind(this, Tournament.id)}
-              />
-            }
-            {userIsOwner && 
-              <Button 
-                style={{flex: 0.5}}
-                icon={{name: 'ios-people', type: 'ionicon'}}
-                backgroundColor='#03A9F4'
-                fontFamily='Lato'
-                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                title='Players' 
-                onPress={this._navigateToPlayerList.bind(this, Tournament.id)}>
-              </Button>
-            }
-          </View>
-          <View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-around', marginBottom: 10}}>
-            {userIsOwner && 
-              <Button
-                style={{flex: 0.5}}
-                icon={{name: 'ios-pricetags-outline', type: 'ionicon'}}
-                backgroundColor='#03A9F4'
-                fontFamily='Lato'
-                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                title='Costs' 
-                onPress={this._navigateToCostList.bind(this, Tournament.id)}
-              />
-            }
-            {userIsOwner && 
-              <Button 
-                style={{flex: 0.5}}
-                icon={{name: 'ios-trophy', type: 'ionicon'}}
-                backgroundColor='#03A9F4'
-                fontFamily='Lato'
-                buttonStyle={{borderRadius: 10, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                title='Prizes' 
-                onPress={this._navigateToPrizeList.bind(this, Tournament.id)}>
-              </Button>
-            }
-          </View>
+          </Card>
+
           <Card
             title="Tournament Timer"
           >
-            <Button 
-              icon={{name: 'ios-timer-outline', type: 'ionicon'}}
-              backgroundColor='#080'
-              fontFamily='Lato'
-              fontSize={24}
-              buttonStyle={{borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-              title='Timer' 
-              onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}>
-            </Button>
+            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
+              <Button 
+                icon={{name: 'ios-timer-outline', type: 'ionicon'}}
+                backgroundColor='#080'
+                fontFamily='Lato'
+                fontSize={24}
+                buttonStyle={{ flex: 1, borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                title='Timer' 
+                onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}
+              />
+              <View style={{flex: 1}}>
+                <Text>{Tournament.timer.active ? "Running" : "Paused" }</Text>  
+              </View>
+            </View>
           </Card>
-          <Form ref='tournamentForm' onFocus={this.handleFormFocus.bind(this)} onChange={this.handleFormChange.bind(this)}>
-            <Separator />
-            <InputField ref='title' placeholder='Tournament Title' value={Tournament.title}/>
-            <PickerField ref='game' placeholder='Game Type' value={Tournament.game} options={{"":"", NLHE: "NL Holdem", PLO: "PotLO"}}/>
-          </Form>
-          {userIsOwner && <Button title="DELETE THIS TOURNAMENT" onPress={this._deleteTournamentButtonPressed.bind(this)}></Button>}
-          {userIsOwner && <Button title="Submit" onPress={this._submitButtonPressed.bind(this)}></Button>}
-          <Text>{"\n"}</Text>
+
+          <Card flexDirection='column'>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text h3 style={{flex: '2', textAlign: 'center', textDecorationLine: 'underline'}}>Minutes</Text>
+              <Text h3 style={{flex: '2', textAlign: 'center', textDecorationLine: 'underline'}}>Small Blind</Text>
+              <Text h3 style={{flex: '2', textAlign: 'center', textDecorationLine: 'underline'}}>Big Blind</Text>
+              <Text h3 style={{flex: '1', textAlign: 'center', textDecorationLine: 'underline'}}>Ante</Text>
+            </View>
+            {
+              Tournament.segments.map((u, i) => {
+                return (
+                  <View key={i} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <Text h4 style={{flex: '2', textAlign: 'center'}}>{u.duration.toString()}</Text>
+                    <Text h4 style={{flex: '2', textAlign: 'center'}}>{u.sBlind ? numberToSuffixedString(u.sBlind) : ''}</Text>
+                    <Text h4 style={{flex: '2', textAlign: 'center'}}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
+                    <Text h4 style={{flex: '1', textAlign: 'center'}}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
+                  </View>
+                )
+              })
+            }
+            {userIsOwner && 
+              <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                  <Icon name='edit' type='font-awesome' onPress={this._navigateToSegmentList.bind(this, Tournament.id)} color={dict.editButtonColor} reverse/>
+              </View>
+            }
+          </Card>
+
+          <Card flexDirection='column'>
+            <View style={{flex: '1', flexDirection: 'row', justifyContent: 'space-between'}}>
+              {
+                Tournament.chips.map((u, i) => {
+                  return (
+                    <View key={i} style={{flex: '1', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#eee'}}>
+                      <Avatar
+                        key={i}
+                        large
+                        rounded
+                        title={numberToSuffixedString(u.denom)}
+                        titleStyle={{color: u.textColor, fontSize: 20}}
+                        activeOpacity={1}
+                        overlayContainerStyle={{backgroundColor: u.color}}
+                        containerStyle={{flex: 0.2, margin: 10, borderWidth: 4, borderColor: u.rimColor}}
+                      />
+                    </View>
+                  )
+                })
+              }
+            </View>
+            {userIsOwner && 
+              <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                  <Icon name='edit' type='font-awesome' onPress={this._navigateToChipList.bind(this, Tournament.id)} color={dict.editButtonColor} reverse/>
+              </View>
+            }
+          </Card>
         </ScrollView>
       )
     }
@@ -233,8 +224,6 @@ class TournamentEditScreen extends React.Component {
 export default compose(
   graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
-  graphql(updateTournamentMutation, { name: 'updateTournamentMutation'}),
 )(TournamentEditScreen)
 
 const styles = StyleSheet.create({

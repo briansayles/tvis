@@ -111,7 +111,7 @@ class AppContainer extends React.Component {
     try {
       await cacheAssetsAsync({
         images: [
-          require('./assets/images/expo-wordmark.png'),
+          
         ],
         fonts: [
           FontAwesome.font,

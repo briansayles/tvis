@@ -1,31 +1,31 @@
 import { StyleSheet } from 'react-native';
-import Colors from './Colors';
+import dict from './Dictionary';
 
 export default {
   error: StyleSheet.create({
     container: {
-      backgroundColor: Colors.errorBackground,
+      backgroundColor: dict.errorBackground,
     },
     text: {
-      color: Colors.errorText,
+      color: dict.errorText,
     },
   }),
 
   warning: StyleSheet.create({
     container: {
-      backgroundColor: Colors.warningBackground,
+      backgroundColor: dict.warningBackground,
     },
     text: {
-      color: Colors.warningText,
+      color: dict.warningText,
     },
   }),
 
   notice: StyleSheet.create({
     container: {
-      backgroundColor: Colors.noticeBackground,
+      backgroundColor: dict.noticeBackground,
     },
     text: {
-      color: Colors.noticeText,
+      color: dict.noticeText,
     },
   }),
 };

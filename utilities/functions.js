@@ -1,6 +1,6 @@
 import { Dimensions } from 'react-native'
 
-export function	msToTime(duration, includeFractions, includeHours) {
+export function	msToTime(duration, includeFractions, alwaysIncludeHours) {
   var negative = false
   if(duration<0) {
   	negative = true
@@ -10,12 +10,12 @@ export function	msToTime(duration, includeFractions, includeHours) {
       , seconds = parseInt((duration/1000)%60)
       , minutes = parseInt((duration/(1000*60))%60)
       , hours = parseInt((duration/(1000*60*60))%24);
-  hours = (hours < 10) ? "0" + hours : hours
+  // hours = (hours < 10) ? "0" + hours : hours
   minutes = (minutes < 10) ? "0" + minutes : minutes
   seconds = (seconds < 10) ? "0" + seconds : seconds
   var output
   output = negative ? "-" : ""
-  output += includeHours ? hours + ":" : ""
+  output += (hours > 0 || alwaysIncludeHours) ? hours + ":" : ""
   output += minutes + ":" + seconds
   output += includeFractions ? "." + milliseconds : "" 
   return output
@@ -75,7 +75,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  time: time,
 	  ms: ms,
 	  display: {
-	  	timer: timer.active ? msToTime(ms + 1000) : msToTime(ms),
+	  	timer: timer.active ? msToTime(ms + 999) : msToTime(ms),
 	  	currentBlinds: numberToSuffixedString(segments[currentSegmentIndex].sBlind) + '/' + numberToSuffixedString(segments[currentSegmentIndex].bBlind),
 	  },
 	  segment: segments[currentSegmentIndex],

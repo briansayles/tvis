@@ -6,6 +6,7 @@ import { KeepAwake, Audio } from 'expo'
 import {msToTime, numberToSuffixedString, tick, sortChips, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
+import { BannerAd } from '../screens/Ads'
 
 class TournamentTimerScreen extends React.Component {
 
@@ -176,7 +177,7 @@ class TournamentTimerScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const chips = sortChips(Tournament.chips)
       return (
-        <View style={{flex: 1, flexDirection: 'column', backgroundColor: 'green'}}>
+        <View style={{flex: 1, flexDirection: 'column', backgroundColor: 'green', justifyContent: 'space-around'}}>
           <KeepAwake/>
           <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
             <Text style={[styles.titleText]}>{Tournament.title}</Text>
@@ -218,9 +219,9 @@ class TournamentTimerScreen extends React.Component {
                 </Text>
               </View>
               <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
                 {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
-                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
               </View>
             </View>
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
@@ -246,7 +247,7 @@ class TournamentTimerScreen extends React.Component {
                 key={i}
                 medium
                 rounded
-                title={item.denom}
+                title={numberToSuffixedString(item.denom)}
                 titleStyle={{color: item.textColor, fontSize: 20}}
                 activeOpacity={1}
                 overlayContainerStyle={{backgroundColor: item.color}}
@@ -255,6 +256,7 @@ class TournamentTimerScreen extends React.Component {
             ))
             }
           </View>
+          <BannerAd/>
         </View>
       )
     }

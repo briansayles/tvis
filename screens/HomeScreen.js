@@ -34,7 +34,7 @@ export default class HomeScreen extends React.Component {
           contentContainerStyle={styles.contentContainer}>
           <View style={styles.welcomeContainer}>
             <Image
-              source={require('../assets/images/expo-icon.png')}
+              source={require('../assets/icons/app-icon.png')}
               style={styles.welcomeImage}
             />
           </View>

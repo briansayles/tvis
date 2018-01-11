@@ -17,11 +17,17 @@ export const createUserMutation = gql`
   }
 `
 
+export const addCreditsMutation = gql`
+  mutation updateUserMutation($userId: ID!, $amount: Int!) {
+    updateUser(id: $userId, credits: $amount) { id }
+  }
+`
 export const currentUserQuery = gql`
   query currentUser {
     user {
       id
       name
+      credits
     }
   }
 `
@@ -83,6 +89,7 @@ export const getTournamentQuery = gql`
     {
       id
       title
+      comments
       updatedAt
       game
       timer {
@@ -91,6 +98,12 @@ export const getTournamentQuery = gql`
         createdAt
         updatedAt
         elapsed
+      }
+      costs (orderBy: chipStack_DESC) {
+        id
+        costType
+        price
+        chipStack
       }
       segments (orderBy: bBlind_ASC) {
         id
@@ -156,6 +169,9 @@ export const getTournamentCostsQuery = gql`
     Tournament(id: $id)
     {
       id
+      title
+      comments
+      game
       user { id }
       costs (orderBy: chipStack_DESC) {
         id
@@ -353,8 +369,8 @@ export const changeTitleMutation = gql`
 `
 
 export const updateTournamentMutation = gql`
-  mutation updateTournament ($id: ID!, $title: String, $game: Game) {
-    updateTournament(id: $id, title: $title, game: $game) {
+  mutation updateTournament ($id: ID!, $title: String, $comments: String, $game: Game) {
+    updateTournament(id: $id, title: $title, comments: $comments, game: $game) {
       id
     }
   }

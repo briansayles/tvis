@@ -10,7 +10,9 @@ const ProfileScreen = ({ fetchCurrentUser: { loading, user } }) => {
   return (
     <View style={styles.container}>
       {user && <Text>Logged in as { user.name }</Text>}
+      {user && <Text>You have { user.credits ? user.credits.toString() : '0' } credits.</Text>}
       {user && <Button onPress={logout} title='Logout' />}
+      
       {!user && <Auth/>}
     </View>
   )

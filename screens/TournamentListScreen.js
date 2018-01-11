@@ -2,10 +2,13 @@ import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
-import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, } from '../constants/GQL'
+import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, addCreditsMutation, } from '../constants/GQL'
 import Auth from '../components/Auth'
 import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
+import Swipeout from 'react-native-swipeout'
+import { BannerAd } from '../screens/Ads'
+import { AdMobRewarded } from 'expo'
 
 class TournamentListScreen extends React.Component {
   
@@ -23,6 +26,36 @@ class TournamentListScreen extends React.Component {
 
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refreshButtonPressed())
+    AdMobRewarded.setAdUnitID('ca-app-pub-3013833975597353/5103764479')
+    AdMobRewarded.setTestDeviceID('EMULATOR')
+    AdMobRewarded.addEventListener('rewardedVideoDidOpen', () => {
+      console.log('rewarded video opened')
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidClose', () => {
+      console.log('rewarded video closed')
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidLoad', () => {
+      console.log('rewarded video loaded')
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidFailToLoad', () => {
+      console.log('rewarded video failed to load')
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',
+      (reward) => {
+        console.log('user rewarded')
+        // alert('AdMobRewarded => rewarded' + reward.toString())
+        // this.props.createTournamentMutation(
+        //   {
+        //     variables: { "userId": this.props.currentUserQuery.user.id }
+        //   }
+        // )
+        // .then((result) => {
+        //   this._refreshButtonPressed()
+        //   // alert('tournament added')
+        // })    
+      }
+    )
+    AdMobRewarded.requestAd()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -42,15 +75,13 @@ class TournamentListScreen extends React.Component {
   }
 
   _addButtonPressed = async () => {
-    this.props.createTournamentMutation(
-      {
-        variables: { "userId": this.props.currentUserQuery.user.id }
-      }
-    )
-    .then((result) => {
-      this._refreshButtonPressed()
-      // alert('tournament added')
-    })
+    alert(this.state.user.id)
+    this.props.addCreditsMutation({variables: {userId: this.state.user.id, amount: 100} })
+    AdMobRewarded.showAd(() => {console.log('showAd callback')})
+
+    //TODO: Determine cause of failures to load rewarded ads
+    //TODO: Determine cause of failure to fire rewarded event when using the admobs test ad id
+    //TODO: Add a user refresh event and use that event wherever currentUserQuery is used (alternative: Subscription??)
   }
 
   _refreshButtonPressed() {
@@ -69,6 +100,13 @@ class TournamentListScreen extends React.Component {
     this.props.navigation.navigate('Edit', {id: id})
   }
 
+  _deleteTournamentButtonPressed(id) {
+    // const tournamentId = this.props.getSegmentQuery.Segment.tournament.id
+    this.props.deleteTournamentMutation({variables: {id: id} }).then(
+      () => Events.publish('RefreshTournamentList')
+    )
+  }
+
   render() {
     const { currentUserTournamentsQuery: { loading, error, user } } = this.props
     if (loading) {
@@ -79,30 +117,52 @@ class TournamentListScreen extends React.Component {
       return (<Auth/>)
     } else {
       return (
-        <ScrollView 
-          style={{flex: 1, marginLeft: 5, marginRight: 5}}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._refreshButtonPressed.bind(this)}
-            />
-          }
-        >
-          {this.state.user && <Button style={{flex:-1}} backgroundColor="green" onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
-          <List>
-            {
-              user.tournaments && user.tournaments.map((item, i) => (
-                <ListItem
-                  key={i}
-                  title={item.title}
-                  onPress={this._navigateToEdit.bind(this, item.id)}
-                />
-                )
-              )
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+          <View style={{marginTop: 5}}>
+            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+          </View>
+          <ScrollView 
+            style={{flex: 1, marginLeft: 5, marginRight: 5}}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this._refreshButtonPressed.bind(this)}
+              />
             }
-          </List>
-          <Text>{"\n"}</Text>
-        </ScrollView>
+          >
+            <List>
+              {
+                user.tournaments && user.tournaments.map((item, i) => (
+                  <Swipeout
+                    key={i}
+                    autoClose={true}
+                    right={[
+                      {
+                        text: 'Edit',
+                        onPress: this._navigateToEdit.bind(this, item.id),
+                        type: 'primary',
+                      },
+                      {
+                        text: 'DELETE',
+                        onPress: this._deleteTournamentButtonPressed.bind(this, item.id),
+                        backgroundColor: '#ff0000',
+                        type: 'delete',
+                      },
+                    ]}
+                  >
+                    <ListItem
+                      title={item.title}
+                      onPress={this._navigateToEdit.bind(this, item.id)}
+                    />
+                  </Swipeout>
+
+                  )
+                )
+              }
+            </List>
+          </ScrollView>
+          <BannerAd />
+        </View>
       )
     }
   }
@@ -116,4 +176,6 @@ export default compose(
   graphql(currentUserQuery, { name: 'currentUserQuery' }),
   graphql(currentUserTournamentsQuery, { name: 'currentUserTournamentsQuery' }),
   graphql(createTournamentMutation, { name: 'createTournamentMutation'}),
+  graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
+  graphql(addCreditsMutation, {name: 'addCreditsMutation'}),
 )(TournamentListScreen)
