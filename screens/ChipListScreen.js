@@ -1,16 +1,18 @@
 import {graphql, compose} from 'react-apollo'
-import gql from 'graphql-tag'
+// import gql from 'graphql-tag'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
 import { List, ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
-import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
-import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, } from '../constants/GQL'
-import { sortSegments, sortChips, numberToSuffixedString } from '../utilities/functions'
+// import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
+import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
+import { sortChips, numberToSuffixedString, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
+import Swipeout from 'react-native-swipeout'
 
 class ChipListScreen extends React.Component {
 
   constructor(props) {
+
     super(props)
     this.state = {
       formData: {},
@@ -53,13 +55,17 @@ class ChipListScreen extends React.Component {
         variables:
         {
           "tournamentId": this.props.getTournamentChipsQuery.Tournament.id,
-          "denom": 500,
-          "color": "#",
-          "textColor": "#888",
-          "rimColor": "#f00"
+          "denom": 1,
+          "color": "#fff",
         }
       }
     ).then(() => this._refreshButtonPressed()).then(() => alert('Chip added'))
+  }
+
+  _deleteChipButtonPressed(id) {
+    this.props.deleteChipMutation({variables: {id: id} }).then(
+      () => Events.publish('RefreshChipList')
+    )
   }
 
   _navigateToChipEdit(id) {
@@ -75,35 +81,44 @@ class ChipListScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const chips = sortChips(Tournament.chips)
       return (
-        <View style={{flexDirection: 'column', flex: 1}}>
-          <Text style={{flex: 0.1, marginLeft: 10, marginRight: 10, marginBottom: 20, textAlign: 'center'}}>
-            Tap on a chip to modify the denomination or colors.
-          </Text>
-          <ScrollView style={{flexDirection: 'column', flex: 1, alignItems: 'center'}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refreshButtonPressed.bind(this)}
-              />
+        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this._refreshButtonPressed.bind(this)}
+            />
+          }
+        >
+          <List>
+            {
+              chips.map((item, i) => (
+                <Swipeout
+                  key={i}
+                  autoClose={true}
+                  right={[
+                    {
+                      text: 'Edit',
+                      onPress: this._navigateToChipEdit.bind(this, item.id),
+                      type: 'primary',
+                    },
+                    {
+                      text: 'DELETE',
+                      onPress: this._deleteChipButtonPressed.bind(this, item.id),
+                      backgroundColor: '#ff0000',
+                      type: 'delete',
+                    },
+                  ]}
+                >
+                <ListItem
+                  title={numberToSuffixedString(item.denom) + ": " + dictionaryLookup(item.color, "ChipColorOptions", "long")}
+                  onPress={this._navigateToChipEdit.bind(this, item.id)}
+                />
+                </Swipeout>
+              ))
             }
-          >
-            {chips.map((item, i) => (
-              <Avatar
-                key={i}
-                large
-                rounded
-                title={numberToSuffixedString(item.denom)}
-                titleStyle={{color: item.textColor, fontSize: 14}}
-                activeOpacity={1}
-                overlayContainerStyle={{backgroundColor: item.color}}
-                onPress={this._navigateToChipEdit.bind(this, item.id)}
-                containerStyle={{flex: 0.2, margin: 10, borderWidth: 4, borderColor: item.rimColor}}
-              />
-            ))
-            }
-            {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", chips[chips.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
-          </ScrollView>
-        </View>
+          </List>
+          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", chips[chips.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
+        </ScrollView>
       )
     }
   }
@@ -113,4 +128,5 @@ export default compose(
   graphql(getTournamentChipsQuery, { name: 'getTournamentChipsQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(createTournamentChipMutation, {name: 'createTournamentChipMutation'}),
+  graphql(deleteChipMutation, { name: 'deleteChipMutation' }),
 )(ChipListScreen)

@@ -12,6 +12,8 @@ import SegmentListScreen from '../screens/SegmentListScreen'
 import SegmentEditScreen from '../screens/SegmentEditScreen2'
 import ChipListScreen from '../screens/ChipListScreen'
 import ChipEditScreen from '../screens/ChipEditScreen'
+import ContactListScreen from '../screens/ContactListScreen'
+import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
 import CostListScreen from '../screens/CostListScreen'
 import CostEditScreen from '../screens/CostEditScreen2'
 import ProfileScreen from '../screens/ProfileScreen'
@@ -60,16 +62,22 @@ export const TournamentsStack = StackNavigator({
 			title: 'Chip Editor',
 		}
 	},
+	GeneralInfoEdit: {
+		screen: GeneralInfoEditScreen,
+		navigationOptions: {
+			title: 'General Info',
+		}
+	},
 	CostList: {
 		screen: CostListScreen,
 		navigationOptions: {
-			title: 'Cost Schedule'
+			title: 'Entry Fee(s)'
 		}
 	},
 	CostEdit: {
 		screen: CostEditScreen,
 		navigationOptions: {
-			title: 'Cost Editor',
+			title: 'Entry Fee Editor',
 		}
 	},
 	Modal: { 
@@ -92,6 +100,15 @@ export const ProfileStack = StackNavigator({
 	}
 })
 
+export const ContactsStack = StackNavigator({
+	Contacts: {
+		screen: ContactListScreen,
+		navigationOptions: {
+			title: 'Contacts'
+		}
+	}
+})
+
 export const Tabs = TabNavigator({
 	Home: {
 		screen: HomeScreen,
@@ -106,6 +123,13 @@ export const Tabs = TabNavigator({
 		navigationOptions: {
 			tabBarLabel: 'Tournaments',
 			tabBarIcon: ({tintColor}) => <Icon name="list" size={35} color={tintColor}/>,
+		}
+	},
+	Contacts: {
+		screen: ContactsStack,
+		navigationOptions: {
+			tabBarLabel: 'Contacts',
+			tabBarIcon: ({tintColor}) => <Icon name="group" size={35} color={tintColor}/>,
 		}
 	},
 	Profile: {

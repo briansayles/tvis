@@ -1,21 +1,28 @@
-import { graphql, compose } from 'react-apollo'
+import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import { Text, View, StyleSheet } from 'react-native'
-// import { List, ListItem, Slider} from 'react-native-elements';
+import {Text, View, ScrollView, } from 'react-native'
+import { PricingCard, Button } from 'react-native-elements';
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
-import { currentUserQuery, getCostQuery, deleteCostMutation, updateCostMutation} from '../constants/GQL'
+import { currentUserQuery, updateTournamentMutation, getTournamentQuery} from '../constants/GQL'
+import { dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import dict from '../constants/Dictionary'
 
-
-class CostEditScreen extends React.Component {
+class GeneralInfoEditScreen extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      user: null,
+      refreshing: false,
       form: {},
     }
+  }
+
+  static navigationOptions = {
+  };
+
+  componentDidMount() {
+    this.refreshEvent = Events.subscribe('RefreshGeneralInfo', () => this._refreshButtonPressed())
   }
 
   componentWillReceiveProps(nextProps) {
@@ -23,9 +30,27 @@ class CostEditScreen extends React.Component {
       const user = nextProps.currentUserQuery.user
       this.setState({user: user})
     }
-    if (nextProps.getCostQuery && nextProps.getCostQuery.Cost) {
-      // this.setState({formData: nextProps.getCostQuery.Cost})
+    if (nextProps.getTournamentQuery) {
+      this.setState({formData: nextProps.getTournamentQuery.Tournament})
     }
+  }
+  
+  componentDidUpdate(prevProps) {
+
+  }
+
+  componentWillUnmount () {
+    this.refreshEvent.remove()
+  }
+
+  _refreshButtonPressed() {
+    this.props.getTournamentQuery.refetch()
+    // alert('Editor refreshed')
+  }
+
+
+  _navigateToCostEdit(id) {
+    this.props.navigation.navigate('CostEdit', {id: id})
   }
 
   handleValueChange (values) {
@@ -34,16 +59,16 @@ class CostEditScreen extends React.Component {
   }
 
   render() {
-    const { getCostQuery: { loading, error, Cost } } = this.props
+    const { getTournamentQuery: { loading, error, Tournament } } = this.props
     if (loading) {
       return <Text>Loading</Text>
     } else if (error) {
       return <Text>Error!</Text>
     } else {
-     	return (
-
+      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
+      return (
         <GiftedForm
-          formName='costForm' // GiftedForm instances that use the same name will also share the same states
+          formName='basicInfoForm' // GiftedForm instances that use the same name will also share the same states
 
           openModal = {
             (router) => {
@@ -69,56 +94,46 @@ class CostEditScreen extends React.Component {
             */
           }}
           validators={{
-            price: {
-              title: 'Price',
-              validate: [{
-                validator: 'matches',
-                arguments: /^[\d ]*$/,
-                message: '{TITLE} can contain only numeric characters'
-              }]
+            title: {
+              title: 'Tournament Title',
             },
-            chipStack: {
-              title: 'Chips',
-              validate: [{
-                validator: 'matches',
-                arguments: /^[\d ]*$/,
-                message: '{TITLE} can contain only numeric characters'
-              }]
+            comments: {
+              title: 'Comments',
             },
-            costType: {
-              title: 'Type'
+            game: {
+              title: 'Game',
             },
           }}
         >
           <GiftedForm.SeparatorWidget />
+          
           <GiftedForm.TextInputWidget
-            name='price'
-            title='Price'
+            name='title'
+            title='Tournament Title'
             clearButtonMode='while-editing'
-            keyboardType='numeric'
-            value={Cost.price ? Cost.price.toString() : ''}
+            keyboardType='default'
+            value={Tournament.title ? Tournament.title.toString() : ''}
           />
-          <GiftedForm.TextInputWidget
-            name='chipStack'
-            title='Chips'
-            clearButtonMode='while-editing'
-            keyboardType='numeric'
-            value={Cost.chipStack ? Cost.chipStack.toString() : ''}
+
+          <GiftedForm.TextAreaWidget
+            name='comments'
+            autoFocus={false}
+            placeholder='Tournament information, such as location, date and time, etc... can go here.'
+            value={Tournament.comments ? Tournament.comments.toString() : ''}
           />
+
           <GiftedForm.ModalWidget
-            title='Cost Type'
-            displayValue='costType'
+            title='Game'
+            displayValue='game'
           >
             <GiftedForm.SeparatorWidget />
-            <GiftedForm.SelectWidget name='costType' multiple={false} title='Type'>
-              {dict.EntryFeeOptions.map((item, i) => (
+            <GiftedForm.SelectWidget name='game' multiple={false} title='Game'>
+              {dictionaryLookup("GameOptions").map((item, i) => (
                 <GiftedForm.OptionWidget title={item.longName} value={item.shortName}/>
               ))
               }
             </GiftedForm.SelectWidget>
           </GiftedForm.ModalWidget>
-
-          <GiftedForm.ErrorsWidget/>
 
           <GiftedForm.SubmitWidget
             title='Submit'
@@ -129,33 +144,30 @@ class CostEditScreen extends React.Component {
             }}
             onSubmit={(isValid, values, validationResults, postSubmit = null, modalNavigator = null) => {
               if (isValid === true) {
-                this.props.updateCostMutation(
+                this.props.updateTournamentMutation(
                   {
                     variables: {
-                      id: Cost.id,
-                      price: parseInt(values.price),
-                      chipStack: parseInt(values.chipStack),
-                      costType: dict.EntryFeeOptions.find((fee) => { return values.costType.toString() == fee.shortName || values.costType.toString() == fee.longName}).shortName,
+                      id: Tournament.id,
+                      title: values.title.toString(),
+                      comments: values.comments.toString(),
+                      game: values.game ? dictionaryLookup(values.game, "GameOptions") : undefined
                     }
                   }
                 ).then(() => {
-                  Events.publish('RefreshCostList')
+                  Events.publish('RefreshEditor')
                   postSubmit(); // disable the loader
                 })
               }
             }}
           />
-
         </GiftedForm>
-
-    	)
+      )
     }
   }
 }
 
 export default compose(
-  graphql(getCostQuery, { name: 'getCostQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(deleteCostMutation, { name: 'deleteCostMutation' }),
-  graphql(updateCostMutation, { name: 'updateCostMutation'}),
-)(CostEditScreen)
+  graphql(updateTournamentMutation, { name: 'updateTournamentMutation'}),
+  graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+)(GeneralInfoEditScreen)

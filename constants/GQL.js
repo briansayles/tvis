@@ -1,5 +1,32 @@
 import gql from 'graphql-tag'
 
+export const createContactMutation = gql`
+  mutation createContact($userId: ID!, $name: String!) {
+    createContact(
+      userId: $userId
+      name: $name
+    )
+    {
+      id
+    }
+  }
+`
+
+export const getUserContactsQuery = gql`
+  query currentUserContacts {
+    user {
+      id
+      name
+      contacts {
+        id
+        name
+        phone
+        email
+      }
+    }
+  }
+`
+
 export const createUserMutation = gql`
   mutation createUser($encodedToken: String!, $username: String!) {
     createUser(

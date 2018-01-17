@@ -1,6 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 import { AdMobBanner, AdMobInterstitial, PublisherBanner, AdMobRewarded } from 'expo'
+import dict from '../constants/Dictionary'
 
 export class BannerAd extends React.Component {
   constructor(props) {
@@ -13,7 +14,7 @@ export class BannerAd extends React.Component {
 				<AdMobBanner
 					style={{flex: -1, backgroundColor: 'transparent'}}
 		    	bannerSize='smartBannerPortrait'
-		    	adUnitID='ca-app-pub-3013833975597353/8848678187' // banner1
+		    	adUnitID={dict.BANNER_ID} // banner1
 		    	testDeviceID='EMULATOR'
 		    	didFailToReceiveAdWithError={this.bannerError}
 		  	/>

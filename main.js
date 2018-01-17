@@ -1,7 +1,7 @@
-import Expo, { Audio, Notifications } from 'expo'
+import Expo, { Audio, Notifications, AdMobRewarded, AdMobInterstitial } from 'expo'
 import React from 'react'
-import { Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
-import { FontAwesome } from '@expo/vector-icons'
+import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 
 import { createHttpLink, HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
@@ -21,12 +21,13 @@ import cacheAssetsAsync from './utilities/cacheAssetsAsync'
 import Auth from './components/Auth'
 
 import { Auth0Config, GraphCoolConfig, ExpoConfig } from './config'
+
+
 export const auth0_client_id = Auth0Config.clientId
 export const authorize_url = Auth0Config.authorizeURI
 export const graphQL_endpoint = GraphCoolConfig.endpoint
 export const graphQL_subscription_endpoint = GraphCoolConfig.wsClient
 export const graphQL_subscription_options = GraphCoolConfig.wsClientOptions
-
 export const redirect_uri = Expo.Constants.manifest.xde
   ? ExpoConfig.redirectURI
   : `${Expo.Constants.linkingUri}/redirect`
@@ -68,6 +69,7 @@ export const client = new ApolloClient({
   cache: cache,
 })
 
+
 class AppContainer extends React.Component {
 
   state = {
@@ -79,6 +81,25 @@ class AppContainer extends React.Component {
   }
 
   componentDidMount() {
+    AdMobRewarded.addEventListener('rewardedVideoDidOpen', () => {
+      console.log('rewarded video opened')
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidClose', () => {
+      console.log('rewarded video closed')
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidLoad', () => {
+      console.log('rewarded video loaded')
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidFailToLoad', () => {
+      console.log('rewarded video failed to load')
+
+    })
+    AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',
+      (reward) => {
+        console.log('user rewarded' + JSON.stringify(reward))   
+      }
+    )
+
     this._notificationSubscription = this._registerForPushNotifications();
     Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
@@ -115,6 +136,7 @@ class AppContainer extends React.Component {
         ],
         fonts: [
           FontAwesome.font,
+          MaterialCommunityIcons.font
         ],
       })
     } catch (e) {

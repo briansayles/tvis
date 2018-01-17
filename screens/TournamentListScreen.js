@@ -9,6 +9,7 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../screens/Ads'
 import { AdMobRewarded } from 'expo'
+import { showRewardedAd } from '../main'
 
 class TournamentListScreen extends React.Component {
   
@@ -25,37 +26,13 @@ class TournamentListScreen extends React.Component {
   }
 
   componentDidMount() {
+    // AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917')
+    // AdMobRewarded.setTestDeviceID('EMULATOR')
+    // AdMobRewarded.requestAd((result) => {
+    //   console.log(JSON.stringify(result))
+    // })
     this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refreshButtonPressed())
-    AdMobRewarded.setAdUnitID('ca-app-pub-3013833975597353/5103764479')
-    AdMobRewarded.setTestDeviceID('EMULATOR')
-    AdMobRewarded.addEventListener('rewardedVideoDidOpen', () => {
-      console.log('rewarded video opened')
-    })
-    AdMobRewarded.addEventListener('rewardedVideoDidClose', () => {
-      console.log('rewarded video closed')
-    })
-    AdMobRewarded.addEventListener('rewardedVideoDidLoad', () => {
-      console.log('rewarded video loaded')
-    })
-    AdMobRewarded.addEventListener('rewardedVideoDidFailToLoad', () => {
-      console.log('rewarded video failed to load')
-    })
-    AdMobRewarded.addEventListener('rewardedVideoDidRewardUser',
-      (reward) => {
-        console.log('user rewarded')
-        // alert('AdMobRewarded => rewarded' + reward.toString())
-        // this.props.createTournamentMutation(
-        //   {
-        //     variables: { "userId": this.props.currentUserQuery.user.id }
-        //   }
-        // )
-        // .then((result) => {
-        //   this._refreshButtonPressed()
-        //   // alert('tournament added')
-        // })    
-      }
-    )
-    AdMobRewarded.requestAd()
+
   }
 
   componentWillReceiveProps(nextProps) {
@@ -74,14 +51,40 @@ class TournamentListScreen extends React.Component {
     this.refreshEvent.remove()
   }
 
-  _addButtonPressed = async () => {
-    alert(this.state.user.id)
-    this.props.addCreditsMutation({variables: {userId: this.state.user.id, amount: 100} })
-    AdMobRewarded.showAd(() => {console.log('showAd callback')})
+  _openRewarded = () => {
 
-    //TODO: Determine cause of failures to load rewarded ads
-    //TODO: Determine cause of failure to fire rewarded event when using the admobs test ad id
-    //TODO: Add a user refresh event and use that event wherever currentUserQuery is used (alternative: Subscription??)
+    AdMobRewarded.setAdUnitID('ca-app-pub-3013833975597353/7633439481')
+    // AdMobRewarded.setTestDeviceID('EMULATOR');
+    AdMobRewarded.requestAd((result) => {
+      console.log(JSON.stringify(result))
+      AdMobRewarded.showAd((result) => {
+        console.log(JSON.stringify(result))
+      })
+    });
+    // AdMobRewarded.requestAd((result) => {
+    //   console.log (JSON.stringify(result))
+    // }).then(() => {
+    //   AdMobRewarded.showAd((result) => {
+    //     console.log(JSON.stringify(result))
+    //   })
+    // })
+  }
+
+
+  // _showRewardedAdPressed () {
+  //   showRewardedAd()
+  // }
+
+  _addButtonPressed = async () => {
+    this.props.createTournamentMutation(
+      {
+        variables: { "userId": this.props.currentUserQuery.user.id }
+      }
+    )
+    .then((result) => {
+      this._refreshButtonPressed()
+      // alert('tournament added')
+    })
   }
 
   _refreshButtonPressed() {
@@ -119,6 +122,7 @@ class TournamentListScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <View style={{marginTop: 5}}>
+            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._openRewarded} icon={{name: 'playlist-add'}} title="Show Ad"></Button>}
             {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
           </View>
           <ScrollView 

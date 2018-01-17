@@ -80,83 +80,83 @@ class CostListScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const costs = Tournament.costs
       return (
-        <View style={{flex: 1, flexDirection: 'column'}}>
-          <GiftedForm
-            formName='basicInfoForm' // GiftedForm instances that use the same name will also share the same states
+        // <View >
+          // <GiftedForm
+          //   formName='basicInfoForm' // GiftedForm instances that use the same name will also share the same states
 
-            openModal = {
-              (router) => {
-                this.props.navigation.navigate('Modal',
-                  { renderContent: router.renderScene,
-                    onClose: router.onClose,
-                    getTitle: router.getTitle
-                  });
-              }
-            }
-            // openModal={(route) => {
-            //   this.props.navigation.navigate(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
-            // }}
-            clearOnClose={true} // delete the values of the form when unmounted
-            onValueChange={this.handleValueChange.bind(this)}
-            defaults={{
-              /*
-              username: 'Farid',
-              'gender{M}': true,
-              password: 'abcdefg',
-              country: 'FR',
-              birthday: new Date(((new Date()).getFullYear() - 18)+''),
-              */
-            }}
-            validators={{
-              title: {
-                title: 'Tournament Title',
-              },
-            }}
-          >
-            <GiftedForm.SeparatorWidget />
+          //   openModal = {
+          //     (router) => {
+          //       this.props.navigation.navigate('Modal',
+          //         { renderContent: router.renderScene,
+          //           onClose: router.onClose,
+          //           getTitle: router.getTitle
+          //         });
+          //     }
+          //   }
+          //   // openModal={(route) => {
+          //   //   this.props.navigation.navigate(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
+          //   // }}
+          //   clearOnClose={true} // delete the values of the form when unmounted
+          //   onValueChange={this.handleValueChange.bind(this)}
+          //   defaults={{
+          //     /*
+          //     username: 'Farid',
+          //     'gender{M}': true,
+          //     password: 'abcdefg',
+          //     country: 'FR',
+          //     birthday: new Date(((new Date()).getFullYear() - 18)+''),
+          //     */
+          //   }}
+          //   validators={{
+          //     title: {
+          //       title: 'Tournament Title',
+          //     },
+          //   }}
+          // >
+          //   <GiftedForm.SeparatorWidget />
             
-            <GiftedForm.TextInputWidget
-              name='title'
-              title='Tournament Title'
-              clearButtonMode='while-editing'
-              keyboardType='default'
-              value={Tournament.title ? Tournament.title.toString() : ''}
-            />
+          //   <GiftedForm.TextInputWidget
+          //     name='title'
+          //     title='Tournament Title'
+          //     clearButtonMode='while-editing'
+          //     keyboardType='default'
+          //     value={Tournament.title ? Tournament.title.toString() : ''}
+          //   />
 
-            <GiftedForm.TextAreaWidget
-              name='comments'
-              autoFocus={false}
-              placeholder='Tournament information, such as location, date and time, etc... can go here.'
-              value={Tournament.comments ? Tournament.comments.toString() : ''}
-            />
+          //   <GiftedForm.TextAreaWidget
+          //     name='comments'
+          //     autoFocus={false}
+          //     placeholder='Tournament information, such as location, date and time, etc... can go here.'
+          //     value={Tournament.comments ? Tournament.comments.toString() : ''}
+          //   />
 
-            <GiftedForm.SubmitWidget
-              title='Submit'
-              widgetStyles={{
-                submitButton: {
-                  backgroundColor: 'green',
-                }
-              }}
-              onSubmit={(isValid, values, validationResults, postSubmit = null, modalNavigator = null) => {
-                if (isValid === true) {
-                  this.props.updateTournamentMutation(
-                    {
-                      variables: {
-                        id: Tournament.id,
-                        title: values.title.toString(),
-                        comments: values.comments.toString(),
-                      }
-                    }
-                  ).then(() => {
-                    Events.publish('RefreshTournamentList')
-                    postSubmit(); // disable the loader
-                  })
-                }
-              }}
-            />
+          //   <GiftedForm.SubmitWidget
+          //     title='Submit'
+          //     widgetStyles={{
+          //       submitButton: {
+          //         backgroundColor: 'green',
+          //       }
+          //     }}
+          //     onSubmit={(isValid, values, validationResults, postSubmit = null, modalNavigator = null) => {
+          //       if (isValid === true) {
+          //         this.props.updateTournamentMutation(
+          //           {
+          //             variables: {
+          //               id: Tournament.id,
+          //               title: values.title.toString(),
+          //               comments: values.comments.toString(),
+          //             }
+          //           }
+          //         ).then(() => {
+          //           Events.publish('RefreshTournamentList')
+          //           postSubmit(); // disable the loader
+          //         })
+          //       }
+          //     }}
+          //   />
 
-          </GiftedForm>
-          <View style={{flexDirection: 'column', flex: 5}}>
+          // </GiftedForm>
+          <View style={{flex: 1, flexDirection: 'column'}}>
             <Text style={{flex: 0.1, marginLeft: 10, marginRight: 10, marginBottom: 20, textAlign: 'center'}}>
               Tap on a cost to modify it.
             </Text>
@@ -179,7 +179,7 @@ class CostListScreen extends React.Component {
             </ScrollView>
           </View>
 
-        </View>
+        // </View>
       )
     }
   }

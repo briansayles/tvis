@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Alert,
   Image,
   Linking,
   Platform,
@@ -9,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Expo from 'expo'
 
 export default class HomeScreen extends React.Component {
   
@@ -20,6 +22,7 @@ export default class HomeScreen extends React.Component {
 
   componentDidMount() {
     this.setState({renderedTime: new Date()})
+
   }
 
   componentWillUnmount() {
@@ -40,7 +43,7 @@ export default class HomeScreen extends React.Component {
           </View>
           <View style={styles.getStartedContainer}>
             <Text style={styles.getStartedText}>
-              This is the application's home screen!
+              "This is the application's home screen!"
             </Text>
           </View>
         </ScrollView>

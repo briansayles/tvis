@@ -1,12 +1,13 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import {Button, Avatar} from 'react-native-elements'
+import {Button, Avatar, Icon} from 'react-native-elements'
 import { KeepAwake, Audio } from 'expo'
 import {msToTime, numberToSuffixedString, tick, sortChips, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
 import { BannerAd } from '../screens/Ads'
+import { AdMobInterstitial } from 'expo'
 
 class TournamentTimerScreen extends React.Component {
 
@@ -39,6 +40,9 @@ class TournamentTimerScreen extends React.Component {
   }
 
   componentDidMount() {
+    AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
+    AdMobInterstitial.setTestDeviceID('EMULATOR');
+    AdMobInterstitial.requestAd(() => AdMobInterstitial.showAd())
     this._loadSound()
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {
@@ -52,6 +56,11 @@ class TournamentTimerScreen extends React.Component {
         }
       )
     }, 5000)
+    this.interstitialInterval = setInterval(() => {
+      AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
+      AdMobInterstitial.setTestDeviceID('EMULATOR');
+      AdMobInterstitial.requestAd(() => AdMobInterstitial.showAd())
+    }, 5 * 60000)
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
       tickfunction(
@@ -100,6 +109,7 @@ class TournamentTimerScreen extends React.Component {
 
   componentWillUnmount () {
     clearInterval(this.clockInterval)
+    clearInterval(this.interstitialInterval)
   }
 
   async _loadSound() {
@@ -184,16 +194,6 @@ class TournamentTimerScreen extends React.Component {
           </View>
           <View style={{flex: 8, flexDirection:'row', }}>
             <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
-              <View>
-                <Text>Average Chipstack: _____</Text>
-                <Text>Players Remaining: _____</Text>
-                <Text>Total Chips in Play: _____</Text>
-                <Text>Active Tables: _____</Text>
-              </View>
-              <View>
-                <Text>Other Info:</Text>
-                <Text>__________</Text>
-              </View>
             </View>
             <View style={{flex: 4, flexDirection: 'column', }}>
               <View style={{flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
@@ -225,36 +225,18 @@ class TournamentTimerScreen extends React.Component {
               </View>
             </View>
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
-              <View style={{flex: 3}}>
-                <Text>Total Buy-Ins: _____</Text>
-                <Text>Total Prize Pool: _____</Text>
-                <Text>Players to be Paid: _____</Text>
-                <Text>Players to Bubble: _____</Text>
-              </View>
-              <View style={{flex: 6}}>
-                <Text>Payout Table</Text>
-                <ScrollView>
-                  <Text>1: _____</Text>
-                </ScrollView>
-              </View>
             </View>
           </View>
 
-
           <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
-            {chips.map((item, i) => (
-              <Avatar
-                key={i}
-                medium
-                rounded
-                title={numberToSuffixedString(item.denom)}
-                titleStyle={{color: item.textColor, fontSize: 20}}
-                activeOpacity={1}
-                overlayContainerStyle={{backgroundColor: item.color}}
-                containerStyle={{margin: 10, borderWidth: 4, borderColor: item.rimColor}}
-              />
-            ))
-            }
+            {chips.map((u,i) => {
+              return (
+                <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
+                  <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(5)}/>
+                  <Text >{numberToSuffixedString(u.denom)}</Text>
+                </View>
+              )
+            })}
           </View>
           <BannerAd/>
         </View>

@@ -1,4 +1,18 @@
 import { Dimensions } from 'react-native'
+import Dictionary from '../constants/Dictionary'
+
+export function dictionaryLookup(value, section, returnType) {
+	// const resultSection = section ? Dictionary[section] : Dictionary
+	if (!section) {return Dictionary[value]}
+	const resultObject = Dictionary[section].find((definition) => {
+		return value == definition.shortName || value == definition.longName
+	})
+	if (returnType == "long" || returnType == "longName") {
+		return resultObject.longName
+	} else {
+		return resultObject.shortName || null
+	}
+}
 
 export function	msToTime(duration, includeFractions, alwaysIncludeHours) {
   var negative = false
@@ -115,3 +129,29 @@ export const responsiveWidth = (w) => {
 export const responsiveFontSize = (f) => {
   return Math.sqrt((height*height)+(width*width))*(f/100);
 };
+
+export const checkUserCredits = (userId, creditsRequired) => {
+	return
+}
+
+export const showRewardedAd = () => {
+	return
+}
+
+export const rewardUser = (userId, credits) => {
+	return
+}
+
+export const creditCheck = (userId, creditsRequired) => {
+	if (checkUserCredits(userId, creditsRequired)) {
+		return true
+	} else {
+		showRewardedAd().then(() => {
+			rewardUser(userId, 100)
+			return true
+		})
+	}
+	//TODO: Get the reward value from showRewardedAd().
+	//TODO: Ensure that credits received are adequate before returning true.
+
+}
