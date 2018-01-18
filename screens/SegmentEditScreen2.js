@@ -1,7 +1,6 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { Text, View, StyleSheet } from 'react-native'
-// import { List, ListItem, Slider} from 'react-native-elements';
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, getSegmentQuery, deleteSegmentMutation, updateSegmentMutation} from '../constants/GQL'
 import Events from '../api/events'
@@ -106,6 +105,10 @@ class SegmentEditScreen extends React.Component {
             clearButtonMode='while-editing'
             keyboardType='numeric'
             value={Segment.sBlind ? Segment.sBlind.toString() : ''}
+            // onTextInputBlur={(currentText = '') => {
+            //   // alert('will try to put ' + 2 * parseInt(currentText) + ' into bBlind, current value is ' + GiftedFormManager.getValue('segmentForm', 'bBlind'))
+            //   GiftedFormManager.updateValue('segmentForm', 'bBlind', (2 * parseInt(currentText)).toString())
+            // }}
           />
           <GiftedForm.TextInputWidget
             name='bBlind'
@@ -113,6 +116,9 @@ class SegmentEditScreen extends React.Component {
             clearButtonMode='while-editing'
             keyboardType='numeric'
             value={Segment.bBlind ? Segment.bBlind.toString() : ''}
+            onTextInputFocus={(currentText = '') => {
+              return (parseInt(GiftedFormManager.getValue('segmentForm', 'sBlind')) * 2).toString()
+            }}
           />
           <GiftedForm.TextInputWidget
             name='ante'
