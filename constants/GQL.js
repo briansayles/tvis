@@ -286,6 +286,11 @@ export const createTournamentMutation = gql`
           chipStack: 1000
           costType: Buyin
         }
+        {
+          price: 20
+          chipStack: 1000
+          costType: Rebuy
+        }
       ]
       timer: {
         active: false
@@ -293,18 +298,33 @@ export const createTournamentMutation = gql`
       }
       segments: [
         {
+          sBlind:1
+          bBlind:2
+          duration: $duration
+        }
+        {
+          sBlind:2
+          bBlind:4
+          duration: $duration
+        }
+        {
+          sBlind:3
+          bBlind:6
+          duration: $duration
+        }
+        {
           sBlind:5
           bBlind:10
           duration: $duration
         }
         {
-          sBlind:15
-          bBlind:30
-          duration:$duration
-        }
-        {
           sBlind:10
           bBlind:20
+          duration: $duration
+        }
+        {
+          sBlind:15
+          bBlind:30
           duration: $duration
         }
         {
@@ -316,50 +336,89 @@ export const createTournamentMutation = gql`
         {
           sBlind:25
           bBlind:50
-          ante: 10
           duration:$duration
         }      
         {
-          sBlind:25
-          bBlind:50
+          sBlind:30
+          bBlind:60
           duration:$duration
         }      
         {
-          sBlind:5
-          bBlind:5
+          sBlind:40
+          bBlind:80
           duration:$duration
         }      
         {
           sBlind:50
           bBlind:100
-          ante: 20
           duration:$duration
         }      
         {
+          sBlind:60
+          bBlind:80
+          duration: $duration
+        }
+        {
           sBlind:75
           bBlind:150
-          ante: 25
           duration:$duration
+        }
+        {
+          sBlind:100
+          bBlind:200
+          duration: $duration
+        }
+        {
+          sBlind:150
+          bBlind:300
+          duration: $duration
+        }
+        {
+          sBlind:200
+          bBlind:400
+          duration: $duration
+        }
+        {
+          sBlind:250
+          bBlind:500
+          duration: $duration
+        }
+        {
+          sBlind:300
+          bBlind:600
+          duration: $duration
+        }
+        {
+          sBlind:400
+          bBlind:800
+          duration: $duration
+        }
+        {
+          sBlind:500
+          bBlind:1000
+          duration: $duration
         }
       ]
       chips: [
         {
+          color:"#fff"
+          denom:1
+        }
+        {
           color:"#f00"
-          rimColor: "#fff"
-          textColor: "#fff"
           denom:5
         }
         {
           color:"#0f0"
-          rimColor: "#000"
-          textColor: "#000"
           denom:25
         }
         {
           color:"#000"
-          rimColor: "#fff"
-          textColor: "#fff"
           denom:100
+        }
+        {
+          color:"#808"
+          denom:500
         }
       ]
     )
@@ -367,10 +426,6 @@ export const createTournamentMutation = gql`
       id
       title
       game
-      segments {
-        sBlind
-        duration
-      }
       user {
         name
         id

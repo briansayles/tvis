@@ -210,6 +210,13 @@ class TournamentTimerScreen extends React.Component {
                   {this.state.display.timer}
                 </Text>
               </View>
+              <View style={{flex: 1, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
+                <Text
+                  style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                >
+                  Next Blinds:
+                </Text>
+              </View>
               <View style={{flex: 2, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                 <Text
                   style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
@@ -219,9 +226,9 @@ class TournamentTimerScreen extends React.Component {
                 </Text>
               </View>
               <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore'}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause'} : {name: 'play-arrow'}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward'}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore', size: responsiveFontSize(3)}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause', size: responsiveFontSize(3)} : {name: 'play-arrow', size: responsiveFontSize(3)}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward', size: responsiveFontSize(3)}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
               </View>
             </View>
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
@@ -232,8 +239,8 @@ class TournamentTimerScreen extends React.Component {
             {chips.map((u,i) => {
               return (
                 <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
-                  <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(5)}/>
-                  <Text >{numberToSuffixedString(u.denom)}</Text>
+                  <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
+                  <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
                 </View>
               )
             })}
@@ -256,7 +263,7 @@ const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
     flex: '1',
-    fontSize: Math.min(responsiveHeight(8), responsiveWidth(8)),
+    fontSize: Math.min(responsiveHeight(10), responsiveWidth(10)),
     textAlign: 'center',
   },
   blindsNoticeText: {
@@ -265,7 +272,7 @@ const styles = StyleSheet.create({
   nextBlindsText: {
     color: 'rgba(150,150,150,1)',
     flex: '1',
-    fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
+    fontSize: Math.min(responsiveHeight(6), responsiveWidth(6)),
     textAlign: 'center',
   },
   nextBlindsNoticeText: {
@@ -286,5 +293,8 @@ const styles = StyleSheet.create({
     fontSize: Math.min(responsiveHeight(5), responsiveWidth(5)),
     color: '#fff',
     textAlign: 'center',
+  },
+  chipText: {
+    fontSize: responsiveFontSize(3),
   }
 })

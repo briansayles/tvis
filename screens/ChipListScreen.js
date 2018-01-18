@@ -8,6 +8,7 @@ import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation
 import { sortChips, numberToSuffixedString, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
+import { BannerAd } from '../screens/Ads'
 
 class ChipListScreen extends React.Component {
 
@@ -49,7 +50,7 @@ class ChipListScreen extends React.Component {
     this.props.getTournamentChipsQuery.refetch()
   }
 
-  _addButtonPressed(location, existingChip) {
+  _addButtonPressed() {
     this.props.createTournamentChipMutation(
       {
         variables:
@@ -81,44 +82,50 @@ class ChipListScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const chips = sortChips(Tournament.chips)
       return (
-        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._refreshButtonPressed.bind(this)}
-            />
-          }
-        >
-          <List>
-            {
-              chips.map((item, i) => (
-                <Swipeout
-                  key={i}
-                  autoClose={true}
-                  right={[
-                    {
-                      text: 'Edit',
-                      onPress: this._navigateToChipEdit.bind(this, item.id),
-                      type: 'primary',
-                    },
-                    {
-                      text: 'DELETE',
-                      onPress: this._deleteChipButtonPressed.bind(this, item.id),
-                      backgroundColor: '#ff0000',
-                      type: 'delete',
-                    },
-                  ]}
-                >
-                <ListItem
-                  title={numberToSuffixedString(item.denom) + ": " + dictionaryLookup(item.color, "ChipColorOptions", "long")}
-                  onPress={this._navigateToChipEdit.bind(this, item.id)}
-                />
-                </Swipeout>
-              ))
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+          <View style={{marginTop: 5}}>
+            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+          </View>
+          <ScrollView 
+            style={{flex: 1, marginLeft: 5, marginRight: 5}}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this._refreshButtonPressed.bind(this)}
+              />
             }
-          </List>
-          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", chips[chips.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
-        </ScrollView>
+          >
+            <List>
+              {
+                chips.map((item, i) => (
+                  <Swipeout
+                    key={i}
+                    autoClose={true}
+                    right={[
+                      {
+                        text: 'Edit',
+                        onPress: this._navigateToChipEdit.bind(this, item.id),
+                        type: 'primary',
+                      },
+                      {
+                        text: 'DELETE',
+                        onPress: this._deleteChipButtonPressed.bind(this, item.id),
+                        backgroundColor: '#ff0000',
+                        type: 'delete',
+                      },
+                    ]}
+                  >
+                  <ListItem
+                    title={numberToSuffixedString(item.denom) + ": " + dictionaryLookup(item.color, "ChipColorOptions", "long")}
+                    onPress={this._navigateToChipEdit.bind(this, item.id)}
+                  />
+                  </Swipeout>
+                ))
+              }
+            </List>
+          </ScrollView>
+          <BannerAd/>
+        </View>
       )
     }
   }

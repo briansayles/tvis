@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
-import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, addCreditsMutation, } from '../constants/GQL'
+import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, } from '../constants/GQL'
 import Auth from '../components/Auth'
 import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
@@ -26,13 +26,7 @@ class TournamentListScreen extends React.Component {
   }
 
   componentDidMount() {
-    // AdMobRewarded.setAdUnitID('ca-app-pub-3940256099942544/5224354917')
-    // AdMobRewarded.setTestDeviceID('EMULATOR')
-    // AdMobRewarded.requestAd((result) => {
-    //   console.log(JSON.stringify(result))
-    // })
     this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refreshButtonPressed())
-
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,30 +44,6 @@ class TournamentListScreen extends React.Component {
   componentWillUnmount () {
     this.refreshEvent.remove()
   }
-
-  _openRewarded = () => {
-
-    AdMobRewarded.setAdUnitID('ca-app-pub-3013833975597353/7633439481')
-    // AdMobRewarded.setTestDeviceID('EMULATOR');
-    AdMobRewarded.requestAd((result) => {
-      console.log(JSON.stringify(result))
-      AdMobRewarded.showAd((result) => {
-        console.log(JSON.stringify(result))
-      })
-    });
-    // AdMobRewarded.requestAd((result) => {
-    //   console.log (JSON.stringify(result))
-    // }).then(() => {
-    //   AdMobRewarded.showAd((result) => {
-    //     console.log(JSON.stringify(result))
-    //   })
-    // })
-  }
-
-
-  // _showRewardedAdPressed () {
-  //   showRewardedAd()
-  // }
 
   _addButtonPressed = async () => {
     this.props.createTournamentMutation(
@@ -122,7 +92,6 @@ class TournamentListScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <View style={{marginTop: 5}}>
-            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._openRewarded} icon={{name: 'playlist-add'}} title="Show Ad"></Button>}
             {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
           </View>
           <ScrollView 
@@ -159,7 +128,6 @@ class TournamentListScreen extends React.Component {
                       onPress={this._navigateToEdit.bind(this, item.id)}
                     />
                   </Swipeout>
-
                   )
                 )
               }
@@ -181,5 +149,4 @@ export default compose(
   graphql(currentUserTournamentsQuery, { name: 'currentUserTournamentsQuery' }),
   graphql(createTournamentMutation, { name: 'createTournamentMutation'}),
   graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
-  graphql(addCreditsMutation, {name: 'addCreditsMutation'}),
 )(TournamentListScreen)

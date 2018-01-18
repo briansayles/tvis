@@ -156,6 +156,5 @@ class CostEditScreen extends React.Component {
 export default compose(
   graphql(getCostQuery, { name: 'getCostQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(deleteCostMutation, { name: 'deleteCostMutation' }),
   graphql(updateCostMutation, { name: 'updateCostMutation'}),
 )(CostEditScreen)

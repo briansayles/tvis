@@ -3,7 +3,7 @@
     "name": "tvis",
     "description": "My TVIS description",
     "slug": "tvis",
-    "privacy": "public",
+    "privacy": "unlisted",
     "sdkVersion": "24.0.0",
     "version": "1.0.0",
     "orientation": "default",
