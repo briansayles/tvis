@@ -8,13 +8,13 @@ import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMu
 import { sortSegments, sortChips } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
+import { BannerAd } from '../screens/Ads'
 
 class SegmentListScreen extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      formData: {},
       refreshing: false,
       user: null,
     }
@@ -29,16 +29,11 @@ class SegmentListScreen extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery) {
-      // const user = nextProps.currentUserQuery.user || null
       this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-    if (nextProps.getTournamentSegmentsQuery) {
-      this.setState({formData: nextProps.getTournamentSegmentsQuery.Tournament || null})
     }
   }
   
   componentDidUpdate(prevProps) {
-
   }
 
   componentWillUnmount () {
@@ -47,32 +42,31 @@ class SegmentListScreen extends React.Component {
 
   _refreshButtonPressed() {
     this.props.getTournamentSegmentsQuery.refetch()
-    // alert('Editor refreshed')
   }
 
   _addButtonPressed(location, existingSegment) {
   	var sBlind, bBlind, duration
-  	if (location == "before") {
-  		sBlind = parseInt(existingSegment.sBlind / 2)
-  		bBlind = 2 * sBlind
-  		duration = existingSegment.duration
-  	} else {
-  		sBlind = existingSegment.sBlind * 2
-  		bBlind = 2 * sBlind
-  		duration = existingSegment.duration
-  	}
+  	// if (location == "before") {
+  	// 	sBlind = parseInt(existingSegment.sBlind / 2)
+  	// 	bBlind = 2 * sBlind
+  	// 	duration = existingSegment.duration
+  	// } else {
+  	// 	sBlind = existingSegment.sBlind * 2
+  	// 	bBlind = 2 * sBlind
+  	// 	duration = existingSegment.duration
+  	// }
 
     this.props.createTournamentSegmentMutation(
       {
         variables:
         {
           "tournamentId": this.props.getTournamentSegmentsQuery.Tournament.id,
-          "sBlind": sBlind,
-          "bBlind": bBlind,
-          "duration": duration,
+          "sBlind": 0,
+          "bBlind": 0,
+          "duration": existingSegment.duration || 20,
         }
       }
-    ).then(() => this._refreshButtonPressed()).then(() => alert('Segment added'))
+    ).then(() => this._refreshButtonPressed())
   }
 
 	_navigateToSegmentEdit(id) {
@@ -99,46 +93,50 @@ class SegmentListScreen extends React.Component {
       const segments = sortSegments(Tournament.segments)
 
       return (
-        <ScrollView style={{flex: 1, paddingTop: 22, paddingBottom: 30}}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._refreshButtonPressed.bind(this)}
-            />
-          }
-        >
-          {this.state.user && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "before", segments[0])} icon={{name: 'playlist-add'}} title="Add"></Button>}
-          <List>
-            {
-              segments.map((item, i) => (
-                <Swipeout
-                  key={i}
-                  autoClose={true}
-                  right={[
-                    {
-                      text: 'Edit',
-                      onPress: this._navigateToSegmentEdit.bind(this, item.id),
-                      type: 'primary',
-                    },
-                    {
-                      text: 'DELETE',
-                      onPress: this._deleteSegmentButtonPressed.bind(this, item.id),
-                      backgroundColor: '#ff0000',
-                      type: 'delete',
-                    },
-                  ]}
-                >
-                <ListItem
-                  title={item.duration + " minutes: " + item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "")}
-                  onPress={this._navigateToSegmentEdit.bind(this, item.id)}
-                />
-                </Swipeout>
-              ))
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+          <View style={{marginTop: 5}}>
+            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this, "before", segments[0])} icon={{name: 'playlist-add'}} title="New"></Button>}
+          </View>
+          <ScrollView 
+            style={{flex: 1, marginLeft: 5, marginRight: 5}}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this._refreshButtonPressed.bind(this)}
+              />
             }
-          </List>
-          {userIsOwner && <Button style={{flex:-1}} onPress={this._addButtonPressed.bind(this, "after", segments[segments.length - 1])} icon={{name: 'playlist-add'}} title="Add"></Button>}
-          <Text>{"\n"}</Text>
-        </ScrollView>
+          >
+            <List>
+              {
+                segments.map((item, i) => (
+                  <Swipeout
+                    key={i}
+                    autoClose={true}
+                    right={[
+                      {
+                        text: 'Edit',
+                        onPress: this._navigateToSegmentEdit.bind(this, item.id),
+                        type: 'primary',
+                      },
+                      {
+                        text: 'DELETE',
+                        onPress: this._deleteSegmentButtonPressed.bind(this, item.id),
+                        backgroundColor: '#ff0000',
+                        type: 'delete',
+                      },
+                    ]}
+                  >
+                  <ListItem
+                    title={item.duration + " minutes: " + item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "")}
+                    onPress={this._navigateToSegmentEdit.bind(this, item.id)}
+                  />
+                  </Swipeout>
+                ))
+              }
+            </List>
+          </ScrollView>
+          <BannerAd/>
+        </View>
       )
     }
   }
