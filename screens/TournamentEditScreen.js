@@ -3,7 +3,7 @@ import React from 'react'
 import { View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Text, List, ListItem, Card, Button, Avatar, Icon} from 'react-native-elements';
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, tournamentSubscription} from '../constants/GQL'
-import { sortSegments, sortChips, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
+import { sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import { BannerAd } from '../screens/Ads'
 
@@ -99,6 +99,7 @@ class TournamentEditScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const segments = sortSegments(Tournament.segments)
       const chips = sortChips(Tournament.chips)
+      const fees = sortEntryFees(Tournament.costs)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ScrollView style={{flex: 1}}
@@ -123,7 +124,7 @@ class TournamentEditScreen extends React.Component {
             <Card title="Entry Fee(s)"
             >
               {
-                Tournament.costs.map((u, i) => {
+                fees.map((u, i) => {
                   return (
                     <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={[styles.title, {flex: 3}]}>
@@ -169,7 +170,7 @@ class TournamentEditScreen extends React.Component {
                 <Text style={[styles.title, {flex: '1', textDecorationLine: 'underline'}]}>Ante</Text>
               </View>
               {
-                Tournament.segments.map((u, i) => {
+                segments.map((u, i) => {
                   return (
                     <View key={i} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                       <Text style={[styles.title, {flex: '2'}]}>{u.duration.toString()}</Text>
@@ -189,7 +190,7 @@ class TournamentEditScreen extends React.Component {
 
             <Card title="Chip Denominations" flexDirection='column'>
               <View style={{flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#eee', paddingTop: 3, paddingBottom: 3}}>
-                {Tournament.chips.map((u,i) => {
+                {chips.map((u,i) => {
                   return (
                     <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
                       <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>

@@ -115,6 +115,26 @@ export function sortChips (chips) {
 	})
 }
 
+export function sortEntryFees (fees) {
+	const sortOrder = {
+		Buyin: 1,
+		House: 2,
+		Charity: 3,
+		Rebuy: 4,
+		Addon: 5,
+		Bounty: 6
+	}
+	return fees.sort((a,b) => {
+		if (a.costType !== b.costType) {
+			return sortOrder[a.costType] - sortOrder[b.costType]
+		} else if (a.price && b.price) {
+			return b.price - a.price
+		} else {
+			return -1
+		}
+	})
+}
+
 
 const {height, width} = Dimensions.get('window');
 

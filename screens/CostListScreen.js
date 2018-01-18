@@ -3,7 +3,7 @@ import React from 'react'
 import {Text, View, ScrollView, RefreshControl, } from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
 import { currentUserQuery, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation} from '../constants/GQL'
-import { dictionaryLookup } from '../utilities/functions'
+import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../screens/Ads'
@@ -77,7 +77,7 @@ class CostListScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
-      const costs = Tournament.costs
+      const fees = sortEntryFees(Tournament.costs)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <View style={{marginTop: 5}}>
@@ -94,7 +94,7 @@ class CostListScreen extends React.Component {
           >
             <List>
               {
-                costs.map((item, i) => (
+                fees.map((item, i) => (
                   <Swipeout
                     key={i}
                     autoClose={true}
