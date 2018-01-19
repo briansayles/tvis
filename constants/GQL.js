@@ -355,7 +355,7 @@ export const createTournamentMutation = gql`
         }      
         {
           sBlind:60
-          bBlind:80
+          bBlind:120
           duration: $duration
         }
         {
