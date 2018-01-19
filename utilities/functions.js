@@ -1,6 +1,36 @@
 import { Dimensions } from 'react-native'
 import Dictionary from '../constants/Dictionary'
 
+export function smallestChipArray (sortedChips, sortedSegments) {
+	const chips = sortedChips.slice(0)
+	const segments = sortedSegments.slice(0)
+  const chipsReversed = chips.slice(0).reverse()
+  const segmentsReversed = segments.slice(0).reverse()
+  var smallestDenominationRequiredArray = []
+  
+  for (var si = 0; si < segmentsReversed.length; si++) {
+    let bb = segmentsReversed[si].bBlind
+    let sb = segmentsReversed[si].sBlind
+    for (var ci = 0; ci < chipsReversed.length; ci++) {
+      let d = chipsReversed[ci].denom
+      if (sb % d === 0 && bb % d === 0) {
+        smallestDenominationRequiredArray.push(d)
+        break
+      }
+      if (ci === chipsReversed.length - 1) {
+        smallestDenominationRequiredArray.push("n/a")
+      }
+    }    
+  }
+  smallestDenominationRequiredArray.reverse()
+  var lastSegmentRequiredArray = []
+  for (var ci = 0; ci < chips.length; ci++) {
+  	lastSegmentRequiredArray.push({denom: chips[ci].denom, segment: smallestDenominationRequiredArray.lastIndexOf(chips[ci].denom)})
+  }
+  return lastSegmentRequiredArray
+  return smallestDenominationRequiredArray	
+}
+
 export function dictionaryLookup(value, section, returnType) {
 	// const resultSection = section ? Dictionary[section] : Dictionary
 	if (!section) {return Dictionary[value]}

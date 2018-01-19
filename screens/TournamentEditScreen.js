@@ -3,7 +3,7 @@ import React from 'react'
 import { View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Text, List, ListItem, Card, Button, Avatar, Icon} from 'react-native-elements';
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, tournamentSubscription} from '../constants/GQL'
-import { sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
+import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import { BannerAd } from '../screens/Ads'
 
@@ -99,6 +99,7 @@ class TournamentEditScreen extends React.Component {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const segments = sortSegments(Tournament.segments)
       const chips = sortChips(Tournament.chips)
+      const smallestChipReq = smallestChipArray(chips, segments)
       const fees = sortEntryFees(Tournament.costs)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
@@ -172,11 +173,22 @@ class TournamentEditScreen extends React.Component {
               {
                 segments.map((u, i) => {
                   return (
-                    <View key={i} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                      <Text style={[styles.title, {flex: '2'}]}>{u.duration.toString()}</Text>
-                      <Text style={[styles.title, {flex: '2'}]}>{u.sBlind ? numberToSuffixedString(u.sBlind) : ''}</Text>
-                      <Text style={[styles.title, {flex: '2'}]}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
-                      <Text style={[styles.title, {flex: '1'}]}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
+                    <View key={i} style={{flexDirection: 'column'}}>
+                      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <Text style={[styles.title, {flex: '2'}]}>{u.duration.toString()}</Text>
+                        <Text style={[styles.title, {flex: '2'}]}>{u.sBlind ? numberToSuffixedString(u.sBlind) : ''}</Text>
+                        <Text style={[styles.title, {flex: '2'}]}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
+                        <Text style={[styles.title, {flex: '1'}]}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
+                      </View>
+                      { smallestChipReq.map((s) => {
+                        if (s.segment === i && i < segments.length -1 ) {
+                          return (
+                            <View key={i} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                              <Text style={[styles.title, {flex: '2'}]}>Color Up {s.denom.toString()}'s</Text>
+                            </View>
+                          )
+                        }
+                      }) }
                     </View>
                   )
                 })
@@ -187,7 +199,6 @@ class TournamentEditScreen extends React.Component {
                 </View>
               }
             </Card>
-
             <Card title="Chip Denominations" flexDirection='column'>
               <View style={{flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#eee', paddingTop: 3, paddingBottom: 3}}>
                 {chips.map((u,i) => {
@@ -212,12 +223,10 @@ class TournamentEditScreen extends React.Component {
     }
   }
 }
-
 export default compose(
   graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
 )(TournamentEditScreen)
-
 const styles = StyleSheet.create({
   title: {
     fontSize: responsiveFontSize(2),
@@ -227,7 +236,6 @@ const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1.5),
   },
   editButton: {
-
   },
   chipText: {
     fontSize: responsiveFontSize(3),

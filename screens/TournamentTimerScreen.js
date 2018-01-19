@@ -3,7 +3,7 @@ import React from 'react'
 import {Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {Button, Avatar, Icon} from 'react-native-elements'
 import { KeepAwake, Audio } from 'expo'
-import {msToTime, numberToSuffixedString, tick, sortChips, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
+import {smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
 import { BannerAd } from '../screens/Ads'
@@ -186,6 +186,9 @@ class TournamentTimerScreen extends React.Component {
     } else {
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
       const chips = sortChips(Tournament.chips)
+      const segments = sortSegments(Tournament.segments)
+      const smallestChipReq = smallestChipArray(chips, segments)
+
       return (
         <View style={{flex: 1, flexDirection: 'column', backgroundColor: 'green', justifyContent: 'space-around'}}>
           <KeepAwake/>
@@ -237,12 +240,14 @@ class TournamentTimerScreen extends React.Component {
 
           <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
             {chips.map((u,i) => {
-              return (
-                <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
-                  <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
-                  <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
-                </View>
-              )
+             if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
+                return (
+                  <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
+                    <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
+                    <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
+                  </View>
+                )
+              }
             })}
           </View>
           <BannerAd/>
