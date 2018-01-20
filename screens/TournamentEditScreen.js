@@ -180,11 +180,11 @@ class TournamentEditScreen extends React.Component {
                         <Text style={[styles.title, {flex: '2'}]}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
                         <Text style={[styles.title, {flex: '1'}]}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
                       </View>
-                      { smallestChipReq.map((s) => {
+                      { smallestChipReq.map((s, si) => {
                         if (s.segment === i && i < segments.length -1 ) {
                           return (
-                            <View key={i} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                              <Text style={[styles.title, {flex: '2'}]}>Color Up {s.denom.toString()}'s</Text>
+                            <View key={si} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                              <Text style={[styles.title, {flex: '2', color: s.color != "#fff" ? s.color : "#000"}]}>Color Up {s.denom.toString()}'s ({dictionaryLookup(s.color, "ChipColorOptions", "long")})</Text>
                             </View>
                           )
                         }

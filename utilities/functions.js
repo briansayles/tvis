@@ -9,11 +9,12 @@ export function smallestChipArray (sortedChips, sortedSegments) {
   var smallestDenominationRequiredArray = []
   
   for (var si = 0; si < segmentsReversed.length; si++) {
-    let bb = segmentsReversed[si].bBlind
-    let sb = segmentsReversed[si].sBlind
+    let bb = segmentsReversed[si].bBlind || 0
+    let sb = segmentsReversed[si].sBlind || 0
+    let ante = segmentsReversed[si].ante || 0
     for (var ci = 0; ci < chipsReversed.length; ci++) {
       let d = chipsReversed[ci].denom
-      if (sb % d === 0 && bb % d === 0) {
+      if (sb % d === 0 && bb % d === 0 && ante % d === 0) {
         smallestDenominationRequiredArray.push(d)
         break
       }
@@ -25,7 +26,7 @@ export function smallestChipArray (sortedChips, sortedSegments) {
   smallestDenominationRequiredArray.reverse()
   var lastSegmentRequiredArray = []
   for (var ci = 0; ci < chips.length; ci++) {
-  	lastSegmentRequiredArray.push({denom: chips[ci].denom, segment: smallestDenominationRequiredArray.lastIndexOf(chips[ci].denom)})
+  	lastSegmentRequiredArray.push({denom: chips[ci].denom, color: chips[ci].color, segment: smallestDenominationRequiredArray.lastIndexOf(chips[ci].denom)})
   }
   return lastSegmentRequiredArray
   return smallestDenominationRequiredArray	
@@ -66,6 +67,7 @@ export function	msToTime(duration, includeFractions, alwaysIncludeHours) {
 }
 
 export function numberToSuffixedString(number) {
+	if (number === 0) {return number}
 	if (number % 1000000 === 0 || (number > 1000000 && number % 1000000 === 500000)) {
 		return (number / 1000000).toLocaleString() + "M"	
 	}

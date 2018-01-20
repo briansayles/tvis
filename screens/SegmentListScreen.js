@@ -127,7 +127,7 @@ class SegmentListScreen extends React.Component {
                     ]}
                   >
                   <ListItem
-                    title={item.duration + " minutes: " + item.sBlind + "/" + item.bBlind + (item.ante ? " + " + item.ante + " ante" : "")}
+                    title={item.duration + " minutes: " + (item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
                     onPress={this._navigateToSegmentEdit.bind(this, item.id)}
                   />
                   </Swipeout>
