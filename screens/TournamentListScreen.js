@@ -125,6 +125,7 @@ class TournamentListScreen extends React.Component {
                   >
                     <ListItem
                       title={item.title}
+                      subtitle={item.subtitle}
                       onPress={this._navigateToEdit.bind(this, item.id)}
                     />
                   </Swipeout>

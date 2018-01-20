@@ -192,7 +192,7 @@ class TournamentTimerScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', backgroundColor: 'green', justifyContent: 'space-around'}}>
           <KeepAwake/>
-          <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+          <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
             <Text style={[styles.titleText]}>{Tournament.title}</Text>
           </View>
           <View style={{flex: 8, flexDirection:'row', }}>

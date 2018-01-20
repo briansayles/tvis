@@ -97,6 +97,9 @@ class GeneralInfoEditScreen extends React.Component {
             title: {
               title: 'Tournament Title',
             },
+            subtitle: {
+              title: 'Tournament Subtitle'
+            },
             comments: {
               title: 'Comments',
             },
@@ -113,6 +116,16 @@ class GeneralInfoEditScreen extends React.Component {
             clearButtonMode='while-editing'
             keyboardType='default'
             value={Tournament.title ? Tournament.title.toString() : ''}
+            placeholder='Tournament title.'
+          />
+
+          <GiftedForm.TextInputWidget
+            name='subtitle'
+            title='Subtitle'
+            clearButtonMode='while-editing'
+            keyboardType='default'
+            value={Tournament.subtitle ? Tournament.subtitle.toString() : ''}
+            placeholder='This information will show up on the tournament list, under the tournament title. Use it for things like dates, game numbers, etc...'
           />
 
           <GiftedForm.TextAreaWidget
@@ -149,6 +162,7 @@ class GeneralInfoEditScreen extends React.Component {
                     variables: {
                       id: Tournament.id,
                       title: values.title.toString(),
+                      subtitle: values.subtitle.toString(),
                       comments: values.comments.toString(),
                       game: values.game ? dictionaryLookup(values.game, "GameOptions") : undefined
                     }

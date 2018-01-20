@@ -67,6 +67,7 @@ export const currentUserTournamentsQuery = gql`
       tournaments {
         id
         title
+        subtitle
       }
     }
   }
@@ -93,6 +94,7 @@ export const allTournamentsQuery = gql`
     {
       id
       title
+      subtitle
     }
   }
 `
@@ -116,6 +118,7 @@ export const getTournamentQuery = gql`
     {
       id
       title
+      subtitle
       comments
       updatedAt
       game
@@ -451,8 +454,8 @@ export const changeTitleMutation = gql`
 `
 
 export const updateTournamentMutation = gql`
-  mutation updateTournament ($id: ID!, $title: String, $comments: String, $game: Game) {
-    updateTournament(id: $id, title: $title, comments: $comments, game: $game) {
+  mutation updateTournament ($id: ID!, $title: String, $subtitle: String, $comments: String, $game: Game) {
+    updateTournament(id: $id, title: $title, subtitle: $subtitle, comments: $comments, game: $game) {
       id
     }
   }

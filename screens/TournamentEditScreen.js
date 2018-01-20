@@ -113,6 +113,7 @@ class TournamentEditScreen extends React.Component {
           >
             <Card title={Tournament.title} titleStyle={[styles.title, {}]} flexDirection='column'>
               <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={[styles.title, {}]}>{Tournament.subtitle ? Tournament.subtitle.toString() + "\n" : ""}</Text>
                 <Text style={[styles.title, {}]}>{dictionaryLookup(Tournament.game.toString(), "GameOptions", "long") + "\n"}</Text>
                 <Text style={[styles.title, {}]}>{Tournament.comments ? Tournament.comments.toString() : ''}</Text>
               </View>

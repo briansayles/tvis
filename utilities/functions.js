@@ -67,7 +67,7 @@ export function	msToTime(duration, includeFractions, alwaysIncludeHours) {
 }
 
 export function numberToSuffixedString(number) {
-	if (number === 0) {return number}
+	if (number === 0 || number === null) {return 0}
 	if (number % 1000000 === 0 || (number > 1000000 && number % 1000000 === 500000)) {
 		return (number / 1000000).toLocaleString() + "M"	
 	}
