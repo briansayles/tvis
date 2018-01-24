@@ -277,6 +277,22 @@ export const createTournamentCostMutation = gql`
   }
 `
 
+export const copyTournamentMutation = gql`
+  mutation copyTournament ($userId: ID!, $title: String, $segments: [Segment], $chips: [Chip], $costs: [Cost]) {
+    createTournament(
+      userId: $userId
+      title: $title
+      timer: {
+        active: false
+        elapsed: 0
+      }
+
+
+
+    )
+  }
+`
+
 export const createTournamentMutation = gql`
   mutation createTournament( $userId: ID!, $title: String="Default Tournament Title", $duration: Int=20) {
     createTournament (

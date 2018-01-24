@@ -6,6 +6,7 @@ import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, getCostQuery, deleteCostMutation, updateCostMutation} from '../constants/GQL'
 import Events from '../api/events'
 import dict from '../constants/Dictionary'
+import dictionaryLookup from '../utilities/functions'
 
 
 class CostEditScreen extends React.Component {
@@ -135,7 +136,7 @@ class CostEditScreen extends React.Component {
                       id: Cost.id,
                       price: parseInt(values.price),
                       chipStack: parseInt(values.chipStack),
-                      costType: dict.EntryFeeOptions.find((fee) => { return values.costType.toString() == fee.shortName || values.costType.toString() == fee.longName}).shortName,
+                      costType: values.costType ? dictionaryLookup(values.costType.toString(), "EntryFeeOptions", "shortName") : undefined,
                     }
                   }
                 ).then(() => {
