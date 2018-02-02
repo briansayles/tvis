@@ -192,7 +192,7 @@ class TournamentTimerScreen extends React.Component {
       const nextSegment = this.state.nextSegment && this.state.nextSegment
 
       return (
-        <View style={{flex: 1, flexDirection: 'column', backgroundColor: 'green', justifyContent: 'space-around'}}>
+        <View style={[{backgroundColor: Tournament.game == "CAP" ? '#005b96' : 'green'}, {flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
           <KeepAwake/>
           <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
             <Text style={[styles.titleText]}>{Tournament.title}</Text>
@@ -266,7 +266,7 @@ class TournamentTimerScreen extends React.Component {
                 </View>
               }
               {Tournament.game == "CAP" && nextSegment && 
-                <View style={{flex: 2, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
+                <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                   <Text
                     style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                   >
@@ -294,19 +294,20 @@ class TournamentTimerScreen extends React.Component {
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
             </View>
           </View>
-
-          <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
-            {chips.map((u,i) => {
-             if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
-                return (
-                  <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
-                    <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
-                    <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
-                  </View>
-                )
-              }
-            })}
-          </View>
+          {Tournament.game != "CAP" && 
+            <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
+              {chips.map((u,i) => {
+               if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
+                  return (
+                    <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
+                      <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
+                      <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
+                    </View>
+                  )
+                }
+              })}
+            </View>
+          }
           <BannerAd/>
         </View>
       )
@@ -334,7 +335,7 @@ const styles = StyleSheet.create({
   nextBlindsText: {
     color: 'rgba(150,150,150,1)',
     flex: '1',
-    fontSize: Math.min(responsiveHeight(6), responsiveWidth(6)),
+    fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
     textAlign: 'center',
   },
   nextBlindsNoticeText: {
