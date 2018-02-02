@@ -1,6 +1,6 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
-import { Text, View, StyleSheet } from 'react-native'
+import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 // import { List, ListItem, Slider} from 'react-native-elements';
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, getCostQuery, deleteCostMutation, updateCostMutation} from '../constants/GQL'
@@ -37,7 +37,7 @@ class CostEditScreen extends React.Component {
   render() {
     const { getCostQuery: { loading, error, Cost } } = this.props
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {

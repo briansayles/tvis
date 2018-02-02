@@ -1,6 +1,6 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import { View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import { ActivityIndicator, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Text, List, ListItem, Card, Button, Avatar, Icon} from 'react-native-elements';
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, tournamentSubscription} from '../constants/GQL'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
@@ -92,7 +92,7 @@ class TournamentEditScreen extends React.Component {
     const { getTournamentQuery: { loading, error, Tournament } } = this.props
     const editButtonColor = dictionaryLookup("editButtonColor")
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {

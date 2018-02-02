@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import {Text, View, ScrollView, } from 'react-native'
-import { PricingCard, Button } from 'react-native-elements';
+import { ActivityIndicator, PricingCard, Button } from 'react-native-elements';
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, updateTournamentMutation, getTournamentQuery} from '../constants/GQL'
 import { dictionaryLookup } from '../utilities/functions'
@@ -61,7 +61,7 @@ class GeneralInfoEditScreen extends React.Component {
   render() {
     const { getTournamentQuery: { loading, error, Tournament } } = this.props
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {

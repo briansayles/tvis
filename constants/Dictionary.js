@@ -11,7 +11,8 @@ export default {
 		{longName: "Limit Hold'Em", shortName: "LHE"},
 		{longName: "Limit 7 Card Stud", shortName: "L7S"},
 		{longName: "H.O.R.S.E.", shortName: "HORSE"},
-		{longName: "H.O.S.E.", shortName: "HOSE"}
+		{longName: "H.O.S.E.", shortName: "HOSE"},
+		{longName: "Cold Capping", shortName: "CAP"}
 	],
 	EntryFeeOptions: [
 		{longName: "Standard Buy-In", shortName: "Buyin"},

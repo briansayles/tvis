@@ -1,12 +1,14 @@
 import React from 'react'
 import { graphql } from 'react-apollo'
-import { StyleSheet, Text, View, Button } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, View, Button } from 'react-native'
 
 import Auth, { logout } from '../components/Auth'
 import {currentUserQuery} from '../constants/GQL'
 
 const ProfileScreen = ({ fetchCurrentUser: { loading, user } }) => {
-  if (loading) return <View style={styles.container}><Text>Loading...</Text></View>
+  if (loading) {
+    return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+  }
   return (
     <View style={styles.container}>
       {user && <Text>Logged in as { user.name }</Text>}

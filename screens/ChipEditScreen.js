@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import { List, ListItem, } from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getChipQuery, deleteChipMutation, updateChipMutation} from '../constants/GQL'
@@ -48,7 +48,7 @@ class ChipEditScreen extends React.Component {
   render() {
     const { getChipQuery: { loading, error, Chip } } = this.props
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {

@@ -1,6 +1,6 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, FlatList} from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, FlatList} from 'react-native'
 import {List, ListItem, Button, SearchBar, CheckBox} from 'react-native-elements'
 import {currentUserQuery, addCreditsMutation, } from '../constants/GQL'
 import { NewButton } from '../components/NewButton'
@@ -105,7 +105,7 @@ class ContactListScreen extends React.Component {
           and manually enable access via the Privacy tab.
         </Text>)
       }
-      return <Text>Loading...</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>

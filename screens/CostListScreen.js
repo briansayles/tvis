@@ -1,6 +1,6 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import {Text, View, ScrollView, RefreshControl, } from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
 import { currentUserQuery, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation} from '../constants/GQL'
 import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
@@ -72,7 +72,7 @@ class CostListScreen extends React.Component {
   render() {
     const { getTournamentCostsQuery: { loading, error, Tournament } } = this.props
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {

@@ -1,6 +1,6 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
-import { Text, View, StyleSheet } from 'react-native'
+import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, getSegmentQuery, deleteSegmentMutation, updateSegmentMutation} from '../constants/GQL'
 import Events from '../api/events'
@@ -33,7 +33,7 @@ class SegmentEditScreen extends React.Component {
   render() {
     const { getSegmentQuery: { loading, error, Segment } } = this.props
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {  

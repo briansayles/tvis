@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 // import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
 import { List, ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
 // import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
@@ -75,7 +75,7 @@ class ChipListScreen extends React.Component {
   render() {
     const { getTournamentChipsQuery: { loading, error, Tournament } } = this.props
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {

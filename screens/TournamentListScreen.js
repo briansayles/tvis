@@ -1,8 +1,8 @@
-import {graphql, compose} from 'react-apollo'
+import { graphql, compose } from 'react-apollo'
 import React from 'react'
-import {Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import {List, ListItem, Button} from 'react-native-elements'
-import {currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, } from '../constants/GQL'
+import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage } from 'react-native'
+import { List, ListItem, Button } from 'react-native-elements'
+import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, } from '../constants/GQL' // copyTournamentMutation, 
 import Auth from '../components/Auth'
 import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
@@ -73,6 +73,11 @@ class TournamentListScreen extends React.Component {
     this.props.navigation.navigate('Edit', {id: id})
   }
 
+  _copyTournament(id) {
+    // this.props.copyTournamentMutation({variables: {id: id}})
+    alert("We're working on this feature now, but it's not ready yet.")
+  }
+
   _deleteTournamentButtonPressed(id) {
     // const tournamentId = this.props.getSegmentQuery.Segment.tournament.id
     this.props.deleteTournamentMutation({variables: {id: id} }).then(
@@ -83,7 +88,7 @@ class TournamentListScreen extends React.Component {
   render() {
     const { currentUserTournamentsQuery: { loading, error, user } } = this.props
     if (loading) {
-      return <Text>Loading...</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return (<Text>{error.message}</Text>)
     } else if (!user) {
@@ -110,6 +115,11 @@ class TournamentListScreen extends React.Component {
                     key={i}
                     autoClose={true}
                     right={[
+                      {
+                        text: 'Copy',
+                        onPress: this._copyTournament.bind(this, item),
+                        type: 'default'
+                      },
                       {
                         text: 'Edit',
                         onPress: this._navigateToEdit.bind(this, item.id),
@@ -150,4 +160,5 @@ export default compose(
   graphql(currentUserTournamentsQuery, { name: 'currentUserTournamentsQuery' }),
   graphql(createTournamentMutation, { name: 'createTournamentMutation'}),
   graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
+  // graphql(copyTournamentMutation, {name: 'copyTournamentMutation'}),
 )(TournamentListScreen)

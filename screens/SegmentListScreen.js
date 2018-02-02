@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import React from 'react'
-import {Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { List, ListItem, Button, } from 'react-native-elements';
 import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
@@ -84,7 +84,7 @@ class SegmentListScreen extends React.Component {
     const { getTournamentSegmentsQuery: { loading, error, Tournament } } = this.props
 
     if (loading) {
-      return <Text>Loading</Text>
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {
@@ -127,7 +127,8 @@ class SegmentListScreen extends React.Component {
                     ]}
                   >
                   <ListItem
-                    title={item.duration + " minutes: " + (item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
+                    title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
+                    subtitle={item.duration + " minutes"}
                     onPress={this._navigateToSegmentEdit.bind(this, item.id)}
                   />
                   </Swipeout>
