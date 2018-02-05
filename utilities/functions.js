@@ -25,11 +25,13 @@ export function smallestChipArray (sortedChips, sortedSegments) {
   }
   smallestDenominationRequiredArray.reverse()
   var lastSegmentRequiredArray = []
+  var ratchet = 0
   for (var ci = 0; ci < chips.length; ci++) {
-  	lastSegmentRequiredArray.push({denom: chips[ci].denom, color: chips[ci].color, segment: smallestDenominationRequiredArray.lastIndexOf(chips[ci].denom)})
+  	let segIndex = smallestDenominationRequiredArray.lastIndexOf(chips[ci].denom)
+  	if (segIndex > ratchet) { ratchet = segIndex }
+  	lastSegmentRequiredArray.push({denom: chips[ci].denom, color: chips[ci].color, segment: ratchet})
   }
   return lastSegmentRequiredArray
-  return smallestDenominationRequiredArray	
 }
 
 export function dictionaryLookup(value, section, returnType) {
