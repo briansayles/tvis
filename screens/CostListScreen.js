@@ -113,7 +113,8 @@ class CostListScreen extends React.Component {
                     ]}
                   >
                   <ListItem
-                    title={dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}) + " => " + item.chipStack.toLocaleString() + ' Chips'}
+                    title={dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true})}
+                    subtitle={item.chipStack.toLocaleString() + ' Chips'}
                     onPress={this._navigateToCostEdit.bind(this, item.id)}
                   />
                   </Swipeout>
