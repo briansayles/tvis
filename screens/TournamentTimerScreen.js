@@ -36,6 +36,7 @@ class TournamentTimerScreen extends React.Component {
       noticeStatus: false,
       offsetFromServerTime: null,
       timerActive: false,
+      activity: null,
     }
   }
 
@@ -130,6 +131,7 @@ class TournamentTimerScreen extends React.Component {
   }
 
   _toggleTimerButtonPressed() {
+    this.setState({activity: 'toggling'})
     const tourney = this.props.getTournamentQuery.Tournament
     this.props.updateTournamentTimerMutation(
       { variables: {
@@ -141,11 +143,12 @@ class TournamentTimerScreen extends React.Component {
         } 
       }
     ).then(()=>{
-      this.props.getTournamentQuery.refetch()
+      this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
   }
 
   _fwdButtonPressed() {
+    this.setState({activity: 'advancing'})
     const tourney = this.props.getTournamentQuery.Tournament
     this.props.updateTournamentTimerMutation(
       { variables: {
@@ -157,11 +160,12 @@ class TournamentTimerScreen extends React.Component {
         }
       }
     ).then(()=>{
-      this.props.getTournamentQuery.refetch()
+      this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
   }
 
   _resetTimerButtonPressed() {
+    this.setState({activity: 'resetting'})
     const tourney = this.props.getTournamentQuery.Tournament
     this.props.updateTournamentTimerMutation(
       { variables: {
@@ -173,7 +177,7 @@ class TournamentTimerScreen extends React.Component {
         } 
       }
     ).then(()=>{
-      this.props.getTournamentQuery.refetch()
+      this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
   }
 
@@ -285,12 +289,19 @@ class TournamentTimerScreen extends React.Component {
                   </Text>
                 </View>
               }
-              <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore', size: responsiveFontSize(3)}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause', size: responsiveFontSize(3)} : {name: 'play-arrow', size: responsiveFontSize(3)}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-                {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward', size: responsiveFontSize(3)}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
-              </View>
-            </View>
+              { !this.state.activity &&
+                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                  {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore', size: responsiveFontSize(3)}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+                  {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause', size: responsiveFontSize(3)} : {name: 'play-arrow', size: responsiveFontSize(3)}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                  {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward', size: responsiveFontSize(3)}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                </View>
+              }
+              { this.state.activity &&
+                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                  <ActivityIndicator/>
+                </View>
+              }
+             </View>
             <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
             </View>
           </View>
