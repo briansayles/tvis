@@ -5,7 +5,7 @@ import { Text, List, ListItem, Card, Button, Avatar, Icon} from 'react-native-el
 import { currentUserQuery, getTournamentQuery, changeTitleMutation, tournamentSubscription} from '../constants/GQL'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
-import { BannerAd } from '../screens/Ads'
+import { BannerAd } from '../components/Ads'
 
 class TournamentEditScreen extends React.Component {
 

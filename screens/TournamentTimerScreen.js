@@ -6,7 +6,7 @@ import { KeepAwake, Audio } from 'expo'
 import {smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import {GraphCoolConfig} from '../config'
-import { BannerAd } from '../screens/Ads'
+import { BannerAd } from '../components/Ads'
 import { AdMobInterstitial } from 'expo'
 
 class TournamentTimerScreen extends React.Component {

@@ -8,7 +8,7 @@ import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation
 import { sortChips, numberToSuffixedString, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
-import { BannerAd } from '../screens/Ads'
+import { BannerAd } from '../components/Ads'
 
 class ChipListScreen extends React.Component {
 
@@ -60,7 +60,7 @@ class ChipListScreen extends React.Component {
           "color": "#fff",
         }
       }
-    ).then(() => this._refreshButtonPressed()).then(() => alert('Chip added'))
+    ).then(() => this._refreshButtonPressed())
   }
 
   _deleteChipButtonPressed(id) {
@@ -115,8 +115,10 @@ class ChipListScreen extends React.Component {
                       },
                     ]}
                   >
-                  <ListItem
-                    title={numberToSuffixedString(item.denom) + ": " + dictionaryLookup(item.color, "ChipColorOptions", "long")}
+                  <ListItem 
+                    titleStyle={{color: item.color != "#fff" ? item.color : "#000"}} 
+                    title={dictionaryLookup(item.color, "ChipColorOptions", "long")}
+                    subtitle={numberToSuffixedString(item.denom)}
                     onPress={this._navigateToChipEdit.bind(this, item.id)}
                   />
                   </Swipeout>

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { graphql, gql, compose } from 'react-apollo'
-import { Text, View, StyleSheet, Linking, AsyncStorage } from 'react-native'
+import { ActivityIndicator, Text, View, StyleSheet, Linking, AsyncStorage } from 'react-native'
 import { Button } from 'react-native-elements'
 import Expo from 'expo'
 import jwtDecoder from 'jwt-decode'
@@ -27,6 +27,13 @@ const toQueryString = params => {
 
 
 class Auth extends Component {
+  
+  constructor(props) {
+    super(props)
+    this.state = {
+      loading: false,
+    }
+  }
 
   componentDidMount() {
     // handle redirects after auth0 authentication
@@ -35,6 +42,7 @@ class Auth extends Component {
   }
 
   loginWithAuth0 = async () => {
+    this.setState({loading: true})
     const redirectionURL = authorize_url + toQueryString({
         client_id: auth0_client_id,
         response_type: 'token',
@@ -52,7 +60,10 @@ class Auth extends Component {
   }
 
   handleAuth0RedirectUrl = async (url) => {
-    if (!url.includes('+/redirect')) return
+    if (!url.includes('+/redirect')) {
+      this.setState({loading: false})
+      return
+    }
     const [, queryString] = url.split('#')
     const responseObj = queryString.split('&').reduce((map, pair) => {
       const [key, value] = pair.split('=')
@@ -69,21 +80,24 @@ class Auth extends Component {
         // console.log('stored token (we think!)')
         this.props.fetchCurrentUser.refetch()
           .then(result => {
-            console.log('result')
-            console.log(result)
+            // console.log('result')
+            // console.log(result)
             if (!result.data.user) {
               this.props.createUser({ variables: { encodedToken, username } })
                 .catch(error => {
                   console.log('ERROR: could not create user: ', error)
                 })
             }
+            this.setState({loading: false})
           })
           .catch(error => {
             console.error('ERROR: failed asking for current user: ', error)
+            this.setState({loading: false})
           })
       })
       .catch(error => {
         console.error('ERROR: could not store token in AsyncStorage')
+        this.setState({loading: false})
       }
     )
   }
@@ -91,12 +105,19 @@ class Auth extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Button
-          buttonStyle={{textAlign: 'center'}}
-          backgroundColor='green'
-          onPress={this.loginWithAuth0}
-          title={"SIGN IN or SIGN UP (FREE!)"}
-        />
+        {
+          !this.state.loading && 
+          <Button
+            buttonStyle={{textAlign: 'center'}}
+            backgroundColor='green'
+            onPress={this.loginWithAuth0}
+            title={"SIGN IN or SIGN UP (FREE!)"}
+          />
+        }
+        {
+          this.state.loading && 
+          <ActivityIndicator/>
+        }
       </View>
     )
   }

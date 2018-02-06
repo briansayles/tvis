@@ -8,7 +8,7 @@ import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMu
 import { sortSegments, sortChips } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
-import { BannerAd } from '../screens/Ads'
+import { BannerAd } from '../components/Ads'
 
 class SegmentListScreen extends React.Component {
 

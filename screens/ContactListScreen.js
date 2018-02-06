@@ -5,7 +5,7 @@ import {List, ListItem, Button, SearchBar, CheckBox} from 'react-native-elements
 import {currentUserQuery, addCreditsMutation, } from '../constants/GQL'
 import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
-import { BannerAd } from '../screens/Ads'
+import { BannerAd } from '../components/Ads'
 import { AdMobRewarded } from 'expo'
 import { showRewardedAd } from '../main'
 

@@ -7,7 +7,7 @@ import Auth from '../components/Auth'
 import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
-import { BannerAd } from '../screens/Ads'
+import { BannerAd } from '../components/Ads'
 import { AdMobRewarded } from 'expo'
 import { showRewardedAd } from '../main'
 

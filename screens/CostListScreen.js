@@ -6,7 +6,7 @@ import { currentUserQuery, getTournamentCostsQuery, createTournamentCostMutation
 import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
-import { BannerAd } from '../screens/Ads'
+import { BannerAd } from '../components/Ads'
 
 class CostListScreen extends React.Component {
 
