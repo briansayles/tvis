@@ -1,6 +1,6 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import { Easing, Animated, ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import {Button, Avatar, Icon} from 'react-native-elements'
 import { KeepAwake, Audio } from 'expo'
 import {smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
@@ -96,6 +96,7 @@ class TournamentTimerScreen extends React.Component {
         console.error(err)
       },
     })
+    this._animate()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -126,6 +127,33 @@ class TournamentTimerScreen extends React.Component {
     }
   }
 
+  _animate() {
+    this.chipFadeAnimation = new Animated.Value(1)
+    Animated.loop(
+      Animated.sequence([    
+        Animated.timing(
+          this.chipFadeAnimation,
+          {
+            toValue: 0.2,
+            duration: 2000,
+            useNativeDriver: true,
+            isInteraction: false,
+          }
+        ),
+        Animated.timing(
+          this.chipFadeAnimation,
+            {
+              toValue: 1,
+              duration: 2000, 
+              useNativeDriver: true,
+              isInteraction: false,
+            }
+        ),
+
+      ])
+    ).start()    
+  }
+
   _closeButtonPressed() {
     this.setState({modalVisible: !this.state.modalVisible})
   }
@@ -145,6 +173,7 @@ class TournamentTimerScreen extends React.Component {
     ).then(()=>{
       this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
+    this._animate()
   }
 
   _fwdButtonPressed() {
@@ -162,6 +191,7 @@ class TournamentTimerScreen extends React.Component {
     ).then(()=>{
       this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
+    this._animate()
   }
 
   _resetTimerButtonPressed() {
@@ -179,6 +209,7 @@ class TournamentTimerScreen extends React.Component {
     ).then(()=>{
       this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
+    this._animate()
   }
 
   render() {
@@ -310,10 +341,10 @@ class TournamentTimerScreen extends React.Component {
               {chips.map((u,i) => {
                if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
                   return (
-                    <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
+                    <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', opacity: (this.state.csi + 1 <= smallestChipReq[i].segment) ? 1 : this.chipFadeAnimation}}>
                       <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
                       <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
-                    </View>
+                    </Animated.View>
                   )
                 }
               })}
