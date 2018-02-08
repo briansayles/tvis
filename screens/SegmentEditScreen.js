@@ -73,7 +73,7 @@ class SegmentEditScreen extends React.Component {
               }]
             },
             bBlind: {
-              title: 'Small Blind',
+              title: 'Big Blind',
               validate: [{
                 validator: 'matches',
                 arguments: /^[\d ]*$/,
@@ -117,7 +117,7 @@ class SegmentEditScreen extends React.Component {
             keyboardType='numeric'
             value={Segment.bBlind ? Segment.bBlind.toString() : ''}
             onTextInputFocus={(currentText = '') => {
-              return (parseInt(GiftedFormManager.getValue('segmentForm', 'sBlind')) * 2).toString()
+              return (parseInt(GiftedFormManager.getValue('segmentForm', 'sBlind')) * 2 || 0).toString()
             }}
           />
           <GiftedForm.TextInputWidget

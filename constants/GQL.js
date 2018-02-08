@@ -262,7 +262,7 @@ export const createTournamentChipMutation = gql`
   }
 `
 export const createTournamentCostMutation = gql`
-  mutation createTournamentCost( $tournamentId: ID!, $price: Int=20, $chipStack: Int=1000) {
+  mutation createTournamentCost( $tournamentId: ID!, $price: Int, $chipStack: Int) {
     createCost (
       tournamentId: $tournamentId
       price: $price

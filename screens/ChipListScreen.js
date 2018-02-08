@@ -60,7 +60,11 @@ class ChipListScreen extends React.Component {
           "color": "#fff",
         }
       }
-    ).then(() => this._refreshButtonPressed())
+    ).then((result) => {
+      this._refreshButtonPressed()
+      this._navigateToChipEdit(result.data.createChip.id)
+    }
+    )
   }
 
   _deleteChipButtonPressed(id) {

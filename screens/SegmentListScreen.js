@@ -66,7 +66,11 @@ class SegmentListScreen extends React.Component {
           "duration": existingSegment.duration || 20,
         }
       }
-    ).then(() => this._refreshButtonPressed())
+    ).then((result) => {
+      this._refreshButtonPressed()
+      this._navigateToSegmentEdit(result.data.createSegment.id)
+    }
+    )
   }
 
 	_navigateToSegmentEdit(id) {

@@ -50,10 +50,9 @@ class TournamentListScreen extends React.Component {
       {
         variables: { "userId": this.props.currentUserQuery.user.id }
       }
-    )
-    .then((result) => {
+    ).then((result) => {
       this._refreshButtonPressed()
-      // alert('tournament added')
+      this._navigateToEdit(result.data.createTournament.id)
     })
   }
 
@@ -63,10 +62,6 @@ class TournamentListScreen extends React.Component {
 
   _closeButtonPressed() {
     this.setState({modalVisible: !this.state.modalVisible})
-  }
-
-  _navigateToDetails(id) {
-    this.props.navigation.navigate('Details', {id: id})
   }
 
   _navigateToEdit(id) {

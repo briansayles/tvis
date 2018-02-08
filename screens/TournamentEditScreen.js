@@ -130,12 +130,12 @@ class TournamentEditScreen extends React.Component {
                   return (
                     <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                       <Text style={[styles.title, {flex: 3}]}>
-                        {u.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}) + "\n" + 
+                        {u.price && u.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}) + "\n" + 
                         dictionaryLookup(u.costType.toString(), "EntryFeeOptions", "long")}
                       </Text>
                       <Icon style={[styles.title, {flex: 1}]} name="arrow-right" type="font-awesome"/> 
                       <Text style={[styles.title, {flex: 3}]}>
-                        {u.chipStack.toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true}) + " Tournament Chips.\n"}
+                        {u.chipStack && u.chipStack.toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true}) + " Tournament Chips.\n"}
                       </Text>
                     </View>
                   )

@@ -6,7 +6,7 @@ import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, updateTournamentMutation, getTournamentQuery} from '../constants/GQL'
 import { dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
-import dict from '../constants/Dictionary'
+// import dict from '../constants/Dictionary'
 
 class GeneralInfoEditScreen extends React.Component {
 

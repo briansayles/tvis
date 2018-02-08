@@ -5,8 +5,8 @@ import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, getCostQuery, deleteCostMutation, updateCostMutation} from '../constants/GQL'
 import Events from '../api/events'
-import dict from '../constants/Dictionary'
-import dictionaryLookup from '../utilities/functions'
+// import dict from '../constants/Dictionary'
+import { dictionaryLookup } from '../utilities/functions'
 
 
 class CostEditScreen extends React.Component {
@@ -112,7 +112,7 @@ class CostEditScreen extends React.Component {
           >
             <GiftedForm.SeparatorWidget />
             <GiftedForm.SelectWidget name='costType' multiple={false} title='Type'>
-              {dict.EntryFeeOptions.map((item, i) => (
+              {dictionaryLookup("EntryFeeOptions").map((item, i) => (
                 <GiftedForm.OptionWidget title={item.longName} value={item.shortName}/>
               ))
               }
@@ -136,7 +136,7 @@ class CostEditScreen extends React.Component {
                       id: Cost.id,
                       price: parseInt(values.price),
                       chipStack: parseInt(values.chipStack),
-                      costType: values.costType ? dictionaryLookup(values.costType.toString(), "EntryFeeOptions", "shortName") : undefined,
+                      costType: values.costType ? dictionaryLookup(values.costType.toString(), "EntryFeeOptions") : undefined,
                     }
                   }
                 ).then(() => {

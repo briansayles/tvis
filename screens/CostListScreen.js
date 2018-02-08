@@ -56,7 +56,11 @@ class CostListScreen extends React.Component {
           "chipStack": 1000,
         }
       }
-    ).then(() => this._refreshButtonPressed())
+    ).then((result) => {
+      this._refreshButtonPressed()
+      this._navigateToCostEdit(result.data.createCost.id)
+    }
+    )
   }
 
   _navigateToCostEdit(id) {
@@ -113,8 +117,8 @@ class CostListScreen extends React.Component {
                     ]}
                   >
                   <ListItem
-                    title={dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true})}
-                    subtitle={item.chipStack.toLocaleString() + ' Chips'}
+                    title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + (item.price && item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}))}
+                    subtitle={item.chipStack && item.chipStack.toLocaleString() + ' Chips'}
                     onPress={this._navigateToCostEdit.bind(this, item.id)}
                   />
                   </Swipeout>
