@@ -1,9 +1,7 @@
 import {graphql, compose} from 'react-apollo'
-import gql from 'graphql-tag'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { List, ListItem, Button, } from 'react-native-elements';
-import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
 import { sortSegments, sortChips } from '../utilities/functions'
 import Events from '../api/events'

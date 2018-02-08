@@ -3,7 +3,6 @@ import gql from 'graphql-tag'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import { List, ListItem, } from 'react-native-elements';
-import { Form, Separator, InputField, LinkField, SwitchField, PickerField, DatePickerField, TimePickerField } from 'react-native-form-generator'
 import { currentUserQuery, getChipQuery, deleteChipMutation, updateChipMutation} from '../constants/GQL'
 import Events from '../api/events'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'

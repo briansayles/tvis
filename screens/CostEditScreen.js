@@ -1,11 +1,9 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
-// import { List, ListItem, Slider} from 'react-native-elements';
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { currentUserQuery, getCostQuery, deleteCostMutation, updateCostMutation} from '../constants/GQL'
 import Events from '../api/events'
-// import dict from '../constants/Dictionary'
 import { dictionaryLookup } from '../utilities/functions'
 
 
