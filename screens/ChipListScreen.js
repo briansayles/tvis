@@ -18,6 +18,7 @@ class ChipListScreen extends React.Component {
     this.state = {
       formData: {},
       refreshing: false,
+      creating: false,
     }
   }
 
@@ -51,6 +52,7 @@ class ChipListScreen extends React.Component {
   }
 
   _addButtonPressed() {
+    this.setState({creating: true})
     this.props.createTournamentChipMutation(
       {
         variables:
@@ -62,6 +64,7 @@ class ChipListScreen extends React.Component {
       }
     ).then((result) => {
       this._refreshButtonPressed()
+      this.setState({creating: false})
       this._navigateToChipEdit(result.data.createChip.id)
     }
     )
@@ -88,7 +91,8 @@ class ChipListScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <View style={{marginTop: 5}}>
-            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+            {this.state.user && !this.state.creating && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+            {this.state.user && this.state.creating && <ActivityIndicator/>}
           </View>
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}

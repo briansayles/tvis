@@ -144,12 +144,14 @@ export const getTournamentQuery = gql`
         game
       }
       chips (orderBy: denom_ASC) {
+        id
         denom
         color
         rimColor
         textColor
       }
       tags (orderBy: name_ASC) {
+        id
         name
       }
       user {
@@ -276,7 +278,29 @@ export const createTournamentCostMutation = gql`
     }
   }
 `
-
+// TODO: Make costs, chips and segments Input Types. Doesn't work as-is.
+export const createTournamentFromExistingTournamentMutation = gql`
+  mutation createTournament($userId: ID!, $title: String, $subtitle: String, $comments: String, $game: Game, $costs: [TournamentcostsCost!], $chips: [TournamentchipsChip!], $segments: [TournamentsegmentsSegment!] ) {
+    createTournament (
+      userId: $userId
+      title: $title
+      subtitle: $subtitle
+      comments: $comments
+      game: $game
+      costs: $costs
+      segments: $segments
+      chips: $chips
+      timer: {
+        active: false
+        elapsed: 0
+      }
+   )
+    {
+      id
+      title
+    }
+  }
+`
 // export const copyTournamentMutation = gql`
 //   mutation copyTournament ($id: ID!) {
 //   query getTournament($id: ID) {

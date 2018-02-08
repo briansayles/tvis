@@ -15,6 +15,7 @@ class CostListScreen extends React.Component {
     this.state = {
       refreshing: false,
       user: null,
+      creating: false,
     }
   }
 
@@ -46,6 +47,7 @@ class CostListScreen extends React.Component {
   }
 
   _addButtonPressed() {
+    this.setState({creating: true})
     this.props.createTournamentCostMutation(
       {
         variables:
@@ -58,6 +60,7 @@ class CostListScreen extends React.Component {
       }
     ).then((result) => {
       this._refreshButtonPressed()
+      this.setState({creating: false})
       this._navigateToCostEdit(result.data.createCost.id)
     }
     )
@@ -85,7 +88,8 @@ class CostListScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <View style={{marginTop: 5}}>
-            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+            {this.state.user && !this.state.creating && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+            {this.state.user && this.state.creating && <ActivityIndicator/>}
           </View>
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}

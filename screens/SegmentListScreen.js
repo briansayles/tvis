@@ -17,6 +17,7 @@ class SegmentListScreen extends React.Component {
     this.state = {
       refreshing: false,
       user: null,
+      creating: false,
     }
   }
 
@@ -45,17 +46,7 @@ class SegmentListScreen extends React.Component {
   }
 
   _addButtonPressed(location, existingSegment) {
-  	var sBlind, bBlind, duration
-  	// if (location == "before") {
-  	// 	sBlind = parseInt(existingSegment.sBlind / 2)
-  	// 	bBlind = 2 * sBlind
-  	// 	duration = existingSegment.duration
-  	// } else {
-  	// 	sBlind = existingSegment.sBlind * 2
-  	// 	bBlind = 2 * sBlind
-  	// 	duration = existingSegment.duration
-  	// }
-
+    this.setState({creating: true})
     this.props.createTournamentSegmentMutation(
       {
         variables:
@@ -68,6 +59,7 @@ class SegmentListScreen extends React.Component {
       }
     ).then((result) => {
       this._refreshButtonPressed()
+      this.setState({creating: false})
       this._navigateToSegmentEdit(result.data.createSegment.id)
     }
     )
@@ -99,7 +91,8 @@ class SegmentListScreen extends React.Component {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <View style={{marginTop: 5}}>
-            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this, "before", segments[0])} icon={{name: 'playlist-add'}} title="New"></Button>}
+            {this.state.user && !this.state.creating && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this, "before", segments[0])} icon={{name: 'playlist-add'}} title="New"></Button>}
+            {this.state.user && this.state.creating && <ActivityIndicator/>}
           </View>
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}

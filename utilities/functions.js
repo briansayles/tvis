@@ -1,6 +1,17 @@
 import { Dimensions } from 'react-native'
 import Dictionary from '../constants/Dictionary'
 
+export function convertItemToInputType(item, relationNamesArray) {
+	delete item.id
+	delete item.createdAt
+	delete item.updatedAt
+	delete item.__typename
+	for (var i = 0; i < relationNamesArray.length; i++) {
+		delete item[relationNamesArray[i]]
+	}
+	return item
+}
+
 export function smallestChipArray (sortedChips, sortedSegments) {
 	const chips = sortedChips.slice(0)
 	const segments = sortedSegments.slice(0)

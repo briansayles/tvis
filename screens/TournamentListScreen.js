@@ -2,14 +2,15 @@ import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage } from 'react-native'
 import { List, ListItem, Button } from 'react-native-elements'
-import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, } from '../constants/GQL' // copyTournamentMutation, 
+import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
 import Auth from '../components/Auth'
 import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { AdMobRewarded } from 'expo'
-import { showRewardedAd } from '../main'
+import { client, showRewardedAd } from '../main'
+import { convertItemToInputType } from '../utilities/functions'
 
 class TournamentListScreen extends React.Component {
   
@@ -18,6 +19,7 @@ class TournamentListScreen extends React.Component {
     this.state = {
       user: null,
       refreshing: false,
+      creating: false,
     }
   }
 
@@ -46,12 +48,14 @@ class TournamentListScreen extends React.Component {
   }
 
   _addButtonPressed = async () => {
+    this.setState({creating: true})
     this.props.createTournamentMutation(
       {
         variables: { "userId": this.props.currentUserQuery.user.id }
       }
     ).then((result) => {
       this._refreshButtonPressed()
+      this.setState({creating: false})
       this._navigateToEdit(result.data.createTournament.id)
     })
   }
@@ -69,8 +73,34 @@ class TournamentListScreen extends React.Component {
   }
 
   _copyTournament(id) {
-    // this.props.copyTournamentMutation({variables: {id: id}})
-    alert("We're working on this feature now, but it's not ready yet.")
+    // TODO: Implement ActivityIndicator --- But where???
+    this.setState({creating: true})
+    client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
+      const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
+      const userId = user.id
+      const newTitle = "Copy of " + title
+      const costsInput = costs.map((i, index) => {
+        return convertItemToInputType (i, ["tournamentId"])
+      })
+      const chipsInput = chips.map((i, index) => {
+        return convertItemToInputType (i, ["tournamentId"])
+      })
+      const segmentsInput = segments.map((i, index) => {
+        return convertItemToInputType (i, ["tournamentId"])
+      })
+      client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
+        userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
+      }}).then((result) => {
+        this.props.currentUserTournamentsQuery.refetch().then(() => this.setState({creating: false}))
+        this._navigateToEdit(result.data.createTournament.id)
+      }).catch((error) => {
+        this.setState({creating: false})
+        alert("This function doesn't work yet. It's on the TO DO list, though! " + newTitle)
+      })
+    }).catch((error) => {
+      this.setState({creating: false})
+      alert("This function doesn't work yet. It's on the TO DO list, though! " + newTitle)
+    })
   }
 
   _deleteTournamentButtonPressed(id) {
@@ -91,8 +121,9 @@ class TournamentListScreen extends React.Component {
     } else {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-          <View style={{marginTop: 5}}>
-            {this.state.user && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+          <View style={{marginTop: 5, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+            {this.state.user && !this.state.creating && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
+            {this.state.user && this.state.creating && <ActivityIndicator/>}
           </View>
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}
@@ -112,7 +143,7 @@ class TournamentListScreen extends React.Component {
                     right={[
                       {
                         text: 'Copy',
-                        onPress: this._copyTournament.bind(this, item),
+                        onPress: this._copyTournament.bind(this, item.id),
                         type: 'default'
                       },
                       {
