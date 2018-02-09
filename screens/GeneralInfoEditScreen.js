@@ -129,6 +129,7 @@ class GeneralInfoEditScreen extends React.Component {
 
           <GiftedForm.TextAreaWidget
             name='comments'
+            title='Comments'
             autoFocus={false}
             placeholder='Tournament information, such as location, date and time, etc... can go here.'
             value={Tournament.comments ? Tournament.comments.toString() : ''}

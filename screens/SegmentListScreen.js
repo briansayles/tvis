@@ -7,15 +7,16 @@ import { sortSegments, sortChips } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
+import { ListHeader } from '../components/ListHeader'
 
 class SegmentListScreen extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      refreshing: false,
       user: null,
-      creating: false,
+      refreshing: false,
+      loading: false,
     }
   }
 
@@ -23,7 +24,7 @@ class SegmentListScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshSegmentList', () => this._refreshButtonPressed())
+    this.refreshEvent = Events.subscribe('RefreshSegmentList', () => this._refresh())
   }
 
   componentWillReceiveProps(nextProps) {
@@ -39,83 +40,87 @@ class SegmentListScreen extends React.Component {
     this.refreshEvent.remove()
   }
 
-  _refreshButtonPressed() {
-    this.props.getTournamentSegmentsQuery.refetch()
+  _refresh() {
+    this.props.getData.refetch().then(() => this.setState({loading: false}))
   }
 
-  _addButtonPressed(location, existingSegment) {
-    this.setState({creating: true})
-    this.props.createTournamentSegmentMutation(
+  _addButtonPressed(parentId, duration) {
+    this.setState({loading: true})
+    this.props.createItem(
       {
         variables:
         {
-          "tournamentId": this.props.getTournamentSegmentsQuery.Tournament.id,
+          "tournamentId": parentId, //this.props.getData.Tournament.id,
           "sBlind": 0,
           "bBlind": 0,
-          "duration": existingSegment.duration || 20,
+          "duration": duration,
         }
       }
     ).then((result) => {
-      this._refreshButtonPressed()
-      this.setState({creating: false})
-      this._navigateToSegmentEdit(result.data.createSegment.id)
+      Events.publish('RefreshSegmentList')
+      this._editButtonPressed(result.data.createSegment.id)
     }
     )
   }
 
-	_navigateToSegmentEdit(id) {
+	_editButtonPressed(id) {
     this.props.navigation.navigate('SegmentEdit', {id: id})
   }
 
-  _deleteSegmentButtonPressed(id) {
-    // const tournamentId = this.props.getSegmentQuery.Segment.tournament.id
-    this.props.deleteSegmentMutation({variables: {id: id} }).then(
+  _deleteButtonPressed(id) {
+    this.setState({loading: true})
+    this.props.deleteItem({variables: {id: id} }).then(
       () => Events.publish('RefreshSegmentList')
     )
   }
 
-  render() {
-    const { getTournamentSegmentsQuery: { loading, error, Tournament } } = this.props
+  _search(searchText) {
+    // searchText will be the text entered into the search bar
+  }
 
+  render() {
+    const { getData: { loading, error, Tournament } } = this.props
     if (loading) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {
-
       const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
-      const segments = sortSegments(Tournament.segments)
-
+      const parent = Tournament
+      const list = sortSegments(parent.segments)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-          <View style={{marginTop: 5}}>
-            {this.state.user && !this.state.creating && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this, "before", segments[0])} icon={{name: 'playlist-add'}} title="New"></Button>}
-            {this.state.user && this.state.creating && <ActivityIndicator/>}
-          </View>
+          <ListHeader 
+            title="Blinds" 
+            showAddButton={this.state.user} 
+            loading={this.state.loading} 
+            onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
+            // onSearch={this._search}
+          />
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}
             refreshControl={
               <RefreshControl
                 refreshing={this.state.refreshing}
-                onRefresh={this._refreshButtonPressed.bind(this)}
+                onRefresh={this._refresh.bind(this)}
               />
             }
           >
             <List>
               {
-                segments.map((item, i) => (
+                list && list.map((item, i) => (
                   <Swipeout
                     key={i}
                     autoClose={true}
                     right={[
                       {
                         text: 'Edit',
-                        onPress: this._navigateToSegmentEdit.bind(this, item.id),
+                        onPress: this._editButtonPressed.bind(this, item.id),
                         type: 'primary',
                       },
                       {
                         text: 'DELETE',
-                        onPress: this._deleteSegmentButtonPressed.bind(this, item.id),
+                        onPress: this._deleteButtonPressed.bind(this, item.id),
                         backgroundColor: '#ff0000',
                         type: 'delete',
                       },
@@ -124,7 +129,7 @@ class SegmentListScreen extends React.Component {
                   <ListItem
                     title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
                     subtitle={item.duration + " minutes"}
-                    onPress={this._navigateToSegmentEdit.bind(this, item.id)}
+                    onPress={this._editButtonPressed.bind(this, item.id)}
                   />
                   </Swipeout>
                 ))
@@ -139,8 +144,8 @@ class SegmentListScreen extends React.Component {
 }
 
 export default compose(
-  graphql(getTournamentSegmentsQuery, { name: 'getTournamentSegmentsQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  graphql(createTournamentSegmentMutation, {name: 'createItem'}),
+  graphql(deleteSegmentMutation, {name: 'deleteItem'}),
+  graphql(getTournamentSegmentsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(createTournamentSegmentMutation, {name: 'createTournamentSegmentMutation'}),
-  graphql(deleteSegmentMutation, {name: 'deleteSegmentMutation'}),
 )(SegmentListScreen)

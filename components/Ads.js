@@ -10,7 +10,7 @@ export class BannerAd extends React.Component {
 
   render() {
     return (
-			<View style={{backgroundColor: 'transparent', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginBottom: 5, marginTop: 5}}>
+			<View style={{backgroundColor: 'transparent', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginBottom: 5, marginTop: 2}}>
 				<AdMobBanner
 					style={{flex: -1, backgroundColor: 'transparent'}}
 		    	bannerSize='smartBannerPortrait'

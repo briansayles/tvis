@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Text, List, ListItem, Card, Button, Avatar, Icon} from 'react-native-elements';
-import { currentUserQuery, getTournamentQuery, changeTitleMutation, tournamentSubscription} from '../constants/GQL'
+import { currentUserQuery, getTournamentQuery, } from '../constants/GQL'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import { BannerAd } from '../components/Ads'
@@ -12,7 +12,6 @@ class TournamentEditScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      // formData: {},
       refreshing: false,
       user: null,
     }
@@ -23,25 +22,12 @@ class TournamentEditScreen extends React.Component {
 
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshEditor', () => this._refreshButtonPressed())
-    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-    //   document: tournamentSubscription,
-    //   updateQuery: (previous, {subscriptionData}) => {
-    //     this.props.getTournamentQuery.refetch()
-    //     return
-    //   },
-    //   onError: (err) => {
-    //     console.error(err)
-    //   },
-    // })
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery) {
       const user = nextProps.currentUserQuery.user || null
       this.setState({user: user})
-    }
-    if (nextProps.getTournamentQuery) {
-      // this.setState({formData: nextProps.getTournamentQuery.Tournament || null})
     }
   }
   
@@ -164,6 +150,15 @@ class TournamentEditScreen extends React.Component {
               </View>
             </Card>
 
+            <Card
+              title="Players and Buys"
+            >
+              <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
+                
+
+              </View>
+            </Card>
+
             <Card title="Blinds Schedule" flexDirection='column'>
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                 <Text style={[styles.title, {flex: '2', textDecorationLine: 'underline'}]}>Minutes</Text>
@@ -228,13 +223,11 @@ export default compose(
   graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
 )(TournamentEditScreen)
+
 const styles = StyleSheet.create({
   title: {
     fontSize: responsiveFontSize(2),
     textAlign: 'center',
-  },
-  chipText: {
-    fontSize: responsiveFontSize(1.5),
   },
   editButton: {
   },

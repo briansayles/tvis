@@ -23,7 +23,7 @@ export const TournamentsStack = StackNavigator({
 	TournamentList: {
 		screen: TournamentListScreen,
 		navigationOptions: {
-			title: 'Tournament List',
+			title: 'TourneyVision'
 		}
 	},
 	Details: {
@@ -41,7 +41,7 @@ export const TournamentsStack = StackNavigator({
 	SegmentList: {
 		screen: SegmentListScreen,
 		navigationOptions: {
-			title: 'Blinds Schedule'
+			title: 'TourneyVision'
 		}
 	},
 	SegmentEdit: {
@@ -53,7 +53,7 @@ export const TournamentsStack = StackNavigator({
 	ChipList: {
 		screen: ChipListScreen,
 		navigationOptions: {
-			title: 'Chip Schedule'
+			title: 'TourneyVision'
 		}
 	},
 	ChipEdit: {
@@ -71,7 +71,7 @@ export const TournamentsStack = StackNavigator({
 	CostList: {
 		screen: CostListScreen,
 		navigationOptions: {
-			title: 'Entry Fee(s)'
+			title: 'TourneyVision'
 		}
 	},
 	CostEdit: {

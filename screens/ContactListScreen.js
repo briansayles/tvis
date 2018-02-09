@@ -3,7 +3,6 @@ import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, FlatList} from 'react-native'
 import {List, ListItem, Button, SearchBar, CheckBox} from 'react-native-elements'
 import {currentUserQuery, addCreditsMutation, } from '../constants/GQL'
-import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
 import { BannerAd } from '../components/Ads'
 import { AdMobRewarded } from 'expo'
@@ -27,7 +26,7 @@ class ContactListScreen extends React.Component {
   }
 
   componentDidMount() {
-    // this.refreshEvent = Events.subscribe('RefreshContactList', () => this._refreshButtonPressed())
+    this.refreshEvent = Events.subscribe('RefreshContactList', () => this._refresh())
   }
 
   componentWillReceiveProps(nextProps) {
@@ -43,12 +42,14 @@ class ContactListScreen extends React.Component {
     this._getContacts()
   }
 
-  componentDidUpdate(prevProps) {
-  }
-
   componentWillUnmount () {
     this.refreshEvent.remove()
   }
+
+  _refresh() {
+    this._getContacts()
+  }
+
 
   async _getContacts() {
     const { status } = await Expo.Permissions.getAsync(Expo.Permissions.CONTACTS)
@@ -73,10 +74,6 @@ class ContactListScreen extends React.Component {
     } else {
       Alert.alert("Unable to retrieve any contacts. Maybe you don't have any.")
     }
-  }
-
-  _refreshButtonPressed() {
-    this._getContacts()
   }
 
   searchContacts(searchString) {
@@ -124,7 +121,7 @@ class ContactListScreen extends React.Component {
             refreshControl={
               <RefreshControl
                 refreshing={this.state.refreshing}
-                onRefresh={this._refreshButtonPressed.bind(this)}
+                onRefresh={this._refresh.bind(this)}
               />
             }
           >

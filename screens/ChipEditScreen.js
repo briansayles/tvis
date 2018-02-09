@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import { List, ListItem, } from 'react-native-elements';
-import { currentUserQuery, getChipQuery, deleteChipMutation, updateChipMutation} from '../constants/GQL'
+import { getChipQuery, updateChipMutation} from '../constants/GQL'
 import Events from '../api/events'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { dictionaryLookup } from '../utilities/functions'
@@ -13,31 +13,24 @@ class ChipEditScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      user: null,
+      // user: null,
       form: {},
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-      const user = nextProps.currentUserQuery.user
-      this.setState({user: user})
-    }
-    if (nextProps.getChipQuery && nextProps.getChipQuery.Chip) {
-      // this.setState({formData: nextProps.getChipQuery.Chip})
-    }
+    // if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
+    //   const user = nextProps.currentUserQuery.user
+    //   this.setState({user: user})
+    // }
+    // if (nextProps.getChipQuery && nextProps.getChipQuery.Chip) {
+    //   // this.setState({formData: nextProps.getChipQuery.Chip})
+    // }
   }
 
-  handleFormChange(formData){
-    this.setState({formData:formData})
-  }
-
-  handleFormFocus(e, component){
-  }
-
-  _refreshButtonPressed() {
-    this.props.getChipQuery.refetch()
-  }
+  // _refreshButtonPressed() {
+  //   this.props.getChipQuery.refetch()
+  // }
 
   handleValueChange (values) {
     // alert(values.sBlind)
@@ -141,7 +134,7 @@ class ChipEditScreen extends React.Component {
 
 export default compose(
   graphql(getChipQuery, { name: 'getChipQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(deleteChipMutation, { name: 'deleteChipMutation' }),
+  // graphql(currentUserQuery, { name: 'currentUserQuery', }),
+  // graphql(deleteChipMutation, { name: 'deleteChipMutation' }),
   graphql(updateChipMutation, { name: 'updateChipMutation'}),
 )(ChipEditScreen)

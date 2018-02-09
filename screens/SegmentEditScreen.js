@@ -2,7 +2,7 @@ import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
-import { currentUserQuery, getSegmentQuery, deleteSegmentMutation, updateSegmentMutation} from '../constants/GQL'
+import { getSegmentQuery, updateSegmentMutation} from '../constants/GQL'
 import Events from '../api/events'
 
 class SegmentEditScreen extends React.Component {
@@ -10,19 +10,19 @@ class SegmentEditScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      user: null,
+      // user: null,
       form: {},
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-      const user = nextProps.currentUserQuery.user
-      this.setState({user: user})
-    }
-    if (nextProps.getSegmentQuery && nextProps.getSegmentQuery.Segment) {
-    	// const segment = nextProps.getSegmentQuery.Segment
-    }
+    // if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
+    //   const user = nextProps.currentUserQuery.user
+    //   this.setState({user: user})
+    // }
+    // if (nextProps.getSegmentQuery && nextProps.getSegmentQuery.Segment) {
+    // 	// const segment = nextProps.getSegmentQuery.Segment
+    // }
   }
 
   handleValueChange (values) {
@@ -53,7 +53,7 @@ class SegmentEditScreen extends React.Component {
           //   this.props.navigation.navigate(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
           // }}
           clearOnClose={true} // delete the values of the form when unmounted
-          onValueChange={this.handleValueChange.bind(this)}
+          // onValueChange={this.handleValueChange.bind(this)}
           defaults={{
             /*
             username: 'Farid',
@@ -171,7 +171,7 @@ class SegmentEditScreen extends React.Component {
 
 export default compose(
   graphql(getSegmentQuery, { name: 'getSegmentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(deleteSegmentMutation, { name: 'deleteSegmentMutation' }),
+  // graphql(currentUserQuery, { name: 'currentUserQuery', }),
+  // graphql(deleteSegmentMutation, { name: 'deleteSegmentMutation' }),
   graphql(updateSegmentMutation, { name: 'updateSegmentMutation'}),
 )(SegmentEditScreen)

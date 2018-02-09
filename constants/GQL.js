@@ -301,65 +301,6 @@ export const createTournamentFromExistingTournamentMutation = gql`
     }
   }
 `
-// export const copyTournamentMutation = gql`
-//   mutation copyTournament ($id: ID!) {
-//   query getTournament($id: ID) {
-//     Tournament(id: $id)
-//     {
-//       id
-//       title
-//       subtitle
-//       comments
-//       updatedAt
-//       game
-//       timer {
-//         id
-//         active
-//         createdAt
-//         updatedAt
-//         elapsed
-//       }
-//       costs (orderBy: chipStack_DESC) {
-//         id
-//         costType
-//         price
-//         chipStack
-//       }
-//       segments (orderBy: bBlind_ASC) {
-//         id
-//         duration
-//         sBlind
-//         bBlind
-//         ante
-//         game
-//       }
-//       chips (orderBy: denom_ASC) {
-//         denom
-//         color
-//         rimColor
-//         textColor
-//       }
-//       tags (orderBy: name_ASC) {
-//         name
-//       }
-//       user {
-//         id
-//         name
-//       }
-//     }    createTournament(
-//       userId: $userId
-//       title: $title
-//       timer: {
-//         active: false
-//         elapsed: 0
-//       }
-
-
-
-//     )
-//   }
-// `
-
 export const createTournamentMutation = gql`
   mutation createTournament( $userId: ID!, $title: String="Default Tournament Title", $duration: Int=20) {
     createTournament (

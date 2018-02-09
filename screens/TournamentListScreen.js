@@ -4,10 +4,10 @@ import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, St
 import { List, ListItem, Button } from 'react-native-elements'
 import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
 import Auth from '../components/Auth'
-import { NewButton } from '../components/NewButton'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
+import { ListHeader } from '../components/ListHeader'
 import { AdMobRewarded } from 'expo'
 import { client, showRewardedAd } from '../main'
 import { convertItemToInputType } from '../utilities/functions'
@@ -19,62 +19,56 @@ class TournamentListScreen extends React.Component {
     this.state = {
       user: null,
       refreshing: false,
-      creating: false,
+      loading: false,
     }
   }
 
-  static navigationOptions = {
-
-  }
-
   componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refreshButtonPressed())
+    this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refresh())
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery) {
       if (nextProps.currentUserQuery.user !== this.state.user) {
-        this.props.currentUserTournamentsQuery.refetch()
+        Events.publish("RefreshTournamentList")
       }
       this.setState({user: nextProps.currentUserQuery.user || null})
     }
-  }
-
-  componentDidUpdate(prevProps) {
   }
 
   componentWillUnmount () {
     this.refreshEvent.remove()
   }
 
-  _addButtonPressed = async () => {
-    this.setState({creating: true})
-    this.props.createTournamentMutation(
+  _refresh() {
+    this.props.getData.refetch().then(() => this.setState({loading: false}))
+  }
+
+  _addButtonPressed = async (parentId) => {
+    this.setState({loading: true})
+    this.props.createItemMutation(
       {
-        variables: { "userId": this.props.currentUserQuery.user.id }
+        variables: { "userId": parentId }
       }
     ).then((result) => {
-      this._refreshButtonPressed()
-      this.setState({creating: false})
-      this._navigateToEdit(result.data.createTournament.id)
+      Events.publish('RefreshTournamentList')
+      this._editButtonPressed(result.data.createTournament.id)
     })
   }
 
-  _refreshButtonPressed() {
-    this.props.currentUserTournamentsQuery.refetch()
-  }
-
-  _closeButtonPressed() {
-    this.setState({modalVisible: !this.state.modalVisible})
-  }
-
-  _navigateToEdit(id) {
+  _editButtonPressed(id) {
     this.props.navigation.navigate('Edit', {id: id})
   }
 
-  _copyTournament(id) {
-    // TODO: Implement ActivityIndicator --- But where???
-    this.setState({creating: true})
+  _deleteButtonPressed(id) {
+    this.setState({loading: true})
+    this.props.deleteItemMutation({variables: {id: id} }).then(
+      () => Events.publish('RefreshTournamentList')
+    )
+  }
+
+  _copyButtonPressed(id) {
+    this.setState({loading: true})
     client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
       const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
       const userId = user.id
@@ -91,27 +85,22 @@ class TournamentListScreen extends React.Component {
       client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
         userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
       }}).then((result) => {
-        this.props.currentUserTournamentsQuery.refetch().then(() => this.setState({creating: false}))
-        this._navigateToEdit(result.data.createTournament.id)
+        Events.publish('RefreshTournamentList')
+        this._editButtonPressed(result.data.createTournament.id)
       }).catch((error) => {
-        this.setState({creating: false})
-        alert("This function doesn't work yet. It's on the TO DO list, though! " + newTitle)
+        this.setState({loading: false})
       })
     }).catch((error) => {
-      this.setState({creating: false})
-      alert("This function doesn't work yet. It's on the TO DO list, though! " + newTitle)
+      this.setState({loading: false})
     })
   }
 
-  _deleteTournamentButtonPressed(id) {
-    // const tournamentId = this.props.getSegmentQuery.Segment.tournament.id
-    this.props.deleteTournamentMutation({variables: {id: id} }).then(
-      () => Events.publish('RefreshTournamentList')
-    )
+  _search(searchText) {
+    // searchText will be the text entered into the search bar
   }
 
   render() {
-    const { currentUserTournamentsQuery: { loading, error, user } } = this.props
+    const { getData: { loading, error, user } } = this.props
     if (loading) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
@@ -119,41 +108,46 @@ class TournamentListScreen extends React.Component {
     } else if (!user) {
       return (<Auth/>)
     } else {
+      const parent = user
+      const list = parent.tournaments
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-          <View style={{marginTop: 5, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-            {this.state.user && !this.state.creating && <Button buttonStyle={{backgroundColor: "green"}} onPress={this._addButtonPressed.bind(this)} icon={{name: 'playlist-add'}} title="New"></Button>}
-            {this.state.user && this.state.creating && <ActivityIndicator/>}
-          </View>
+          <ListHeader 
+            title="Tournaments" 
+            showAddButton={this.state.user} 
+            loading={this.state.loading} 
+            onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
+            // onSearch={this._search}
+          />
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}
             refreshControl={
               <RefreshControl
                 refreshing={this.state.refreshing}
-                onRefresh={this._refreshButtonPressed.bind(this)}
+                onRefresh={this._refresh.bind(this)}
               />
             }
           >
             <List>
               {
-                user.tournaments && user.tournaments.map((item, i) => (
+                list && list.map((item, i) => (
                   <Swipeout
                     key={i}
                     autoClose={true}
                     right={[
                       {
                         text: 'Copy',
-                        onPress: this._copyTournament.bind(this, item.id),
+                        onPress: this._copyButtonPressed.bind(this, item.id),
                         type: 'default'
                       },
                       {
                         text: 'Edit',
-                        onPress: this._navigateToEdit.bind(this, item.id),
+                        onPress: this._editButtonPressed.bind(this, item.id),
                         type: 'primary',
                       },
                       {
                         text: 'DELETE',
-                        onPress: this._deleteTournamentButtonPressed.bind(this, item.id),
+                        onPress: this._deleteButtonPressed.bind(this, item.id),
                         backgroundColor: '#ff0000',
                         type: 'delete',
                       },
@@ -162,7 +156,7 @@ class TournamentListScreen extends React.Component {
                     <ListItem
                       title={item.title}
                       subtitle={item.subtitle}
-                      onPress={this._navigateToEdit.bind(this, item.id)}
+                      onPress={this._editButtonPressed.bind(this, item.id)}
                     />
                   </Swipeout>
                   )
@@ -182,9 +176,8 @@ class TournamentListScreen extends React.Component {
 }
 
 export default compose(
+  graphql(createTournamentMutation, { name: 'createItemMutation'}),
+  graphql(deleteTournamentMutation, { name: 'deleteItemMutation' }),
+  graphql(currentUserTournamentsQuery, { name: 'getData' }),
   graphql(currentUserQuery, { name: 'currentUserQuery' }),
-  graphql(currentUserTournamentsQuery, { name: 'currentUserTournamentsQuery' }),
-  graphql(createTournamentMutation, { name: 'createTournamentMutation'}),
-  graphql(deleteTournamentMutation, { name: 'deleteTournamentMutation' }),
-  // graphql(copyTournamentMutation, {name: 'copyTournamentMutation'}),
 )(TournamentListScreen)
