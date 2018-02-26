@@ -21,7 +21,8 @@
       "assetExts": ["ttf"]
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tourneyvision.tourneyvision",
     }
   }
 }
