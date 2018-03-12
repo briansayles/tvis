@@ -119,7 +119,7 @@ class TournamentEditScreen extends React.Component {
                         {u.price && u.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}) + "\n" + 
                         dictionaryLookup(u.costType.toString(), "EntryFeeOptions", "long")}
                       </Text>
-                      <Icon style={[styles.title, {flex: 1}]} name="arrow-right" type="font-awesome"/> 
+                      <Icon style={[{flex: 1}]} name="arrow-right" type="font-awesome"/> 
                       <Text style={[styles.title, {flex: 3}]}>
                         {u.chipStack && u.chipStack.toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true}) + " Tournament Chips.\n"}
                       </Text>
@@ -141,7 +141,7 @@ class TournamentEditScreen extends React.Component {
                 <Button 
                   icon={{name: 'ios-timer-outline', type: 'ionicon'}}
                   backgroundColor='#080'
-                  fontFamily='Lato'
+                  // fontFamily='Lato'
                   fontSize={24}
                   buttonStyle={{ flex: 1, borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0}}
                   title='Timer' 
@@ -161,26 +161,26 @@ class TournamentEditScreen extends React.Component {
 
             <Card title="Blinds Schedule" flexDirection='column'>
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={[styles.title, {flex: '2', textDecorationLine: 'underline'}]}>Minutes</Text>
-                <Text style={[styles.title, {flex: '2', textDecorationLine: 'underline'}]}>Small Blind</Text>
-                <Text style={[styles.title, {flex: '2', textDecorationLine: 'underline'}]}>Big Blind</Text>
-                <Text style={[styles.title, {flex: '1', textDecorationLine: 'underline'}]}>Ante</Text>
+                <Text style={[styles.title, {flex: 2, textDecorationLine: 'underline'}]}>Minutes</Text>
+                <Text style={[styles.title, {flex: 2, textDecorationLine: 'underline'}]}>Small Blind</Text>
+                <Text style={[styles.title, {flex: 2, textDecorationLine: 'underline'}]}>Big Blind</Text>
+                <Text style={[styles.title, {flex: 1, textDecorationLine: 'underline'}]}>Ante</Text>
               </View>
               {
                 segments.map((u, i) => {
                   return (
                     <View key={i} style={{flexDirection: 'column'}}>
                       <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={[styles.title, {flex: '2'}]}>{u.duration.toString()}</Text>
-                        <Text style={[styles.title, {flex: '2'}]}>{u.sBlind ? numberToSuffixedString(u.sBlind) : ''}</Text>
-                        <Text style={[styles.title, {flex: '2'}]}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
-                        <Text style={[styles.title, {flex: '1'}]}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
+                        <Text style={[styles.title, {flex: 2}]}>{u.duration.toString()}</Text>
+                        <Text style={[styles.title, {flex: 2}]}>{u.sBlind ? numberToSuffixedString(u.sBlind) : ''}</Text>
+                        <Text style={[styles.title, {flex: 2}]}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
+                        <Text style={[styles.title, {flex: 1}]}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
                       </View>
                       { smallestChipReq.map((s, si) => {
                         if (s.segment === i && i < segments.length -1 ) {
                           return (
                             <View key={si} style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                              <Text style={[styles.title, {flex: '2', color: s.color != "#fff" ? s.color : "#000"}]}>Color Up {s.denom.toString()}'s ({dictionaryLookup(s.color, "ChipColorOptions", "long")})</Text>
+                              <Text style={[styles.title, {flex: 2, color: s.color != "#fff" ? s.color : "#000"}]}>Color Up {s.denom.toString()}'s ({dictionaryLookup(s.color, "ChipColorOptions", "long")})</Text>
                             </View>
                           )
                         }

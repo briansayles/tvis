@@ -149,14 +149,14 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 }
 
 export function sortSegments (segments) {
-	return segments.sort((a,b) => {
-		return (a.sBlind + a.bBlind + a.ante - b.sBlind - b.bBlind - b.ante)
+	return segments.slice(0).sort((a,b) => {
+		return (parseInt(a.sBlind) + parseInt(a.bBlind) + parseInt(a.ante) - parseInt(b.sBlind) - parseInt(b.bBlind) - parseInt(b.ante))
 	})
 }
 
 export function sortChips (chips) {
-	return chips.sort((a,b) => {
-		return (a.denom - b.denom)
+	return chips.slice(0).sort((a,b) => {
+		return (parseInt(a.denom) - parseInt(b.denom))
 	})
 }
 
@@ -169,7 +169,7 @@ export function sortEntryFees (fees) {
 		Addon: 5,
 		Bounty: 6
 	}
-	return fees.sort((a,b) => {
+	return fees.slice(0).sort((a,b) => {
 		if (a.costType !== b.costType) {
 			return sortOrder[a.costType] - sortOrder[b.costType]
 		} else if (a.price && b.price) {

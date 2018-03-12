@@ -15,7 +15,7 @@ export const logout = async () => {
     .then(() => {
       client.resetStore()
       // alert('logged out')
-      this.props.fetchCurrentUser.refetch()     
+      // this.props.fetchCurrentUser.refetch()     
     })
 }
 
@@ -31,7 +31,7 @@ class Auth extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      loading: false,
+      // loading: false,
     }
   }
 
@@ -42,7 +42,7 @@ class Auth extends Component {
   }
 
   loginWithAuth0 = async () => {
-    this.setState({loading: true})
+    // this.setState({loading: true})
     const redirectionURL = authorize_url + toQueryString({
         client_id: auth0_client_id,
         response_type: 'token',
@@ -61,7 +61,7 @@ class Auth extends Component {
 
   handleAuth0RedirectUrl = async (url) => {
     if (!url.includes('+/redirect')) {
-      this.setState({loading: false})
+      // this.setState({loading: false})
       return
     }
     const [, queryString] = url.split('#')
@@ -88,35 +88,30 @@ class Auth extends Component {
                   console.log('ERROR: could not create user: ', error)
                 })
             }
-            this.setState({loading: false})
+            // this.setState({loading: false})
           })
           .catch(error => {
             console.error('ERROR: failed asking for current user: ', error)
-            this.setState({loading: false})
+            // this.setState({loading: false})
           })
       })
       .catch(error => {
         console.error('ERROR: could not store token in AsyncStorage')
-        this.setState({loading: false})
+        // this.setState({loading: false})
       }
     )
   }
 
   render() {
     return (
-      <View style={styles.container}>
+      <View style={[{flex: 1}, styles.container]}>
         {
-          !this.state.loading && 
+          // !this.state.loading && 
           <Button
-            buttonStyle={{textAlign: 'center'}}
             backgroundColor='green'
             onPress={this.loginWithAuth0}
             title={"SIGN IN or SIGN UP (FREE!)"}
           />
-        }
-        {
-          this.state.loading && 
-          <ActivityIndicator/>
         }
       </View>
     )
@@ -132,7 +127,6 @@ export default compose(
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center'

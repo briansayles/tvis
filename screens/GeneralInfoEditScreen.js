@@ -142,7 +142,7 @@ class GeneralInfoEditScreen extends React.Component {
             <GiftedForm.SeparatorWidget />
             <GiftedForm.SelectWidget name='game' multiple={false} title='Game'>
               {dictionaryLookup("GameOptions").map((item, i) => (
-                <GiftedForm.OptionWidget title={item.longName} value={item.shortName}/>
+                <GiftedForm.OptionWidget key={i} title={item.longName} value={item.shortName}/>
               ))
               }
             </GiftedForm.SelectWidget>

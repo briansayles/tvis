@@ -96,7 +96,7 @@ class ChipEditScreen extends React.Component {
             <GiftedForm.SeparatorWidget />
             <GiftedForm.SelectWidget name='color' multiple={false} title='Chip Color'>
               {dictionaryLookup("ChipColorOptions").map((item, i) => (
-                <GiftedForm.OptionWidget title={item.longName} value={item.shortName}/>
+                <GiftedForm.OptionWidget key={i} title={item.longName} value={item.shortName}/>
               ))
               }
             </GiftedForm.SelectWidget>

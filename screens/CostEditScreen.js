@@ -111,7 +111,7 @@ class CostEditScreen extends React.Component {
             <GiftedForm.SeparatorWidget />
             <GiftedForm.SelectWidget name='costType' multiple={false} title='Type'>
               {dictionaryLookup("EntryFeeOptions").map((item, i) => (
-                <GiftedForm.OptionWidget title={item.longName} value={item.shortName}/>
+                <GiftedForm.OptionWidget key={i} title={item.longName} value={item.shortName}/>
               ))
               }
             </GiftedForm.SelectWidget>

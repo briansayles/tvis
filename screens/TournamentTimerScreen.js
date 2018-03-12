@@ -8,6 +8,8 @@ import {currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, get
 import {GraphCoolConfig} from '../config'
 import { BannerAd } from '../components/Ads'
 import { AdMobInterstitial } from 'expo'
+// import { reactMixin } from 'react-mixin'
+// import { TimerMixin } from 'react-timer-mixin'
 
 class TournamentTimerScreen extends React.Component {
 
@@ -50,7 +52,7 @@ class TournamentTimerScreen extends React.Component {
         this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
       }
     )
-    setTimeout(()=> {
+    this.recheckServerTime = setTimeout(()=> {
       this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
         {
           this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
@@ -110,6 +112,7 @@ class TournamentTimerScreen extends React.Component {
   }
 
   componentWillUnmount () {
+    clearTimeout(this.recheckServerTime)
     clearInterval(this.clockInterval)
     clearInterval(this.interstitialInterval)
   }
@@ -230,7 +233,7 @@ class TournamentTimerScreen extends React.Component {
         <View style={[{backgroundColor: Tournament.game == "CAP" ? '#005b96' : 'green'}, {flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
           <KeepAwake/>
           <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
-            <Text style={[styles.titleText]}>{Tournament.title}</Text>
+            <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
           </View>
           <View style={{flex: 8, flexDirection:'row', }}>
             <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
@@ -239,7 +242,7 @@ class TournamentTimerScreen extends React.Component {
               {Tournament.game != "CAP" && 
                 <View style={{flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
                   <Text
-                    style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
+                    style={[{flex: 1}, styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
                   >
                     {this.state.display.currentBlinds}
                   </Text>
@@ -248,7 +251,7 @@ class TournamentTimerScreen extends React.Component {
               {Tournament.game == "CAP" &&
                 <View style={{flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
                   <Text
-                    style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
+                    style={[{flex: 1}, styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
                   >
                     {
                       segment.sBlind == 0 && ( "Cool " + segment.bBlind)
@@ -267,7 +270,7 @@ class TournamentTimerScreen extends React.Component {
               }
               <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                 <Text 
-                  style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
+                  style={[{flex: 1}, styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
                 >
                   {this.state.display.timer}
                 </Text>
@@ -275,7 +278,7 @@ class TournamentTimerScreen extends React.Component {
               {Tournament.game != "CAP" && 
                 <View style={{flex: 1, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                   <Text
-                    style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                    style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                   >
                     Next Blinds:
                   </Text>
@@ -284,7 +287,7 @@ class TournamentTimerScreen extends React.Component {
               {Tournament.game != "CAP" && 
                 <View style={{flex: 2, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                   <Text
-                    style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                    style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                   >
                     {this.state.nextSegment && (this.state.nextSegment.sBlind.toLocaleString() + '/' + this.state.nextSegment.bBlind.toLocaleString())}
                     {!this.state.nextSegment && ("No more levels scheduled.")}
@@ -294,7 +297,7 @@ class TournamentTimerScreen extends React.Component {
               {Tournament.game == "CAP" && 
                 <View style={{flex: 1, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                   <Text
-                    style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                    style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                   >
                     Next:
                   </Text>
@@ -303,7 +306,7 @@ class TournamentTimerScreen extends React.Component {
               {Tournament.game == "CAP" && nextSegment && 
                 <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                   <Text
-                    style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                    style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                   >
                     {
                       nextSegment.sBlind == 0 && ( "Cool " + nextSegment.bBlind)
@@ -323,7 +326,7 @@ class TournamentTimerScreen extends React.Component {
               { !this.state.activity &&
                 <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
                   {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore', size: responsiveFontSize(3)}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                  {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent', textAlign: 'center'}} icon={this.state.timerActive ? {name: 'pause', size: responsiveFontSize(3)} : {name: 'play-arrow', size: responsiveFontSize(3)}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                  {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? {name: 'pause', size: responsiveFontSize(3)} : {name: 'play-arrow', size: responsiveFontSize(3)}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
                   {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward', size: responsiveFontSize(3)}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
                 </View>
               }
@@ -364,10 +367,11 @@ export default compose(
   graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
 )(TournamentTimerScreen)
 
+// reactMixin(TournamentTimerScreen.prototype, TimerMixin)
+
 const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
-    flex: '1',
     fontSize: Math.min(responsiveHeight(10), responsiveWidth(10)),
     textAlign: 'center',
   },
@@ -376,7 +380,6 @@ const styles = StyleSheet.create({
   },
   nextBlindsText: {
     color: 'rgba(150,150,150,1)',
-    flex: '1',
     fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
     textAlign: 'center',
   },
@@ -385,7 +388,6 @@ const styles = StyleSheet.create({
   },
   timerText: {
     color: 'rgba(225,225,225,1)',
-    flex: '1',
     fontFamily: 'Menlo',
     fontSize: Math.min(responsiveHeight(9), responsiveWidth(9)),
     textAlign: 'center',
@@ -394,7 +396,6 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   titleText: {
-    flex: '1',
     fontSize: Math.min(responsiveHeight(5), responsiveWidth(5)),
     color: '#fff',
     textAlign: 'center',
