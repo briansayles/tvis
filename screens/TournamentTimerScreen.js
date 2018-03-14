@@ -325,13 +325,15 @@ class TournamentTimerScreen extends React.Component {
                     </Text>
                   </View>
                 }
+
                 { !this.state.activity &&
                   <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                    {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'restore', size: responsiveFontSize(3)}} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                    {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? {name: 'pause', size: responsiveFontSize(3)} : {name: 'play-arrow', size: responsiveFontSize(3)}} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-                    {userIsOwner && <Button buttonStyle={{backgroundColor: 'transparent'}} icon={{name: 'fast-forward', size: responsiveFontSize(3)}} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                    {userIsOwner && <Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+                    {userIsOwner && <Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                    {userIsOwner && <Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
                   </View>
                 }
+
                 { this.state.activity &&
                   <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
                     <ActivityIndicator/>

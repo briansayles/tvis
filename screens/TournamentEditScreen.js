@@ -139,12 +139,14 @@ class TournamentEditScreen extends React.Component {
             >
               <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Button 
-                  icon={{name: 'ios-timer-outline', type: 'ionicon'}}
-                  backgroundColor='#080'
-                  // fontFamily='Lato'
-                  fontSize={24}
-                  buttonStyle={{ flex: 1, borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                  title='Timer' 
+                  icon={<Icon
+                    name='ios-timer-outline'
+                    color='white'
+                    type='ionicon'
+                  />}
+                  buttonStyle={{ flex: 1, borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#080'}}
+                  title='Timer'
+                  titleStyle={{fontSize: 24, color: '#fff'}}
                   onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}
                 />
               </View>
