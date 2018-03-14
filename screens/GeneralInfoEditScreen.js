@@ -25,13 +25,6 @@ class GeneralInfoEditScreen extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-      const user = nextProps.currentUserQuery.user
-      this.setState({user: user})
-    }
-    if (nextProps.getTournamentQuery) {
-      this.setState({formData: nextProps.getTournamentQuery.Tournament})
-    }
   }
   
   componentDidUpdate(prevProps) {
@@ -44,7 +37,6 @@ class GeneralInfoEditScreen extends React.Component {
 
   _refreshButtonPressed() {
     this.props.getTournamentQuery.refetch()
-    // alert('Editor refreshed')
   }
 
 
@@ -53,8 +45,6 @@ class GeneralInfoEditScreen extends React.Component {
   }
 
   handleValueChange (values) {
-    // alert(values.sBlind)
-    // this.setState({ form: values })    
   }
 
   render() {
@@ -74,23 +64,14 @@ class GeneralInfoEditScreen extends React.Component {
               this.props.navigation.navigate('Modal',
                 { renderContent: router.renderScene,
                   onClose: router.onClose,
-                  getTitle: router.getTitle
+                  getTitle: router.getTitle,
+                  modalTitle: "Select Game"
                 });
             }
           }
-          // openModal={(route) => {
-          //   this.props.navigation.navigate(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
-          // }}
           clearOnClose={true} // delete the values of the form when unmounted
           onValueChange={this.handleValueChange.bind(this)}
           defaults={{
-            /*
-            username: 'Farid',
-            'gender{M}': true,
-            password: 'abcdefg',
-            country: 'FR',
-            birthday: new Date(((new Date()).getFullYear() - 18)+''),
-            */
           }}
           validators={{
             title: {
@@ -136,10 +117,10 @@ class GeneralInfoEditScreen extends React.Component {
           />
 
           <GiftedForm.ModalWidget
-            title='Game'
+            title={Tournament.game ? dictionaryLookup(Tournament.game, "GameOptions", "longName") : 'Select game...'}
             displayValue='game'
+            cancelable={true}
           >
-            <GiftedForm.SeparatorWidget />
             <GiftedForm.SelectWidget name='game' multiple={false} title='Game'>
               {dictionaryLookup("GameOptions").map((item, i) => (
                 <GiftedForm.OptionWidget key={i} title={item.longName} value={item.shortName}/>

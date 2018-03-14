@@ -10,24 +10,14 @@ class SegmentEditScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      // user: null,
       form: {},
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    // if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-    //   const user = nextProps.currentUserQuery.user
-    //   this.setState({user: user})
-    // }
-    // if (nextProps.getSegmentQuery && nextProps.getSegmentQuery.Segment) {
-    // 	// const segment = nextProps.getSegmentQuery.Segment
-    // }
   }
 
   handleValueChange (values) {
-    // alert(values.sBlind)
-    // this.setState({ form: values })    
   }
 
   render() {
@@ -49,19 +39,8 @@ class SegmentEditScreen extends React.Component {
                 });
             }
           }
-          // openModal={(route) => {
-          //   this.props.navigation.navigate(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
-          // }}
           clearOnClose={true} // delete the values of the form when unmounted
-          // onValueChange={this.handleValueChange.bind(this)}
           defaults={{
-            /*
-            username: 'Farid',
-            'gender{M}': true,
-            password: 'abcdefg',
-            country: 'FR',
-            birthday: new Date(((new Date()).getFullYear() - 18)+''),
-            */
           }}
           validators={{
             sBlind: {
@@ -105,10 +84,6 @@ class SegmentEditScreen extends React.Component {
             clearButtonMode='while-editing'
             keyboardType='numeric'
             value={Segment.sBlind ? Segment.sBlind.toString() : ''}
-            // onTextInputBlur={(currentText = '') => {
-            //   // alert('will try to put ' + 2 * parseInt(currentText) + ' into bBlind, current value is ' + GiftedFormManager.getValue('segmentForm', 'bBlind'))
-            //   GiftedFormManager.updateValue('segmentForm', 'bBlind', (2 * parseInt(currentText)).toString())
-            // }}
           />
           <GiftedForm.TextInputWidget
             name='bBlind'

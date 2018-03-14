@@ -19,22 +19,10 @@ class ChipEditScreen extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // if (nextProps.currentUserQuery.user && nextProps.currentUserQuery.user !== this.props.currentUserQuery.user) {
-    //   const user = nextProps.currentUserQuery.user
-    //   this.setState({user: user})
-    // }
-    // if (nextProps.getChipQuery && nextProps.getChipQuery.Chip) {
-    //   // this.setState({formData: nextProps.getChipQuery.Chip})
-    // }
   }
 
-  // _refreshButtonPressed() {
-  //   this.props.getChipQuery.refetch()
-  // }
 
   handleValueChange (values) {
-    // alert(values.sBlind)
-    // this.setState({ form: values })    
   }
 
   render() {
@@ -57,9 +45,6 @@ class ChipEditScreen extends React.Component {
                 });
             }
           }
-          // openModal={(route) => {
-          //   this.props.navigation.navigate(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
-          // }}
           clearOnClose={true} // delete the values of the form when unmounted
           onValueChange={this.handleValueChange.bind(this)}
           defaults={{
@@ -86,11 +71,11 @@ class ChipEditScreen extends React.Component {
             title='Denomination'
             clearButtonMode='while-editing'
             keyboardType='numeric'
-            value={Chip.denomination ? Chip.denomination.toString() : ''}
+            value={Chip.denom ? Chip.denom.toString() : ''}
           />
 
           <GiftedForm.ModalWidget
-            title='Chip Color'
+            title={Chip.color ? dictionaryLookup(Chip.color, "ChipColorOptions", "longName") : 'Select chip color...'}
             displayValue='color'
           >
             <GiftedForm.SeparatorWidget />

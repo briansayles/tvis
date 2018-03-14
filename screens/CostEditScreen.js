@@ -53,19 +53,8 @@ class CostEditScreen extends React.Component {
                 });
             }
           }
-          // openModal={(route) => {
-          //   this.props.navigation.navigate(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
-          // }}
           clearOnClose={true} // delete the values of the form when unmounted
-          // onValueChange={this.handleValueChange.bind(this)}
           defaults={{
-            /*
-            username: 'Farid',
-            'gender{M}': true,
-            password: 'abcdefg',
-            country: 'FR',
-            birthday: new Date(((new Date()).getFullYear() - 18)+''),
-            */
           }}
           validators={{
             price: {
@@ -105,7 +94,7 @@ class CostEditScreen extends React.Component {
             value={Cost.chipStack ? Cost.chipStack.toString() : ''}
           />
           <GiftedForm.ModalWidget
-            title='Cost Type'
+            title={Cost.costType ? dictionaryLookup(Cost.costType, "EntryFeeOptions", "longName") : 'Select entry fee type...'}
             displayValue='costType'
           >
             <GiftedForm.SeparatorWidget />

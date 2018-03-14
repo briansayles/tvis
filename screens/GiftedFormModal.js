@@ -7,31 +7,11 @@ import { FontAwesome } from '@expo/vector-icons';
 class GiftedFormModal extends React.Component {
 
   static navigationOptions({ navigation }) {
-    const { getTitle, onClose } = navigation.state.params || {};
-
+    const { getTitle, onClose, modalTitle } = navigation.state.params || {};
     return {
-      headerTitle: getTitle(),
+      headerTitle: modalTitle,
       headerStyle: { backgroundColor: '#F37600' },
       headerTitleStyle: { color: 'white' },
-      headerLeft: <FontAwesome
-        name="chevron-left"
-        color="white"
-        size={25}
-        style={{ paddingLeft: 10 }}
-        onPress={() => {
-          navigation.goBack();
-        }}
-      />,
-      headerRight: <FontAwesome
-        name="check"
-        color="white"
-        size={25}
-        style={{ paddingRight: 10 }}
-        onPress={() => {
-          onClose(null, null);
-          navigation.goBack();
-        }}
-      />
     };
   }
 

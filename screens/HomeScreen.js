@@ -43,7 +43,10 @@ export default class HomeScreen extends React.Component {
           </View>
           <View style={styles.getStartedContainer}>
             <Text style={styles.getStartedText}>
-              "This is the application's home screen!"
+              Welcome to TourneyVision{"\n"}{"\n"}
+              Poker Tournament Management{"\n"}
+              made EASY.{"\n"}{"\n"}{"\n"}
+              Tap 'Tournaments' to get started.
             </Text>
           </View>
         </ScrollView>
