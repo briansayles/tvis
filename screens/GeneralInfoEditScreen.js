@@ -5,7 +5,7 @@ import { ActivityIndicator, PricingCard, Button, Icon, Input } from 'react-nativ
 import { currentUserQuery, updateTournamentMutation, getTournamentQuery } from '../constants/GQL'
 import { dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
-import { Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 
 class GeneralInfoEditScreen extends React.Component {
 
@@ -65,14 +65,14 @@ class GeneralInfoEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
       return (
-        <View style={{flex: 1, paddingLeft: 5, paddingRight: 5, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center'}}>
+        <FormView style={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
           <MyInput
             title="Title"
             value={this.state.formValues.title || ""}
             placeholder="Enter title here..."
             onChangeText={this.handleTextInputChange.bind(this, 'title')}
           />
-
+          
           <MyInput
             title="Subtitle"
             value={this.state.formValues.subtitle || ""}
@@ -81,14 +81,18 @@ class GeneralInfoEditScreen extends React.Component {
           />
 
           <MyInput
+            style={{height: 100}}
             title="Comments"
             value={this.state.formValues.comments || ""}
             placeholder="Enter comments here..."
             onChangeText={this.handleTextInputChange.bind(this, 'comments')}
+            multiline = {true}
+            numberOfLines = {6}
           />
 
           <Picker
             prompt="Choose your game"
+            title="Game"
             initialValue={Tournament.game || "Pick game..."}
             selectedValue={this.state.formValues.game}
             onValueChange={(itemValue, itemIndex) => {
@@ -109,7 +113,7 @@ class GeneralInfoEditScreen extends React.Component {
             variables={this.state.formValues}
             events={["RefreshEditor", "RefreshTournamentList"]}
           />
-        </View>
+        </FormView>
       )
     }
   }

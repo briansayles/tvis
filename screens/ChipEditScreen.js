@@ -5,7 +5,8 @@ import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, St
 import { List, ListItem, } from 'react-native-elements';
 import { getChipQuery, updateChipMutation} from '../constants/GQL'
 import Events from '../api/events'
-import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
+// import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
+import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 import { dictionaryLookup } from '../utilities/functions'
 
 class ChipEditScreen extends React.Component {
@@ -13,14 +14,22 @@ class ChipEditScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      // user: null,
-      form: {},
+      formValues: {},
     }
   }
 
   componentWillReceiveProps(nextProps) {
+    if(nextProps.getChipQuery.Chip) {
+      this.setState({formValues: nextProps.getChipQuery.Chip})
+    }
   }
 
+  handleTextInputChange (fieldName, text) {
+    this.setState(({formValues}) => ({formValues: {
+      ...formValues,
+      [fieldName]: text,
+    }}))
+  }
 
   handleValueChange (values) {
   }
@@ -33,85 +42,41 @@ class ChipEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
      	return (
-        <GiftedForm
-          formName='chipEditForm' // GiftedForm instances that use the same name will also share the same states
+        <FormView style={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
 
-          openModal = {
-            (router) => {
-              this.props.navigation.navigate('Modal',
-                { renderContent: router.renderScene,
-                  onClose: router.onClose,
-                  getTitle: router.getTitle
-                });
-            }
-          }
-          clearOnClose={true} // delete the values of the form when unmounted
-          onValueChange={this.handleValueChange.bind(this)}
-          defaults={{
-            denomination: Chip.denomination
-          }}
-          validators={{
-            denomination: {
-              title: 'Denomination',
-              validate: [{
-                validator: 'matches',
-                arguments: /^[\d ]*$/,
-                message: '{TITLE} can contain only numeric characters'
-              }]
-            },
-            color: {
-              title: 'Chip Color',
-            },
-          }}
-        >
-          <GiftedForm.SeparatorWidget />
-          
-          <GiftedForm.TextInputWidget
-            name='denomination'
-            title='Denomination'
-            clearButtonMode='while-editing'
-            keyboardType='numeric'
-            value={Chip.denom ? Chip.denom.toString() : ''}
+          <MyInput
+            title="Denomination"
+            value={this.state.formValues.denom || ""}
+            placeholder="Enter denomination here..."
+            onChangeText={this.handleTextInputChange.bind(this, 'denom')}
+            keyboardType="numeric"
           />
 
-          <GiftedForm.ModalWidget
-            title={Chip.color ? dictionaryLookup(Chip.color, "ChipColorOptions", "longName") : 'Select chip color...'}
-            displayValue='color'
+          <Picker
+            prompt="Choose a color"
+            title="Chip color"
+            initialValue={Chip.color || "Pick color..."}
+            selectedValue={this.state.formValues.color}
+            onValueChange={(itemValue, itemIndex) => {
+              this.setState(({formValues}) => ({formValues: {
+                ...formValues,
+                color: itemValue,
+              }}))
+            }}
           >
-            <GiftedForm.SeparatorWidget />
-            <GiftedForm.SelectWidget name='color' multiple={false} title='Chip Color'>
-              {dictionaryLookup("ChipColorOptions").map((item, i) => (
-                <GiftedForm.OptionWidget key={i} title={item.longName} value={item.shortName}/>
-              ))
-              }
-            </GiftedForm.SelectWidget>
-          </GiftedForm.ModalWidget>
+            {dictionaryLookup("ChipColorOptions").map((item, i) => (
+              <Picker.Item key={i} label={item.longName} value={item.shortName}/>
+            ))
+            }
+          </Picker>
 
-          <GiftedForm.SubmitWidget
-            title='Submit'
-            widgetStyles={{
-              submitButton: {
-                backgroundColor: 'green',
-              }
-            }}
-            onSubmit={(isValid, values, validationResults, postSubmit = null, modalNavigator = null) => {
-              if (isValid === true) {
-                this.props.updateChipMutation(
-                  {
-                    variables: {
-                      id: Chip.id,
-                      denom: values.denomination ? parseInt(values.denomination) : undefined,
-                      color: values.color ? dictionaryLookup(values.color, "ChipColorOptions") : undefined
-                    }
-                  }
-                ).then(() => {
-                  Events.publish('RefreshChipList')
-                  postSubmit() // disable the loader
-                })
-              }
-            }}
+          <SubmitButton 
+            mutation={this.props.updateChipMutation}
+            id={Chip.id}
+            variables={this.state.formValues}
+            events={["RefreshChipList"]}
           />
-        </GiftedForm>
+        </FormView>
     	)
     }
   }
@@ -119,7 +84,5 @@ class ChipEditScreen extends React.Component {
 
 export default compose(
   graphql(getChipQuery, { name: 'getChipQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  // graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  // graphql(deleteChipMutation, { name: 'deleteChipMutation' }),
   graphql(updateChipMutation, { name: 'updateChipMutation'}),
 )(ChipEditScreen)

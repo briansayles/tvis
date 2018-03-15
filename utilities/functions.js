@@ -46,13 +46,12 @@ export function smallestChipArray (sortedChips, sortedSegments) {
 }
 
 export function dictionaryLookup(value, section, returnType) {
-	// const resultSection = section ? Dictionary[section] : Dictionary
 	if (!section) {return Dictionary[value]}
 	const resultObject = Dictionary[section].find((definition) => {
 		return value == definition.shortName || value == definition.longName
 	})
 	if (returnType == "long" || returnType == "longName") {
-		return resultObject.longName
+		return resultObject.longName || null
 	} else {
 		return resultObject.shortName || null
 	}

@@ -5,6 +5,26 @@ import ReactNative, {
 import { Button, Icon, Input} from 'react-native-elements'
 import { dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+export class FormView extends Component {
+	constructor(props, context) {
+		super(props, context)
+		this.state = {
+		}
+	}
+
+	render() {
+		return(
+			<KeyboardAwareScrollView
+	      {...this.props}
+			>
+				{this.props.children}
+			</KeyboardAwareScrollView>
+		)
+	}
+}
+
 
 export class Picker extends Component {
   static Item = ReactNative.Picker.Item
@@ -33,7 +53,7 @@ export class Picker extends Component {
   }
 
   render() {
-    const { children, style, textStyle, initialValue } = this.props
+    const { children, style, textStyle, initialValue, title } = this.props
     const labels = children.map(child => child.props.label)
     const values = children.map(child => child.props.value)
     const flatStyle = (style ? StyleSheet.flatten(style) : {})
@@ -47,28 +67,30 @@ export class Picker extends Component {
       }
 
       return (
-        <TouchableOpacity
-          onPress={this.onPress}
-          style={[{
-            alignSelf: 'stretch',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'row',
-            paddingHorizontal: 6,
-          }, flatStyle]}
-        >
-          <Text style={[{ flex: 1 }, defaultTextStyle, textStyle]}>
-            {labels[values.indexOf(selectedValue || initialValue)] || initialValue}
-          </Text>
-          <Text style={[{color: 'black'}, defaultTextStyle, textStyle]}>▼</Text>
-        </TouchableOpacity>
+      	<View style={{flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, marginTop: 12}}>
+	        <TouchableOpacity
+	          onPress={this.onPress}
+	          style={[{
+	            alignSelf: 'stretch',
+	            alignItems: 'center',
+	            justifyContent: 'center',
+	            flexDirection: 'row',
+	            paddingHorizontal: 10,
+	          }, flatStyle]}
+	        >
+	          <Text style={[{ flex: 1 }, defaultTextStyle, textStyle]}>
+	            {labels[values.indexOf(selectedValue || initialValue)] || initialValue}
+	          </Text>
+	          <Text style={[{color: 'black'}, defaultTextStyle, textStyle]}>▼</Text>
+	        </TouchableOpacity>
+        </View>
       )
     } else {
       return (
         <View
           style={[{
             alignSelf: 'stretch',
-            paddingHorizontal: 6,
+            paddingHorizontal: 10,
           }, flatStyle]}
         >
           <ReactNative.Picker
@@ -89,16 +111,10 @@ export class MyInput extends Component {
 
   render() {
 		return (
-			<View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-				<Text style={{flex: 1}}>{this.props.title}</Text>
-				<Input 
+				<Input
           {...this.props}
-					placeholder={this.props.placeholder} 
-					style={{flex: 3}}
 					value={this.props.value.toString()}
-					onChangeText={this.props.onChangeText}
 				/>
-			</View>
 		)
 	}
 }
@@ -142,7 +158,7 @@ export class SubmitButton extends Component {
           type='ionicon'
         />}
         iconRight
-        buttonStyle={{ borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'center'}}
+        buttonStyle={{ borderRadius: 20, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
         title='Submit'
         titleStyle={{fontSize: 24, color: '#fff'}}
         onPress={this.onPress}

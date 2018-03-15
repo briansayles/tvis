@@ -4,7 +4,7 @@ import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { getSegmentQuery, updateSegmentMutation} from '../constants/GQL'
 import Events from '../api/events'
-import { Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 import { dictionaryLookup } from '../utilities/functions'
 
 class SegmentEditScreen extends React.Component {
@@ -41,7 +41,7 @@ class SegmentEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {  
      	return (
-        <View style={{flex: 1, paddingLeft: 5, paddingRight: 5, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center'}}>
+        <FormView style={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
 
           <MyInput
             title="Small Blind"
@@ -72,6 +72,7 @@ class SegmentEditScreen extends React.Component {
 
           <Picker
             prompt="Choose your duration"
+            title="Duration (in minutes)"
             initialValue={Segment.duration || "Pick duration..."}
             selectedValue={this.state.formValues.duration}
             onValueChange={(itemValue, itemIndex) => {
@@ -99,7 +100,7 @@ class SegmentEditScreen extends React.Component {
 
 
 
-         </View>
+         </FormView>
     	)
     }
   }
@@ -107,7 +108,5 @@ class SegmentEditScreen extends React.Component {
 
 export default compose(
   graphql(getSegmentQuery, { name: 'getSegmentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  // graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  // graphql(deleteSegmentMutation, { name: 'deleteSegmentMutation' }),
   graphql(updateSegmentMutation, { name: 'updateSegmentMutation'}),
 )(SegmentEditScreen)
