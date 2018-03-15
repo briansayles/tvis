@@ -92,9 +92,10 @@ export class MyInput extends Component {
 			<View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
 				<Text style={{flex: 1}}>{this.props.title}</Text>
 				<Input 
+          {...this.props}
 					placeholder={this.props.placeholder} 
 					style={{flex: 3}}
-					value={this.props.value}
+					value={this.props.value.toString()}
 					onChangeText={this.props.onChangeText}
 				/>
 			</View>

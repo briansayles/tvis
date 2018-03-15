@@ -53,7 +53,7 @@ class GeneralInfoEditScreen extends React.Component {
   handleTextInputChange (fieldName, text) {
     this.setState(({formValues}) => ({formValues: {
       ...formValues,
-      [fieldName]: text,
+      [fieldName]: parseInt(text) || text,
     }}))
   }
 
@@ -65,7 +65,7 @@ class GeneralInfoEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
       return (
-        <View style={{flex: 1, paddingLeft: 5, paddingRight: 5, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
+        <View style={{flex: 1, paddingLeft: 5, paddingRight: 5, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center'}}>
           <MyInput
             title="Title"
             value={this.state.formValues.title || ""}

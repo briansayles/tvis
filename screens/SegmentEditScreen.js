@@ -4,6 +4,8 @@ import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { getSegmentQuery, updateSegmentMutation} from '../constants/GQL'
 import Events from '../api/events'
+import { Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+import { dictionaryLookup } from '../utilities/functions'
 
 class SegmentEditScreen extends React.Component {
 
@@ -11,10 +13,21 @@ class SegmentEditScreen extends React.Component {
     super(props)
     this.state = {
       form: {},
+      formValues: {},
     }
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.getSegmentQuery.Segment) {
+      this.setState({formValues: nextProps.getSegmentQuery.Segment})
+    }
+  }
+
+  handleTextInputChange (fieldName, text) {
+    this.setState(({formValues}) => ({formValues: {
+      ...formValues,
+      [fieldName]: parseInt(text) || text,
+    }}))
   }
 
   handleValueChange (values) {
@@ -28,117 +41,65 @@ class SegmentEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {  
      	return (
-        <GiftedForm
-          formName='segmentForm' // GiftedForm instances that use the same name will also share the same states
-          openModal = {
-            (router) => {
-              this.props.navigation.navigate('Modal',
-                { renderContent: router.renderScene,
-                  onClose: router.onClose,
-                  getTitle: router.getTitle
-                });
+        <View style={{flex: 1, paddingLeft: 5, paddingRight: 5, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center'}}>
+
+          <MyInput
+            title="Small Blind"
+            value={this.state.formValues.sBlind || ""}
+            placeholder="Enter small blind here..."
+            onChangeText={this.handleTextInputChange.bind(this, 'sBlind')}
+          />
+
+          <MyInput
+            title="Big Blind"
+            value={this.state.formValues.bBlind || ""}
+            placeholder="Enter big blind here..."
+            onChangeText={this.handleTextInputChange.bind(this, 'bBlind')}
+            onFocus={(currentText = '') => {
+              this.setState(({formValues}) => ({formValues: {
+                ...formValues,
+                bBlind: parseInt(this.state.formValues.sBlind) * 2,
+              }}))
+            }}
+          />
+
+          <MyInput
+            title="Ante"
+            value={this.state.formValues.ante || ""}
+            placeholder="Enter ante here..."
+            onChangeText={this.handleTextInputChange.bind(this, 'ante')}
+          />
+
+          <Picker
+            prompt="Choose your duration"
+            initialValue={Segment.duration || "Pick duration..."}
+            selectedValue={this.state.formValues.duration}
+            onValueChange={(itemValue, itemIndex) => {
+              this.setState(({formValues}) => ({formValues: {
+                ...formValues,
+                duration: itemValue,
+              }}))
+            }}
+          >
+            {dictionaryLookup("DurationOptions").map((item, i) => (
+              <Picker.Item key={i} label={item.longName} value={parseInt(item.shortName)}/>
+            ))
             }
-          }
-          clearOnClose={true} // delete the values of the form when unmounted
-          defaults={{
-          }}
-          validators={{
-            sBlind: {
-              title: 'Small Blind',
-              validate: [{
-                validator: 'matches',
-                arguments: /^[\d ]*$/,
-                message: '{TITLE} can contain only numeric characters'
-              }]
-            },
-            bBlind: {
-              title: 'Big Blind',
-              validate: [{
-                validator: 'matches',
-                arguments: /^[\d ]*$/,
-                message: '{TITLE} can contain only numeric characters'
-              }]
-            },
-            ante: {
-              title: 'Ante',
-              validate: [{
-                validator: 'matches',
-                arguments: /^[\d ]*$/,
-                message: '{TITLE} can contain only numeric characters'
-              }]
-            },
-            duration: {
-              title: 'Duration',
-              validate: [{
-                validator: 'matches',
-                arguments: /^[\d ]*$/,
-                message: '{TITLE} can contain only numeric characters'
-              }]
-            },
-          }}
-        >
-          <GiftedForm.SeparatorWidget />
-          <GiftedForm.TextInputWidget
-            name='sBlind'
-            title='SB'
-            clearButtonMode='while-editing'
-            keyboardType='numeric'
-            value={Segment.sBlind ? Segment.sBlind.toString() : ''}
-          />
-          <GiftedForm.TextInputWidget
-            name='bBlind'
-            title='BB'
-            clearButtonMode='while-editing'
-            keyboardType='numeric'
-            value={Segment.bBlind ? Segment.bBlind.toString() : ''}
-            onTextInputFocus={(currentText = '') => {
-              return (parseInt(GiftedFormManager.getValue('segmentForm', 'sBlind')) * 2 || 0).toString()
-            }}
-          />
-          <GiftedForm.TextInputWidget
-            name='ante'
-            title='Ante'
-            clearButtonMode='while-editing'
-            keyboardType='numeric'
-            value={Segment.ante ? Segment.ante.toString() : ''}
-          />
-          <GiftedForm.TextInputWidget
-            name='duration'
-            title='Duration'
-            clearButtonMode='while-editing'
-            keyboardType='numeric'
-            value={Segment.duration ? Segment.duration.toString() : ''}
+          </Picker>
+
+          <SubmitButton 
+            mutation={this.props.updateSegmentMutation}
+            id={Segment.id}
+            variables={this.state.formValues}
+            events={["RefreshSegmentList", "RefreshEditor"]}
           />
 
-          <GiftedForm.ErrorsWidget/>
 
-          <GiftedForm.SubmitWidget
-            title='Submit'
-            widgetStyles={{
-              submitButton: {
-                backgroundColor: 'green',
-              }
-            }}
-            onSubmit={(isValid, values, validationResults, postSubmit = null, modalNavigator = null) => {
-              if (isValid === true) {
-                this.props.updateSegmentMutation(
-                  {
-                    variables: {
-                      id: Segment.id,
-                      sBlind: parseInt(values.sBlind),
-                      bBlind: parseInt(values.bBlind),
-                      ante: parseInt(values.ante),
-                      duration: parseInt(values.duration),
-                    }
-                  }
-                ).then(() => {
-                  Events.publish('RefreshSegmentList')
-                  postSubmit(); // disable the loader
-                })
-              }
-            }}
-          />
-        </GiftedForm>
+
+
+
+
+         </View>
     	)
     }
   }

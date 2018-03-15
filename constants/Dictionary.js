@@ -34,6 +34,18 @@ export default {
 		{longName: "Yellow", shortName: "#ff0"},
 		{longName: "Light Blue", shortName: "#cff"}
 	],
+	DurationOptions: [
+		{longName: "5 min.", shortName: "5"},
+		{longName: "10 min.", shortName: "10"},
+		{longName: "12 min.", shortName: "12"},
+		{longName: "15 min.", shortName: "15"},
+		{longName: "20 min.", shortName: "20"},
+		{longName: "25 min.", shortName: "25"},
+		{longName: "30 min.", shortName: "30"},
+		{longName: "40 min.", shortName: "40"},
+		{longName: "45 min.", shortName: "45"},
+		{longName: "60 min.", shortName: "60"}
+	],
 	"NLHE": "No Limit Hold'Em",
 	"PLO": "Pot Limit Omaha",
 	"Buyin": "Buy-In",
