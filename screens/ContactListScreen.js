@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, FlatList} from 'react-native'
 import {List, ListItem, Button, SearchBar, CheckBox} from 'react-native-elements'
-import {currentUserQuery, addCreditsMutation, } from '../constants/GQL'
+import {currentUserQuery, addCreditsMutation, getUserContactsQuery, } from '../constants/GQL'
 import Events from '../api/events'
 import { BannerAd } from '../components/Ads'
 import { AdMobRewarded } from 'expo'
@@ -15,14 +15,11 @@ class ContactListScreen extends React.Component {
     this.state = {
       user: null,
       refreshing: false,
-      contacts: null,
-      filteredContacts: null,
+      deviceContacts: null,
+      filteredDeviceContacts: null,
       checked: [],
+      contactsPermission: 'denied',
     }
-  }
-
-  static navigationOptions = {
-
   }
 
   componentDidMount() {
@@ -39,7 +36,7 @@ class ContactListScreen extends React.Component {
   }
 
   componentWillMount() {
-    this._getContacts()
+    this._getDeviceContacts()
   }
 
   componentWillUnmount () {
@@ -47,11 +44,39 @@ class ContactListScreen extends React.Component {
   }
 
   _refresh() {
-    this._getContacts()
+    this._getDeviceContacts()
   }
 
+  _addButtonPressed() {
+    this.setState({loading: true})
+    this.props.createItem(
+      {
+        variables:
+        {
+          "tournamentId": this.props.getData.Tournament.id,
+          "costType": "Buyin",
+          "price": 20,
+          "chipStack": 1000,
+        }
+      }
+    ).then((result) => {
+      Events.publish('RefreshCostList')
+      this._editButtonPressed(result.data.createCost.id)
+    })
+  }
 
-  async _getContacts() {
+  _editButtonPressed(id) {
+    this.props.navigation.navigate('CostEdit', {id: id})
+  }
+
+  _deleteButtonPressed(id) {
+    this.setState({loading: true})
+    this.props.deleteItem({variables: {id: id} }).then(
+      () => Events.publish('RefreshCostList')
+    )
+  }
+
+  async _getDeviceContacts() {
     const { status } = await Expo.Permissions.getAsync(Expo.Permissions.CONTACTS)
     this.setState({contactsPermission: status})
 
@@ -70,85 +95,92 @@ class ContactListScreen extends React.Component {
     })
     if (contacts.total > 0) {
       const sortedContacts = contacts.data.sort((a,b) => a.lastName.localeCompare(b.lastName))
-      this.setState({contacts: sortedContacts, filteredContacts: null})
+      this.setState({deviceContacts: sortedContacts, filteredDeviceContacts: null})
     } else {
       Alert.alert("Unable to retrieve any contacts. Maybe you don't have any.")
     }
   }
 
-  searchContacts(searchString) {
+  searchDeviceContacts(searchString) {
     if(searchString.length === 0) {
-      this.setState({filteredContacts: null})
+      this.setState({filteredDeviceContacts: null})
       return
     } else {
-       const filteredValues = this.state.contacts.filter((currentValue) => {
+      const filteredValues = this.state.deviceContacts.filter((currentValue) => {
         return currentValue.name.toLowerCase().includes(searchString.toLowerCase(), 0)
       })
-      this.setState({filteredContacts: filteredValues})
+      this.setState({filteredDeviceContacts: filteredValues})
     }
   }
 
   clearSearchBar() {
-    this.setState({filteredContacts: null})
+    this.setState({filteredDeviceContacts: null})
     return
   }
 
   render() {
-    const { contacts, user, filteredContacts } = this.state
+    const { deviceContacts, user, filteredDeviceContacts } = this.state
+    const { loading, error, Contacts } = this.props.getUserContactsQuery
 
-    if (!contacts) {
-      if (this.state.contactsPermission == 'denied') {
-        return (<Text>Permission to access contacts has been denied. To allow access, you will need to go to your device SETTINGS
-          and manually enable access via the Privacy tab.
-        </Text>)
-      }
+    if (loading) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+    } else if (error) {
+      return <Text>Error!</Text>
     } else {
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-          <Text>{contacts.length} contacts loaded.</Text>
-          <SearchBar
-            lightTheme
-            autoCorrect={false}
-            onChangeText={this.searchContacts.bind(this)}
-            onClearText={this.clearSearchBar.bind(this)}
-            icon={{ type: 'font-awesome', name: 'search' }}
-            placeholder='Type a name to search for...'
-            clearIcon
-          />
-          <ScrollView 
-            style={{flex: 1, marginLeft: 5, marginRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
+          {this.state.deviceContactsPermission == 'denied' && 
+            <Text>
+              Permission to access this device\'s contacts has been denied. To allow access, you will need to go to your device SETTINGS and manually enable access via the Privacy tab.
+            </Text>
+          }
+          {this.state.deviceContactsPermission != 'denied'  &&
+            <View>
+              <Text style={{paddingLeft: 10, paddingTop: 5}}>
+                {deviceContacts.length} contacts loaded from device.
+              </Text>
+
+              <SearchBar
+                lightTheme
+                autoCorrect={false}
+                onChangeText={this.searchDeviceContacts.bind(this)}
+                onClearText={this.clearSearchBar.bind(this)}
+                icon={{ type: 'font-awesome', name: 'search' }}
+                placeholder='Search device contacts for...'
+                clearIcon
               />
-            }
-          >
-            <FlatList
-              data={filteredContacts}
-              renderItem={({item, index}) => 
-                <CheckBox
-                  key={item.id}
-                  title={item.name + (item.emails[0] ? "(" + item.emails[0].email + ")" : "")}
-                  onPress={() => this.state.checked[index] = !this.state.checked[index]}
-                  checked={this.state.checked[index]}
+              <ScrollView 
+                style={{marginLeft: 5, marginRight: 5}}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this._refresh.bind(this)}
+                  />
+                }
+              >
+                <FlatList
+                  data={filteredDeviceContacts}
+                  renderItem={({item, index}) => 
+                    <CheckBox
+                      key={item.id}
+                      title={item.name + (item.emails[0] ? "(" + item.emails[0].email + ")" : "")}
+                      onPress={() => this.state.checked[index] = !this.state.checked[index]}
+                      checked={this.state.checked[index]}
+                    />
+                  }
                 />
-              }
-            />
-          </ScrollView>
+              </ScrollView>
+            </View>
+          }
           <BannerAd />
         </View>
       )
     }
-  }
-
-  _endRef = (element) => {
-    this.endRef = element
   }
 }
 
 export default compose(
   graphql(currentUserQuery, { name: 'currentUserQuery' }),
   graphql(addCreditsMutation, {name: 'addCreditsMutation'}),
+  graphql(getUserContactsQuery, {name: 'getUserContactsQuery'}),
 )(ContactListScreen)

@@ -5,7 +5,6 @@ import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, St
 import { List, ListItem, } from 'react-native-elements';
 import { getChipQuery, updateChipMutation} from '../constants/GQL'
 import Events from '../api/events'
-// import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 import { dictionaryLookup } from '../utilities/functions'
 

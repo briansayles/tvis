@@ -16,15 +16,77 @@ export class FormView extends Component {
 
 	render() {
 		return(
-			<KeyboardAwareScrollView
-	      {...this.props}
-			>
+			<KeyboardAwareScrollView 
+				{...this.props}>
 				{this.props.children}
 			</KeyboardAwareScrollView>
 		)
 	}
 }
 
+export class MyInput extends Component {
+
+	constructor(props, context) {
+		super(props, context)
+	}
+
+  render() {
+		return (
+				<Input
+          {...this.props}
+					value={this.props.value.toString()}
+				/>
+		)
+	}
+}
+
+
+export class SubmitButton extends Component {
+
+  constructor(props, context) {
+    super(props, context)
+    this.onPress = this.handlePress.bind(this)
+    this.state = {
+    	busy: false,
+    }
+  }
+
+  handlePress() {
+  	this.setState({busy: true})
+  	console.log(JSON.stringify(this.props.variables))
+  	this.props.mutation(
+  		{
+  			variables: {
+  				id: this.props.id,
+  				...this.props.variables
+  			}
+  		}
+  	).then(() => {
+			this.props.events.forEach(function(event) {
+			  Events.publish(event)
+			})
+  	}).then(() => {
+  		this.setState({busy: false})
+  	})
+  }
+
+	render() {
+		return (
+	    <Button 
+        icon={this.state.busy ? <ActivityIndicator/> : <Icon
+          name='ios-checkmark-circle-outline'
+          color='#fff'
+          type='ionicon'
+        />}
+        iconRight
+        buttonStyle={{ borderRadius: 20, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
+        title='Submit'
+        titleStyle={{fontSize: 24, color: '#fff'}}
+        onPress={this.onPress}
+      />
+	)
+	}
+}
 
 export class Picker extends Component {
   static Item = ReactNative.Picker.Item
@@ -103,67 +165,4 @@ export class Picker extends Component {
   }
 }
 
-export class MyInput extends Component {
-
-	constructor(props, context) {
-		super(props, context)
-	}
-
-  render() {
-		return (
-				<Input
-          {...this.props}
-					value={this.props.value.toString()}
-				/>
-		)
-	}
-}
-
-
-export class SubmitButton extends Component {
-
-  constructor(props, context) {
-    super(props, context)
-    this.onPress = this.handlePress.bind(this)
-    this.state = {
-    	busy: false,
-    }
-  }
-
-  handlePress() {
-  	this.setState({busy: true})
-  	console.log(JSON.stringify(this.props.variables))
-  	this.props.mutation(
-  		{
-  			variables: {
-  				id: this.props.id,
-  				...this.props.variables
-  			}
-  		}
-  	).then(() => {
-			this.props.events.forEach(function(event) {
-			  Events.publish(event)
-			})
-  	}).then(() => {
-  		this.setState({busy: false})
-  	})
-  }
-
-	render() {
-		return (
-	    <Button 
-        icon={this.state.busy ? <ActivityIndicator/> : <Icon
-          name='ios-checkmark-circle-outline'
-          color='#fff'
-          type='ionicon'
-        />}
-        iconRight
-        buttonStyle={{ borderRadius: 20, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
-        title='Submit'
-        titleStyle={{fontSize: 24, color: '#fff'}}
-        onPress={this.onPress}
-      />
-	)
-	}
-}
 

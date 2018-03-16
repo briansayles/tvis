@@ -17,7 +17,6 @@ import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
 import CostListScreen from '../screens/CostListScreen'
 import CostEditScreen from '../screens/CostEditScreen'
 import ProfileScreen from '../screens/ProfileScreen'
-import GiftedFormModal from '../screens/GiftedFormModal'
 
 export const TournamentsStack = StackNavigator({
 	TournamentList: {
@@ -79,9 +78,6 @@ export const TournamentsStack = StackNavigator({
 		navigationOptions: {
 			title: 'Entry Fee Editor',
 		}
-	},
-	Modal: { 
-		screen: GiftedFormModal,
 	},
 }, 
 {

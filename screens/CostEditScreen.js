@@ -1,7 +1,6 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
-import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 import { getCostQuery, updateCostMutation} from '../constants/GQL'
 import Events from '../api/events'
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
