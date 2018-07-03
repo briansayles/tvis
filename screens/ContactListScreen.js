@@ -4,6 +4,7 @@ import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, St
 import {List, ListItem, Button, SearchBar, CheckBox} from 'react-native-elements'
 import {currentUserQuery, addCreditsMutation, getUserContactsQuery, } from '../constants/GQL'
 import Events from '../api/events'
+import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { AdMobRewarded } from 'expo'
 import { showRewardedAd } from '../main'
@@ -47,33 +48,35 @@ class ContactListScreen extends React.Component {
     this._getDeviceContacts()
   }
 
-  _addButtonPressed() {
-    this.setState({loading: true})
-    this.props.createItem(
-      {
-        variables:
-        {
-          "tournamentId": this.props.getData.Tournament.id,
-          "costType": "Buyin",
-          "price": 20,
-          "chipStack": 1000,
-        }
-      }
-    ).then((result) => {
-      Events.publish('RefreshCostList')
-      this._editButtonPressed(result.data.createCost.id)
-    })
-  }
+  // _addButtonPressed() {
+  //   this.setState({loading: true})
+  //   this.props.createItem(
+  //     {
+  //       variables:
+  //       {
+  //         "tournamentId": this.props.getData.Tournament.id,
+  //         "costType": "Buyin",
+  //         "price": 20,
+  //         "chipStack": 1000,
+  //       }
+  //     }
+  //   ).then((result) => {
+  //     Events.publish('RefreshCostList')
+  //     this._editButtonPressed(result.data.createCost.id)
+  //   })
+  // }
 
   _editButtonPressed(id) {
-    this.props.navigation.navigate('CostEdit', {id: id})
+    alert('edit button pressed')
+    // this.props.navigation.navigate('CostEdit', {id: id})
   }
 
   _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    this.props.deleteItem({variables: {id: id} }).then(
-      () => Events.publish('RefreshCostList')
-    )
+    alert('delete button pressed')
+    // this.setState({loading: true})
+    // this.props.deleteItem({variables: {id: id} }).then(
+    //   () => Events.publish('RefreshCostList')
+    // )
   }
 
   async _getDeviceContacts() {
@@ -137,7 +140,7 @@ class ContactListScreen extends React.Component {
           {this.state.deviceContactsPermission != 'denied'  &&
             <View>
               <Text style={{paddingLeft: 10, paddingTop: 5}}>
-                {deviceContacts.length} contacts loaded from device.
+                {deviceContacts.length || 0} contacts loaded from device.
               </Text>
 
               <SearchBar
@@ -158,17 +161,40 @@ class ContactListScreen extends React.Component {
                   />
                 }
               >
-                <FlatList
-                  data={filteredDeviceContacts}
-                  renderItem={({item, index}) => 
-                    <CheckBox
-                      key={item.id}
-                      title={item.name + (item.emails[0] ? "(" + item.emails[0].email + ")" : "")}
-                      onPress={() => this.state.checked[index] = !this.state.checked[index]}
-                      checked={this.state.checked[index]}
-                    />
+                <List>
+                  {
+                    deviceContacts && deviceContacts.map((item, i) => (
+                      <Swipeout
+                        key={i}
+                        autoClose={true}
+                        right={[
+                          {
+                            text: 'Edit',
+                            onPress: this._editButtonPressed.bind(this, item.id),
+                            type: 'primary',
+                          },
+                          {
+                            text: 'DELETE',
+                            onPress: this._deleteButtonPressed.bind(this, item.id),
+                            backgroundColor: '#ff0000',
+                            type: 'delete',
+                          },
+                        ]}
+                      >
+                        <ListItem
+                          title={item.name + (item.emails[0] ? "(" + item.emails[0].email + ")" : "")}
+                          onPress={this._editButtonPressed.bind(this, item.id)}
+                        />
+                      </Swipeout>
+                    ))
                   }
-                />
+                </List>
+
+
+
+
+
+
               </ScrollView>
             </View>
           }

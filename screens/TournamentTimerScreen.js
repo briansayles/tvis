@@ -42,7 +42,7 @@ class TournamentTimerScreen extends React.Component {
   componentDidMount() {
     // AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
     // AdMobInterstitial.setTestDeviceID('EMULATOR');
-    // AdMobInterstitial.requestAd(() => AdMobInterstitial.showAd())
+    // AdMobInterstitial.requestAdAsync(() => AdMobInterstitial.showAdAsync())
     this._loadSound()
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {
@@ -59,7 +59,7 @@ class TournamentTimerScreen extends React.Component {
     // this.interstitialInterval = setInterval(() => {
     //   AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
     //   AdMobInterstitial.setTestDeviceID('EMULATOR');
-    //   AdMobInterstitial.requestAd(() => AdMobInterstitial.showAd())
+    //   AdMobInterstitial.requestAdAsync(() => AdMobInterstitial.showAdAsync())
     // }, 5 * 60000)
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)

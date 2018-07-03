@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { Text, List, ListItem, Card, Button, Avatar, Icon} from 'react-native-elements';
+import { Text, List, ListItem, Card, Button, Avatar, Icon, Divider} from 'react-native-elements';
 import { currentUserQuery, getTournamentQuery, } from '../constants/GQL'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
@@ -97,7 +97,18 @@ class TournamentEditScreen extends React.Component {
               />
             }
           >
-            <Card title={Tournament.title || ""} titleStyle={[styles.title, {}]} flexDirection='column'>
+            <Card title={userIsOwner && 
+                <View style={{flexDirection: 'column', justifyContent: 'space-between'}}>
+                  <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <Text style={{flex:1}}></Text>
+                    <Text style={[styles.title, {flex: 4}]}>{Tournament.title || ""}</Text>
+                    <Icon name='edit' type='font-awesome' style={{flex:1}} onPress={this._navigateToGeneralInfoEdit.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  </View>
+                  <Divider/>
+                </View>
+              }      
+              titleStyle={[styles.title, {}]}
+              flexDirection='column'>
               <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={[styles.title, {}]}>{Tournament.subtitle ? Tournament.subtitle.toString() + "\n" : ""}</Text>
                 <Text style={[styles.title, {}]}>{dictionaryLookup(Tournament.game.toString(), "GameOptions", "long") + "\n"}</Text>
