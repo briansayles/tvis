@@ -214,6 +214,25 @@ export const getTournamentCostsQuery = gql`
     }
   }
 `
+export const getTournamentBuysQuery = gql`
+  query getTournament($id: ID) {
+    Tournament(id: $id)
+    {
+      id
+      title
+      comments
+      game
+      user { id }
+      costs (orderBy: chipStack_DESC) {
+        id
+        price
+        chipStack
+        costType
+      }
+    }
+  }
+`
+
 export const tournamentSubscription = gql`
   subscription {
     Tournament(filter: {
@@ -278,6 +297,23 @@ export const createTournamentCostMutation = gql`
     }
   }
 `
+
+export const createTournamentBuyMutation = gql`
+  mutation createTournamentCost( $tournamentId: ID!, $price: Int, $chipStack: Int) {
+    createCost (
+      tournamentId: $tournamentId
+      price: $price
+      chipStack: $chipStack
+    )
+    {
+        id
+        price
+        chipStack
+        costType
+    }
+  }
+`
+
 // TODO: Make costs, chips and segments Input Types. Doesn't work as-is.
 export const createTournamentFromExistingTournamentMutation = gql`
   mutation createTournament($userId: ID!, $title: String, $subtitle: String, $comments: String, $game: Game, $costs: [TournamentcostsCost!], $chips: [TournamentchipsChip!], $segments: [TournamentsegmentsSegment!] ) {
@@ -591,6 +627,36 @@ export const deleteCostMutation = gql`
   }
 `
 
+export const getBuyQuery = gql`
+  query getCost($id: ID) {
+    Cost(id: $id)
+    {
+      id
+      price
+      chipStack
+      costType
+      tournament {
+        id
+      }
+    }
+  }
+`
+
+export const updateBuyMutation = gql`
+  mutation updateCost ($id: ID!, $price: Int, $chipStack: Int, $costType: CostType, ) {
+    updateCost(id: $id, price: $price, chipStack: $chipStack, costType: $costType) {
+      id
+    }
+  }
+`
+
+export const deleteBuyMutation = gql`
+  mutation deleteCost($id: ID!) {
+    deleteCost(id: $id) {
+      id
+    }
+  }
+`
 export const getServerTimeMutation = gql`
   mutation updateTime ($id: ID! $lastRequestedAt: DateTime!) {
     updateTime(id: $id, lastRequestedAt: $lastRequestedAt) {

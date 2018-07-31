@@ -16,6 +16,7 @@ import ContactListScreen from '../screens/ContactListScreen'
 import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
 import CostListScreen from '../screens/CostListScreen'
 import CostEditScreen from '../screens/CostEditScreen'
+import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 
 export const TournamentsStack = createStackNavigator({
@@ -77,6 +78,12 @@ export const TournamentsStack = createStackNavigator({
 		screen: CostEditScreen,
 		navigationOptions: {
 			title: 'Entry Fee Editor',
+		}
+	},
+	BuyList: {
+		screen: BuyListScreen,
+		navigationOptions: {
+			title: 'TourneyVision'
 		}
 	},
 }, 

@@ -66,6 +66,10 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('CostList', {id: id})
   }
 
+  _navigateToBuyList(id) {
+    this.props.navigation.navigate('BuyList', {id: id})
+  }
+
   _navigateToPrizeList(id) {
     this.props.navigation.navigate('PrizeList', {id: id})
   }
@@ -168,8 +172,12 @@ class TournamentEditScreen extends React.Component {
             >
               <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
                 
-
               </View>
+              {userIsOwner && 
+                <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                    <Icon name='edit' type='font-awesome' onPress={this._navigateToBuyList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                </View>
+              }
             </Card>
 
             <Card title="Blinds Schedule" flexDirection='column'>
