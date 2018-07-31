@@ -1,5 +1,5 @@
 import React from 'react'
-import {TabNavigator, StackNavigator} from 'react-navigation'
+import {createBottomTabNavigator, createStackNavigator} from 'react-navigation'
 import {Icon} from 'react-native-elements'
 
 import Auth from '../components/Auth'
@@ -18,7 +18,7 @@ import CostListScreen from '../screens/CostListScreen'
 import CostEditScreen from '../screens/CostEditScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 
-export const TournamentsStack = StackNavigator({
+export const TournamentsStack = createStackNavigator({
 	TournamentList: {
 		screen: TournamentListScreen,
 		navigationOptions: {
@@ -87,7 +87,7 @@ export const TournamentsStack = StackNavigator({
 	}
 })
 
-export const ProfileStack = StackNavigator({
+export const ProfileStack = createStackNavigator({
 	Profile: {
 		screen: ProfileScreen,
 		navigationOptions: {
@@ -96,7 +96,7 @@ export const ProfileStack = StackNavigator({
 	}
 })
 
-export const ContactsStack = StackNavigator({
+export const ContactsStack = createStackNavigator({
 	Contacts: {
 		screen: ContactListScreen,
 		navigationOptions: {
@@ -105,7 +105,7 @@ export const ContactsStack = StackNavigator({
 	}
 })
 
-export const Tabs = TabNavigator({
+export const Tabs = createBottomTabNavigator({
 	Home: {
 		screen: HomeScreen,
 		navigationOptions: {

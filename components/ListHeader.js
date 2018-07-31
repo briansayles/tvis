@@ -26,7 +26,7 @@ export class ListHeader extends React.Component {
 	    	justifyContent: 'space-between', 
 	    	alignItems: 'center'
 	    }}>
-	    	<Text style={{fontSize: responsiveFontSize(3)}}>
+	    	<Text style={{fontSize: responsiveFontSize(2.5)}}>
 	    		{this.props.title}
     		</Text>
 	    	{this.props.onSearch &&
@@ -50,7 +50,7 @@ export class ListHeader extends React.Component {
 	      		style={{marginRight: responsiveFontSize(2)}}
 		      	onPress={this._handleAddButtonPressed.bind(this)} 
 	      	>
-	      		<Icon name='add' size={responsiveFontSize(4)}/>
+	      		<Icon name='add' size={responsiveFontSize(2.5)}/>
 	      	</TouchableHighlight>
 	      }
 	      {this.props.showAddButton && this.props.loading &&
