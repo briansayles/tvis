@@ -2,7 +2,7 @@ import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
-import { currentUserQuery, getTournamentBuysQuery, createTournamentBuyMutation, deleteBuyMutation} from '../constants/GQL'
+import { currentUserQuery, getTournamentBuysQuery, createCostBuyMutation, deleteBuyMutation} from '../constants/GQL'
 import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
@@ -140,7 +140,7 @@ class BuyListScreen extends React.Component {
 }
 
 export default compose(
-  graphql(createTournamentBuyMutation, {name: 'createItem'}),
+  graphql(createCostBuyMutation, {name: 'createItem'}),
   graphql(deleteBuyMutation, { name: 'deleteItem' }),
   graphql(getTournamentBuysQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),

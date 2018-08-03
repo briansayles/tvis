@@ -117,6 +117,11 @@ export const getTournamentQuery = gql`
         costType
         price
         chipStack
+        buys {
+          player {
+            id
+          } 
+        }
       }
       segments (orderBy: bBlind_ASC) {
         id
@@ -535,6 +540,32 @@ export const getTournamentCostsQuery = gql`
         price
         chipStack
         costType
+        _buysMeta {
+          count
+        }
+      }
+    }
+  }
+`
+
+export const tournamentCosts = gql`
+  query ($id: ID!) {
+    allCosts(filter: {
+      tournament: {
+        id: $id
+      }
+    }) {
+      id
+      price
+      chipStack
+      costType
+      _buysMeta {
+        count
+      }
+      tournament {
+        user {
+          id
+        }
       }
     }
   }
@@ -571,18 +602,13 @@ export const deleteCostMutation = gql`
   }
 `
 
-export const createTournamentBuyMutation = gql`
-  mutation createTournamentCost( $tournamentId: ID!, $price: Int, $chipStack: Int) {
-    createCost (
-      tournamentId: $tournamentId
-      price: $price
-      chipStack: $chipStack
+export const createCostBuyMutation = gql`
+  mutation createCostBuy( $costId: ID!) {
+    createBuy (
+      costId: $costId
     )
     {
-        id
-        price
-        chipStack
-        costType
+      id
     }
   }
 `
@@ -592,48 +618,92 @@ export const getTournamentBuysQuery = gql`
     Tournament(id: $id)
     {
       id
-      title
-      comments
-      game
-      user { id }
       costs (orderBy: chipStack_DESC) {
         id
         price
         chipStack
         costType
+        buys {
+          id
+          player
+        }
+      }
+    }
+  }
+`
+
+export const tournamentBuys = gql`
+  query ($id: ID!) {
+    allBuys(filter: {
+      cost: {
+        tournament: {
+          id: $id
+        }
+      }
+    }) {
+      id
+      cost {
+        tournament {
+          user {
+            id
+          }
+        }
+      }
+    }
+  }
+`
+
+export const lastBuyOnCost = gql`
+  query lastBuyOnCost($costId: ID!) {
+    allBuys(
+      filter: {
+        cost: {
+          id: $costId
+        }
+      },
+      last: 1,
+    ) {
+      id
+      cost {
+        tournament {
+          user {
+            id
+          }
+        }
       }
     }
   }
 `
 
 export const getBuyQuery = gql`
-  query getCost($id: ID) {
-    Cost(id: $id)
+  query getBuy($id: ID) {
+    Buy(id: $id)
     {
       id
-      price
-      chipStack
-      costType
-      tournament {
+      player {
         id
+      }
+      cost {
+        chipStack
+        price
+        costType       
       }
     }
   }
 `
 
 export const updateBuyMutation = gql`
-  mutation updateCost ($id: ID!, $price: Int, $chipStack: Int, $costType: CostType, ) {
-    updateCost(id: $id, price: $price, chipStack: $chipStack, costType: $costType) {
+  mutation updateBuy ($id: ID!, $cost: Cost, $player: Player, ) {
+    updateCost(id: $id, cost: $cost, player: $player) {
       id
     }
   }
 `
 
 export const deleteBuyMutation = gql`
-  mutation deleteCost($id: ID!) {
-    deleteCost(id: $id) {
+  mutation deleteBuy($id: ID!) {
+    deleteBuy(id: $id) {
       id
     }
   }
 `
-

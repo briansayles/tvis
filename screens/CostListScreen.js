@@ -2,12 +2,13 @@ import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
 import {List, ListItem, Button} from 'react-native-elements'
-import { currentUserQuery, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation} from '../constants/GQL'
+import { currentUserQuery, tournamentCosts, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation, createCostBuyMutation, deleteBuyMutation, lastBuyOnCost} from '../constants/GQL'
 import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/ListHeader'
+import { client } from '../main'
 
 class CostListScreen extends React.Component {
 
@@ -48,7 +49,7 @@ class CostListScreen extends React.Component {
       {
         variables:
         {
-          "tournamentId": this.props.getData.Tournament.id,
+          "tournamentId": this.props.getData.allCosts[0].tournament.id,
           "costType": "Buyin",
           "price": 20,
           "chipStack": 1000,
@@ -71,19 +72,32 @@ class CostListScreen extends React.Component {
     )
   }
 
+  _addAnonymousBuyPressed(id) {
+    this.props.createCostBuyMutation({variables: {costId: id}}).then(
+      () => Events.publish('RefreshCostList')
+    )
+  }
+
+  async _removeAnonymousBuyPressed(id) {
+    const result = await client.query({ query: lastBuyOnCost, variables: {costId: id}})
+    this.props.deleteBuyMutation({variables: {id: result.data.allBuys[0].id}}).then(
+      () => Events.publish('RefreshCostList')
+    )
+  }
+
   _search(searchText) {
     // searchText will be the text entered into the search bar
   }
 
   render() {
-    const { getData: { loading, error, Tournament } } = this.props
+    const { getData: { loading, error, allCosts } } = this.props
     if (loading) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {
-      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
-      const list = sortEntryFees(Tournament.costs)
+      const userIsOwner = this.state.user && allCosts.length > 0 && this.state.user.id === allCosts[0].tournament.user.id
+      const list = sortEntryFees(allCosts)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ListHeader 
@@ -110,6 +124,16 @@ class CostListScreen extends React.Component {
                     autoClose={true}
                     right={[
                       {
+                        text: "+",
+                        onPress: this._addAnonymousBuyPressed.bind(this, item.id),
+                        type: 'primary',
+                      },
+                      {
+                        text: "-",
+                        onPress: this._removeAnonymousBuyPressed.bind(this, item.id),
+                        type: 'primary',
+                      },
+                      {
                         text: 'Edit',
                         onPress: this._editButtonPressed.bind(this, item.id),
                         type: 'primary',
@@ -124,7 +148,7 @@ class CostListScreen extends React.Component {
                   >
                   <ListItem
                     title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + (item.price && item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}))}
-                    subtitle={item.chipStack && item.chipStack.toLocaleString() + ' Chips'}
+                    subtitle={item.chipStack && item.chipStack.toLocaleString() + ' Chips, ' + item._buysMeta.count + ' buys.'}
                     onPress={this._editButtonPressed.bind(this, item.id)}
                   />
                   </Swipeout>
@@ -142,6 +166,8 @@ class CostListScreen extends React.Component {
 export default compose(
   graphql(createTournamentCostMutation, {name: 'createItem'}),
   graphql(deleteCostMutation, { name: 'deleteItem' }),
-  graphql(getTournamentCostsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  graphql(tournamentCosts, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  graphql(createCostBuyMutation, {name: 'createCostBuyMutation', }),
+  graphql(deleteBuyMutation, {name: 'deleteBuyMutation', }),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
 )(CostListScreen)
