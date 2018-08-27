@@ -65,7 +65,7 @@ class GeneralInfoEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {
       return (
-        <FormView style={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+        <FormView contentContainerStyle={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
           <MyInput
             title="Title"
             value={this.state.formValues.title || ""}

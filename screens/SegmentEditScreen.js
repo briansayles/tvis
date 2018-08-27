@@ -40,7 +40,7 @@ class SegmentEditScreen extends React.Component {
       return <Text>Error!</Text>
     } else {  
      	return (
-        <FormView style={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+        <FormView contentContainerStyle={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
 
           <MyInput
             title="Small Blind"
@@ -93,12 +93,6 @@ class SegmentEditScreen extends React.Component {
             variables={this.state.formValues}
             events={["RefreshSegmentList", "RefreshEditor"]}
           />
-
-
-
-
-
-
          </FormView>
     	)
     }
