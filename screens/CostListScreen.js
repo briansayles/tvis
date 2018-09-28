@@ -49,7 +49,7 @@ class CostListScreen extends React.Component {
       {
         variables:
         {
-          "tournamentId": this.props.getData.allCosts[0].tournament.id,
+          "tournamentId": this.props.navigation.state.params.id,
           "costType": "Buyin",
           "price": 20,
           "chipStack": 1000,
@@ -57,6 +57,7 @@ class CostListScreen extends React.Component {
       }
     ).then((result) => {
       Events.publish('RefreshCostList')
+      console.log(result.data)
       this._editButtonPressed(result.data.createCost.id)
     })
   }
@@ -78,10 +79,13 @@ class CostListScreen extends React.Component {
     )
   }
 
-  async _removeAnonymousBuyPressed(id) {
-    const result = await client.query({ query: lastBuyOnCost, variables: {costId: id}})
-    this.props.deleteBuyMutation({variables: {id: result.data.allBuys[0].id}}).then(
-      () => Events.publish('RefreshCostList')
+  _removeAnonymousBuyPressed(id) {
+    client.query({ query: lastBuyOnCost, variables: {costId: id}}).then(
+      (result) => {
+        this.props.deleteBuyMutation({variables: {id: result.data.allBuys[0].id}}).then(
+          () => Events.publish('RefreshCostList')
+        )
+      }
     )
   }
 

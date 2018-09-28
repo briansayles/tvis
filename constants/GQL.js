@@ -130,7 +130,7 @@ export const getTournamentQuery = gql`
         bBlind
         ante
         game
-      }
+      } 
       chips (orderBy: denom_ASC) {
         id
         denom
