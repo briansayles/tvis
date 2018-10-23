@@ -12,11 +12,7 @@ import Events from '../api/events'
 
 export const logout = async () => {
   await AsyncStorage.removeItem('token')
-    .then(() => {
-      client.resetStore()
-      // alert('logged out')
-      // this.props.fetchCurrentUser.refetch()     
-    })
+  client.resetStore()
 }
 
 const toQueryString = params => {
@@ -25,100 +21,87 @@ const toQueryString = params => {
     .join('&')
 }
 
-
 class Auth extends Component {
   
   constructor(props) {
     super(props)
     this.state = {
-      // loading: false,
+      loading: false,
     }
   }
 
   componentDidMount() {
-    // handle redirects after auth0 authentication
-    Linking.addEventListener('url', this.handleAuth0Redirect)
-    Linking.getInitialURL().then(url => this.handleAuth0RedirectUrl(url))
   }
 
   loginWithAuth0 = async () => {
-    // this.setState({loading: true})
-    const redirectionURL = authorize_url + toQueryString({
+    this.setState({loading: true})
+    const redirectUrl = Expo.AuthSession.getRedirectUrl();
+    console.log(`Redirect URL (add this to Auth0): ${redirectUrl}`);
+    const result = await Expo.AuthSession.startAsync({
+      authUrl: authorize_url + toQueryString({
         client_id: auth0_client_id,
         response_type: 'token',
         scope: 'openid name',
-        redirect_uri,
-        state: redirect_uri,
-      })
-    Expo.WebBrowser.openBrowserAsync(redirectionURL)
-  }
+        redirect_uri: redirectUrl,
+      }),
+    });
 
-  handleAuth0Redirect = async (event) => {
-    if (!event.url.includes('+/redirect')) return
-    Expo.WebBrowser.dismissBrowser();
-    this.handleAuth0RedirectUrl(event.url)
-  }
-
-  handleAuth0RedirectUrl = async (url) => {
-    if (!url.includes('+/redirect')) {
-      // this.setState({loading: false})
-      return
+    console.log(result);
+    if (result.type === 'success') {
+      this.handleParams(result.params);
     }
-    const [, queryString] = url.split('#')
-    const responseObj = queryString.split('&').reduce((map, pair) => {
-      const [key, value] = pair.split('=')
-      map[key] = value
-      return map
-    }, {})
-    const encodedToken = responseObj.id_token
-    const decodedToken = jwtDecoder(encodedToken)
-    const username = decodedToken.name
-    // console.log('redirect. encodedToken:')
-    // console.log(encodedToken)
+  }
+
+  handleParams = (responseObj) => {
+    if (responseObj.error) {
+      Alert.alert('Error', responseObj.error_description
+        || 'something went wrong while logging in');
+      return;
+    }
+    const encodedToken = responseObj.id_token;
+    const decodedToken = jwtDecoder(encodedToken);
+    const username = decodedToken.name;
     AsyncStorage.setItem('token', encodedToken)
       .then(() => {
-        // console.log('stored token (we think!)')
         this.props.fetchCurrentUser.refetch()
           .then(result => {
-            // console.log('result')
-            // console.log(result)
             if (!result.data.user) {
               this.props.createUser({ variables: { encodedToken, username } })
                 .catch(error => {
                   console.log('ERROR: could not create user: ', error)
                 })
             }
-            // this.setState({loading: false})
+            this.setState({loading: false})
           })
           .catch(error => {
             console.error('ERROR: failed asking for current user: ', error)
-            // this.setState({loading: false})
+            this.setState({loading: false})
           })
       })
       .catch(error => {
         console.error('ERROR: could not store token in AsyncStorage')
-        // this.setState({loading: false})
+        this.setState({loading: false})
       }
     )
   }
 
   render() {
-    return (
-      <View style={[{flex: 1}, styles.container]}>
-        {
-          // !this.state.loading && 
+    const loading = this.state && this.state.loading 
+    if (loading) {
+      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+    } else {
+      return (
+        <View style={[{flex: 1}, styles.container]}>
           <Button
             backgroundColor='green'
             onPress={this.loginWithAuth0}
             title={"SIGN IN or SIGN UP (FREE!)"}
           />
-        }
-      </View>
-    )
+        </View>
+      )
+    }
   }
-
 }
-
 
 export default compose(
   graphql(createUserMutation, { name: 'createUser' }),
