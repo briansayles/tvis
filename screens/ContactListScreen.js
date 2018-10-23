@@ -6,7 +6,7 @@ import {currentUserQuery, addCreditsMutation, getUserContactsQuery, } from '../c
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
-import { AdMobRewarded } from 'expo'
+import Expo, { AdMobRewarded, Contacts, Permissions, } from 'expo'
 import { showRewardedAd } from '../main'
 
 class ContactListScreen extends React.Component {
@@ -20,6 +20,8 @@ class ContactListScreen extends React.Component {
       filteredDeviceContacts: null,
       checked: [],
       contactsPermission: 'denied',
+      filtering: false,
+      query: "",
     }
   }
 
@@ -29,9 +31,6 @@ class ContactListScreen extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery) {
-      // if (nextProps.currentUserQuery.user !== this.state.user) {
-        // this.props.currentUserTournamentsQuery.refetch()
-      // }
       this.setState({user: nextProps.currentUserQuery.user || null})
     }
   }
@@ -48,24 +47,6 @@ class ContactListScreen extends React.Component {
     this._getDeviceContacts()
   }
 
-  // _addButtonPressed() {
-  //   this.setState({loading: true})
-  //   this.props.createItem(
-  //     {
-  //       variables:
-  //       {
-  //         "tournamentId": this.props.getData.Tournament.id,
-  //         "costType": "Buyin",
-  //         "price": 20,
-  //         "chipStack": 1000,
-  //       }
-  //     }
-  //   ).then((result) => {
-  //     Events.publish('RefreshCostList')
-  //     this._editButtonPressed(result.data.createCost.id)
-  //   })
-  // }
-
   _editButtonPressed(id) {
     alert('edit button pressed')
     // this.props.navigation.navigate('CostEdit', {id: id})
@@ -80,77 +61,90 @@ class ContactListScreen extends React.Component {
   }
 
   async _getDeviceContacts() {
-    const { status } = await Expo.Permissions.getAsync(Expo.Permissions.CONTACTS)
-    this.setState({contactsPermission: status})
+    // const { status } = await Permissions.getAsync(Permissions.CONTACTS)
+    // this.setState({contactsPermission: status})
 
     // Ask for permission to query contacts.
-    const permission = await Expo.Permissions.askAsync(Expo.Permissions.CONTACTS)
-    if (permission.status !== 'granted') {
+    const { status } = await Permissions.askAsync(Permissions.CONTACTS)
+    this.setState({contactsPermission: status})
+    if (status !== 'granted') {
       Alert.alert("Permission to access contacts was denied. This will limit the app's functionality") // Permission was denied...
       return
     }
-    const contacts = await Expo.Contacts.getContactsAsync({
-      fields: [
-        Expo.Contacts.EMAILS,
-      ],
-      pageSize: 5000,
-      pageOffset: 0,
-    })
-    if (contacts.total > 0) {
-      const sortedContacts = contacts.data.sort((a,b) => a.lastName.localeCompare(b.lastName))
-      this.setState({deviceContacts: sortedContacts, filteredDeviceContacts: null})
+
+    const { data } = await Contacts.getContactsAsync({ })
+
+
+    if (data.length > 0) {
+      this.setState({deviceContacts: data, filteredDeviceContacts: null})
     } else {
-      Alert.alert("Unable to retrieve any contacts. Maybe you don't have any.")
+      Alert.alert("Unable to retrieve any data. Maybe you don't have any.")
     }
   }
 
   searchDeviceContacts(searchString) {
-    if(searchString.length === 0) {
-      this.setState({filteredDeviceContacts: null})
+    if(searchString.length < 3) {
+      this.setState({filteredDeviceContacts: null, filtering: false})
       return
     } else {
+      this.setState({filtering: true})
       const filteredValues = this.state.deviceContacts.filter((currentValue) => {
         return currentValue.name.toLowerCase().includes(searchString.toLowerCase(), 0)
-      })
-      this.setState({filteredDeviceContacts: filteredValues})
+      }).sort((a,b) => a.name.localeCompare(b.name))
+      this.setState({filteredDeviceContacts: filteredValues, filtering: false})
     }
   }
 
-  clearSearchBar() {
-    this.setState({filteredDeviceContacts: null})
-    return
+  handleQueryChange = query => {
+    this.setState(state => ({ ...state, query: query || "" }))
+    this.searchDeviceContacts(query)
+  }
+  handleSearchCancel = () => {
+    this.handleQueryChange("")
+    this.search.blur()
+  }
+
+  handleSearchClear = () => {
+    this.handleQueryChange("") // maybe differentiate between cancel and clear
+    this.search.blur()
   }
 
   render() {
-    const { deviceContacts, user, filteredDeviceContacts } = this.state
     const { loading, error, Contacts } = this.props.getUserContactsQuery
 
-    if (loading) {
+    if (loading || !this.state) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (error) {
       return <Text>Error!</Text>
     } else {
+      const { deviceContacts, user, filteredDeviceContacts } = this.state
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-          {this.state.deviceContactsPermission == 'denied' && 
+          {this.state.contactsPermission == 'denied' && 
             <Text>
-              Permission to access this device\'s contacts has been denied. To allow access, you will need to go to your device SETTINGS and manually enable access via the Privacy tab.
+              Permission to access this device\'s contacts has been denied, which limits the apps functionality. To allow access, you will need to go to your device SETTINGS and manually enable access via the Privacy tab.
             </Text>
           }
-          {this.state.deviceContactsPermission != 'denied'  &&
+          {this.state.contactsPermission != 'denied'  &&
             <View>
-              <Text style={{paddingLeft: 10, paddingTop: 5}}>
+              {deviceContacts && <Text style={{paddingLeft: 10, paddingTop: 5}}>
                 {deviceContacts.length || 0} contacts loaded from device.
-              </Text>
+              </Text>}
 
               <SearchBar
+                ref={search => this.search = search}
                 lightTheme
                 autoCorrect={false}
-                onChangeText={this.searchDeviceContacts.bind(this)}
-                onClearText={this.clearSearchBar.bind(this)}
                 icon={{ type: 'font-awesome', name: 'search' }}
                 placeholder='Search device contacts for...'
                 clearIcon
+                showLoading={this.state.filtering}
+                onChangeText={this.handleQueryChange}
+                onCancel={this.handleSearchCancel}
+                onClear={this.handleSearchClear}
+                value={this.state.query}
+ 
+
               />
               <ScrollView 
                 style={{marginLeft: 5, marginRight: 5}}
@@ -163,7 +157,7 @@ class ContactListScreen extends React.Component {
               >
                 <List>
                   {
-                    deviceContacts && deviceContacts.map((item, i) => (
+                    filteredDeviceContacts && filteredDeviceContacts.map((item, i) => (
                       <Swipeout
                         key={i}
                         autoClose={true}
@@ -182,19 +176,13 @@ class ContactListScreen extends React.Component {
                         ]}
                       >
                         <ListItem
-                          title={item.name + (item.emails[0] ? "(" + item.emails[0].email + ")" : "")}
+                          title={item.name}
                           onPress={this._editButtonPressed.bind(this, item.id)}
                         />
                       </Swipeout>
                     ))
                   }
                 </List>
-
-
-
-
-
-
               </ScrollView>
             </View>
           }
