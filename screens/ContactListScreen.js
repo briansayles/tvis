@@ -49,32 +49,20 @@ class ContactListScreen extends React.Component {
 
   _editButtonPressed(id) {
     alert('edit button pressed')
-    // this.props.navigation.navigate('CostEdit', {id: id})
   }
 
   _deleteButtonPressed(id) {
     alert('delete button pressed')
-    // this.setState({loading: true})
-    // this.props.deleteItem({variables: {id: id} }).then(
-    //   () => Events.publish('RefreshCostList')
-    // )
   }
 
   async _getDeviceContacts() {
-    // const { status } = await Permissions.getAsync(Permissions.CONTACTS)
-    // this.setState({contactsPermission: status})
-
-    // Ask for permission to query contacts.
     const { status } = await Permissions.askAsync(Permissions.CONTACTS)
     this.setState({contactsPermission: status})
     if (status !== 'granted') {
       Alert.alert("Permission to access contacts was denied. This will limit the app's functionality") // Permission was denied...
       return
     }
-
     const { data } = await Contacts.getContactsAsync({ })
-
-
     if (data.length > 0) {
       this.setState({deviceContacts: data, filteredDeviceContacts: null})
     } else {
@@ -105,7 +93,7 @@ class ContactListScreen extends React.Component {
   }
 
   handleSearchClear = () => {
-    this.handleQueryChange("") // maybe differentiate between cancel and clear
+    this.handleQueryChange("")
     this.search.blur()
   }
 
@@ -143,8 +131,6 @@ class ContactListScreen extends React.Component {
                 onCancel={this.handleSearchCancel}
                 onClear={this.handleSearchClear}
                 value={this.state.query}
- 
-
               />
               <ScrollView 
                 style={{marginLeft: 5, marginRight: 5}}
