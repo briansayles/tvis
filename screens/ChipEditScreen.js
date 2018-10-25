@@ -23,10 +23,10 @@ class ChipEditScreen extends React.Component {
     }
   }
 
-  handleTextInputChange (fieldName, text) {
+  handleInputChange (fieldName, value) {
     this.setState(({formValues}) => ({formValues: {
       ...formValues,
-      [fieldName]: text,
+      [fieldName]: value,
     }}))
   }
 
@@ -47,7 +47,7 @@ class ChipEditScreen extends React.Component {
             title="Denomination"
             value={this.state.formValues.denom || ""}
             placeholder="Enter denomination here..."
-            onChangeText={this.handleTextInputChange.bind(this, 'denom')}
+            onChangeText={(text) => this.handleInputChange('denom', parseInt(text))}
             keyboardType="numeric"
           />
 
@@ -56,12 +56,7 @@ class ChipEditScreen extends React.Component {
             title="Chip color"
             initialValue={Chip.color || "Pick color..."}
             selectedValue={this.state.formValues.color}
-            onValueChange={(itemValue, itemIndex) => {
-              this.setState(({formValues}) => ({formValues: {
-                ...formValues,
-                color: itemValue,
-              }}))
-            }}
+            onValueChange={(itemValue, itemIndex) => this.handleInputChange('color', itemValue)}
           >
             {dictionaryLookup("ChipColorOptions").map((item, i) => (
               <Picker.Item key={i} label={item.longName} value={item.shortName}/>

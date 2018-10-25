@@ -22,10 +22,10 @@ class SegmentEditScreen extends React.Component {
     }
   }
 
-  handleTextInputChange (fieldName, text) {
+  handleInputChange (fieldName, value) {
     this.setState(({formValues}) => ({formValues: {
       ...formValues,
-      [fieldName]: parseInt(text) || text,
+      [fieldName]: value,
     }}))
   }
 
@@ -46,14 +46,16 @@ class SegmentEditScreen extends React.Component {
             title="Small Blind"
             value={this.state.formValues.sBlind || ""}
             placeholder="Enter small blind here..."
-            onChangeText={this.handleTextInputChange.bind(this, 'sBlind')}
+            onChangeText={(text) => this.handleInputChange('sBlind', parseInt(text))}
+            keyboardType="numeric"
           />
 
           <MyInput
             title="Big Blind"
             value={this.state.formValues.bBlind || ""}
             placeholder="Enter big blind here..."
-            onChangeText={this.handleTextInputChange.bind(this, 'bBlind')}
+            onChangeText={(text) => this.handleInputChange('bBlind', parseInt(text))}
+            keyboardType="numeric"
             onFocus={(currentText = '') => {
               this.setState(({formValues}) => ({formValues: {
                 ...formValues,
@@ -66,7 +68,8 @@ class SegmentEditScreen extends React.Component {
             title="Ante"
             value={this.state.formValues.ante || ""}
             placeholder="Enter ante here..."
-            onChangeText={this.handleTextInputChange.bind(this, 'ante')}
+            onChangeText={(text) => this.handleInputChange('ante', parseInt(text))}
+            keyboardType="numeric"
           />
 
           <Picker
@@ -74,12 +77,7 @@ class SegmentEditScreen extends React.Component {
             title="Duration (in minutes)"
             initialValue={Segment.duration || "Pick duration..."}
             selectedValue={this.state.formValues.duration}
-            onValueChange={(itemValue, itemIndex) => {
-              this.setState(({formValues}) => ({formValues: {
-                ...formValues,
-                duration: itemValue,
-              }}))
-            }}
+            onValueChange={(itemValue, itemIndex) => this.handleInputChange('duration', parseInt(itemValue))}
           >
             {dictionaryLookup("DurationOptions").map((item, i) => (
               <Picker.Item key={i} label={item.longName} value={parseInt(item.shortName)}/>

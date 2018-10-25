@@ -21,10 +21,10 @@ class CostEditScreen extends React.Component {
     }
   }
 
-  handleTextInputChange (fieldName, text) {
+  handleInputChange (fieldName, value) {
     this.setState(({formValues}) => ({formValues: {
       ...formValues,
-      [fieldName]: parseInt(text) || text,
+      [fieldName]: value,
     }}))
   }
 
@@ -42,14 +42,16 @@ class CostEditScreen extends React.Component {
             title="Price"
             value={this.state.formValues.price || ""}
             placeholder="Enter price here..."
-            onChangeText={this.handleTextInputChange.bind(this, 'price')}
+            onChangeText={(text) => this.handleInputChange('price', parseInt(text))}
+            keyboardType="numeric"
           />
 
           <MyInput
             title="Chips"
             value={this.state.formValues.chipStack || ""}
             placeholder="Enter chip value..."
-            onChangeText={this.handleTextInputChange.bind(this, 'chipStack')}
+            onChangeText={(text) => this.handleInputChange('chipStack', parseInt(text))}
+            keyboardType="numeric"
           />
 
           <Picker
@@ -57,12 +59,7 @@ class CostEditScreen extends React.Component {
             title="Entry Fee Type"
             initialValue={Cost.costType || "Pick entry fee type..."}
             selectedValue={this.state.formValues.costType}
-            onValueChange={(itemValue, itemIndex) => {
-              this.setState(({formValues}) => ({formValues: {
-                ...formValues,
-                costType: itemValue,
-              }}))
-            }}
+            onValueChange={(itemValue, itemIndex) => this.handleInputChange('costType', itemValue)}
           >
             {dictionaryLookup("EntryFeeOptions").map((item, i) => (
               <Picker.Item key={i} label={item.longName} value={item.shortName}/>
@@ -74,9 +71,8 @@ class CostEditScreen extends React.Component {
             mutation={this.props.updateCostMutation}
             id={Cost.id}
             variables={this.state.formValues}
-
+            events={["RefreshCosttList", "RefreshEditor"]}
           />
-
         </FormView>
 
     	)
