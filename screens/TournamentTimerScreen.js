@@ -36,6 +36,7 @@ class TournamentTimerScreen extends React.Component {
       offsetFromServerTime: null,
       timerActive: false,
       activity: null,
+      endOfRoundSoundObject: null,
     }
   }
 
@@ -66,19 +67,27 @@ class TournamentTimerScreen extends React.Component {
       tickfunction(
         endOfRoundFunction = () => { 
           try {
-            this.endOfRoundSoundObject.setVolumeAsync(0.85)
-            this.endOfRoundSoundObject.setRateAsync(0.60, false)
-            this.endOfRoundSoundObject.playAsync()
+            this.state.endOfRoundSoundObject.setStatusAsync({
+              positionMillis: 0,
+              volume: 0.8,
+              rate: 0.5,
+              shouldPlay: true,
+              shouldCorrectPitch: false,
+            })
           } catch (error) {
             console.log(error)
           }
         },
-        noticeSeconds = 30,
+        noticeSeconds = 60,
         noticeFunction = () => { 
           try {
-            this.endOfRoundSoundObject.setVolumeAsync(0.50)
-            this.endOfRoundSoundObject.setRateAsync(1, false)
-            this.endOfRoundSoundObject.playAsync()
+            this.state.endOfRoundSoundObject.setStatusAsync({
+              positionMillis: 0,
+              volume: 0.3,
+              rate: 3,
+              shouldPlay: true,
+              shouldCorrectPitch: false,
+            })
           } catch (error) {
             console.log(error)
           }
@@ -98,6 +107,24 @@ class TournamentTimerScreen extends React.Component {
     this._animate()
   }
 
+  async _loadSound() {
+    try {
+      const { sound: soundObject, status }  = await Audio.Sound.create(
+        require('../assets/sounds/3beeps.aiff'),
+        {
+          positionMillis: 0,
+          volume: 0.3,
+          rate: 2.5,
+          shouldPlay: false,
+          shouldCorrectPitch: false,        
+        }
+      )
+      this.setState({endOfRoundSoundObject: soundObject})
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery) {
       const user = nextProps.currentUserQuery.user || null
@@ -114,18 +141,7 @@ class TournamentTimerScreen extends React.Component {
     clearInterval(this.interstitialInterval)
   }
 
-  async _loadSound() {
-    this.endOfRoundSoundObject = new Audio.Sound()
-    try {
-      await this.endOfRoundSoundObject.loadAsync(require('../assets/sounds/3beeps.aiff'))
-      await this.endOfRoundSoundObject.setCallback( async (playbackStatus) => {
-        if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-          await this.endOfRoundSoundObject.stopAsync()
-        }        
-      })
-    } catch (error) {
-    }
-  }
+
 
   _animate() {
     this.chipFadeAnimation = new Animated.Value(1)

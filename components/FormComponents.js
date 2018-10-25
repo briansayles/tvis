@@ -52,7 +52,7 @@ export class SubmitButton extends Component {
 
   handlePress() {
   	this.setState({busy: true})
-  	console.log(JSON.stringify(this.props.variables))
+  	// console.log(JSON.stringify(this.props.variables))
   	this.props.mutation(
   		{
   			variables: {
