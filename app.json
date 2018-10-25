@@ -9,6 +9,11 @@
     "orientation": "default",
     "primaryColor": "#cccccc",
     "icon": "./assets/icons/app-icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#5b9f33"
+    },
     "notification": {
       "icon": "./assets/icons/notification-icon.png",
       "color": "#000000"
