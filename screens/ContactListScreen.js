@@ -114,7 +114,7 @@ class ContactListScreen extends React.Component {
             </Text>
           }
           {this.state.contactsPermission != 'denied'  &&
-            <View>
+            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
               {deviceContacts && <Text style={{paddingLeft: 10, paddingTop: 5}}>
                 {deviceContacts.length || 0} contacts loaded from device.
               </Text>}
@@ -133,7 +133,7 @@ class ContactListScreen extends React.Component {
                 value={this.state.query}
               />
               <ScrollView 
-                style={{marginLeft: 5, marginRight: 5}}
+                style={{flex: 1, marginLeft: 5, marginRight: 5}}
                 refreshControl={
                   <RefreshControl
                     refreshing={this.state.refreshing}

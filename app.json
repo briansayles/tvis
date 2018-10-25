@@ -1,7 +1,7 @@
 {
-  "expo" : {  
+  "expo": {
     "name": "tvis",
-    "description": "My TVIS description",
+    "description": "TourneyVision",
     "slug": "tvis",
     "privacy": "unlisted",
     "sdkVersion": "30.0.0",
@@ -18,11 +18,14 @@
       "hideExponentText": false
     },
     "packagerOpts": {
-      "assetExts": ["ttf"]
+      "assetExts": [
+        "ttf"
+      ]
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tourneyvision.tourneyvision",
-    }
+      "bundleIdentifier": "com.tourneyvision.tourneyvision"
+    },
+    "githubUrl": "https://github.com/briansayles/tvis"
   }
 }
