@@ -8,7 +8,6 @@ export default class Picker extends Component {
 
   constructor(props, context) {
     super(props, context)
-    this.onPress = this.handlePress.bind(this)
   }
 
   handlePress() {
@@ -45,7 +44,7 @@ export default class Picker extends Component {
 
       return(
         <TouchableOpacity
-          onPress={this.onPress}
+          onPress={() => this.handlePress()}
           style={[{
             alignSelf: 'stretch',
             alignItems: 'center',

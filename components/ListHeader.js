@@ -48,7 +48,7 @@ export class ListHeader extends React.Component {
 	      {this.props.showAddButton && !this.props.loading &&
 	      	<TouchableHighlight
 	      		style={{marginRight: responsiveFontSize(2)}}
-		      	onPress={this._handleAddButtonPressed.bind(this)} 
+		      	onPress={()=> this._handleAddButtonPressed()} 
 	      	>
 	      		<Icon name='add' size={responsiveFontSize(2.5)}/>
 	      	</TouchableHighlight>

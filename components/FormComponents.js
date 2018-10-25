@@ -45,7 +45,6 @@ export class SubmitButton extends Component {
 
   constructor(props, context) {
     super(props, context)
-    this.onPress = this.handlePress.bind(this)
     this.state = {
     	busy: false,
     }
@@ -82,7 +81,7 @@ export class SubmitButton extends Component {
         buttonStyle={{ borderRadius: 20, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
         title='Submit'
         titleStyle={{fontSize: 24, color: '#fff'}}
-        onPress={this.onPress}
+        onPress={() => this.handlePress()}
       />
 	)
 	}
@@ -93,7 +92,7 @@ export class Picker extends Component {
 
   constructor(props, context) {
     super(props, context)
-    this.onPress = this.handlePress.bind(this)
+    // this.onPress = () => this.handlePress()
   }
 
   handlePress() {
@@ -131,7 +130,7 @@ export class Picker extends Component {
       return (
       	<View style={{flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12, marginTop: 12}}>
 	        <TouchableOpacity
-	          onPress={this.onPress}
+	          onPress={() => this.handlePress()}
 	          style={[{
 	            alignSelf: 'stretch',
 	            alignItems: 'center',
