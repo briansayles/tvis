@@ -2,7 +2,7 @@ import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { Easing, Animated, ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Button, Avatar, Icon } from 'react-native-elements'
-import { KeepAwake, Audio, AdMobInterstitial, LinearGradient } from 'expo'
+import { KeepAwake, Audio, AdMobInterstitial, LinearGradient, Speech } from 'expo'
 import { smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import { currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
 import { GraphCoolConfig } from '../config'
@@ -65,28 +65,50 @@ class TournamentTimerScreen extends React.Component {
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
       tickfunction(
-        endOfRoundFunction = () => { 
+        endOfRoundFunction = async () => { 
           try {
-            this.state.endOfRoundSoundObject.setStatusAsync({
+            await this.state.endOfRoundSoundObject.setStatusAsync({
               positionMillis: 0,
               volume: 0.8,
               rate: 0.5,
               shouldPlay: true,
               shouldCorrectPitch: false,
             })
+            this.state.endOfRoundSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
+              if(playbackStatus.didJustFinish) {
+                Speech.speak(
+                  this.state.nextSegment && ("The blinds are now " + this.state.display.currentBlinds), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
+                  {
+                    rate: 0.85,
+                    pitch: 1.00,
+                  }
+                )
+              }
+            })
           } catch (error) {
             console.log(error)
           }
         },
         noticeSeconds = 60,
-        noticeFunction = () => { 
+        noticeFunction = async () => { 
           try {
-            this.state.endOfRoundSoundObject.setStatusAsync({
+            await this.state.noticeSoundObject.setStatusAsync({
               positionMillis: 0,
               volume: 0.3,
               rate: 3,
               shouldPlay: true,
               shouldCorrectPitch: false,
+            })
+            this.state.noticeSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
+              if(playbackStatus.didJustFinish) {
+                Speech.speak(
+                  this.state.nextSegment && ("One minute remaining in this round."),
+                  {
+                    rate: 0.85,
+                    pitch: 1.00,
+                  }
+                )
+              }
             })
           } catch (error) {
             console.log(error)
@@ -120,6 +142,7 @@ class TournamentTimerScreen extends React.Component {
         }
       )
       this.setState({endOfRoundSoundObject: soundObject})
+      this.setState({noticeSoundObject: soundObject})
     } catch (error) {
       console.log(error)
     }

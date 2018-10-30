@@ -42,21 +42,21 @@ class BuyListScreen extends React.Component {
     this.props.getData.refetch().then(() => this.setState({loading: false}))
   }
 
-  _addButtonPressed() {
+  _addButtonPressed(costItem) {
+    // console.log(costItem.chipStack + ", " + costItem.costType.toString())
+    // return
+
     this.setState({loading: true})
     this.props.createItem(
       {
         variables:
         {
-          "tournamentId": this.props.getData.Tournament.id,
-          "costType": "Buyin",
-          "price": 20,
-          "chipStack": 1000,
+          "costId": costItem.id
         }
       }
     ).then((result) => {
-      Events.publish('RefreshCostList')
-      this._editButtonPressed(result.data.createCost.id)
+      console.log(result)
+      // Events.publish('RefreshCostList')
     })
   }
 
@@ -88,10 +88,7 @@ class BuyListScreen extends React.Component {
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ListHeader 
             title="Entry Fee(s)" 
-            showAddButton={this.state.user} 
             loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed.bind(this)}
-            // onSearch={this._search}
           />
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}
@@ -110,13 +107,13 @@ class BuyListScreen extends React.Component {
                     autoClose={true}
                     right={[
                       {
-                        text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item.id),
+                        text: 'Add',
+                        onPress: () => this._addButtonPressed(item),
                         type: 'primary',
                       },
                       {
                         text: 'DELETE',
-                        onPress: this._deleteButtonPressed.bind(this, item.id),
+                        onPress: () => this._deleteButtonPressed(item.id),
                         backgroundColor: '#ff0000',
                         type: 'delete',
                       },

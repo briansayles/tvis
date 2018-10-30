@@ -609,6 +609,11 @@ export const createCostBuyMutation = gql`
     )
     {
       id
+      cost {
+        costType
+        chipStack
+        price
+      }
     }
   }
 `
@@ -626,7 +631,7 @@ export const getTournamentBuysQuery = gql`
         costType
         buys {
           id
-          player
+          player {id}
         }
       }
     }
