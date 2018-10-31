@@ -1,11 +1,12 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
-import {List, ListItem, Button} from 'react-native-elements'
+import {List, ListItem, Button, Card, Icon} from 'react-native-elements'
 import { currentUserQuery, getTournamentBuysQuery, createCostBuyMutation, deleteBuyMutation} from '../constants/GQL'
-import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
+import { dictionaryLookup, sortEntryFees, totalItems } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
+import { AddButton, } from '../components/FormComponents'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/ListHeader'
 
@@ -17,6 +18,8 @@ class BuyListScreen extends React.Component {
       user: null,
       refreshing: false,
       loading: false,
+      busy: false,
+      costs: {},
     }
   }
 
@@ -25,12 +28,19 @@ class BuyListScreen extends React.Component {
 
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshCostList', () => this._refresh())
+    // const {getData: {loading, error, Tournament}} = this.props
+    // totalItems(Tournament, "price")
   }
 
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery) {
       this.setState({user: nextProps.currentUserQuery.user || null})
+    }
+    if (!nextProps.getData.loading) {
+      for (var i = 0, len = nextProps.getData.Tournament.costs.length; i < len; i++) {
+        var total = totalItems(nextProps.getData.Tournament.costs[i])
+      }
     }
   }
 
@@ -46,7 +56,7 @@ class BuyListScreen extends React.Component {
     // console.log(costItem.chipStack + ", " + costItem.costType.toString())
     // return
 
-    this.setState({loading: true})
+    this.setState({busy: true})
     this.props.createItem(
       {
         variables:
@@ -55,8 +65,9 @@ class BuyListScreen extends React.Component {
         }
       }
     ).then((result) => {
-      console.log(result)
-      // Events.publish('RefreshCostList')
+      Events.publish('RefreshCostList')
+    }).then(() => {
+      this.setState({busy: false})
     })
   }
 
@@ -102,29 +113,25 @@ class BuyListScreen extends React.Component {
             <List>
               {
                 list && list.map((item, i) => (
-                  <Swipeout
+
+                  <Card
                     key={i}
-                    autoClose={true}
-                    right={[
-                      {
-                        text: 'Add',
-                        onPress: () => this._addButtonPressed(item),
-                        type: 'primary',
-                      },
-                      {
-                        text: 'DELETE',
-                        onPress: () => this._deleteButtonPressed(item.id),
-                        backgroundColor: '#ff0000',
-                        type: 'delete',
-                      },
-                    ]}
+                    title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long")}
                   >
-                  <ListItem
-                    title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + (item.price && item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}))}
-                    subtitle={item.chipStack && item.chipStack.toLocaleString() + ' Chips'}
-                    onPress={this._editButtonPressed.bind(this, item.id)}
-                  />
-                  </Swipeout>
+                    <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <Text>
+                        Count: {item.buys.length}
+                      </Text>
+                      <Text>
+                        Total: { }
+                      </Text>
+                      <AddButton 
+                        mutation={this.props.createItem}
+                        events={["RefreshCostList"]}
+                        variables={{costId: item.id}}
+                      />
+                    </View>
+                  </Card>
                 ))
               }
             </List>

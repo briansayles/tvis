@@ -180,6 +180,15 @@ export function sortEntryFees (fees) {
 }
 
 
+export function totalItems (items) {
+	console.log(items)
+	var total = items.price * items.buys.length
+	// for (var i = 0, len = items.length; i < len; i++) {
+	// 	total += items[i].price
+	// }
+	console.log(total)
+}
+
 const {height, width} = Dimensions.get('window');
 
 export const responsiveHeight = (h) => {

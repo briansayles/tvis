@@ -83,8 +83,53 @@ export class SubmitButton extends Component {
         titleStyle={{fontSize: 24, color: '#fff'}}
         onPress={() => this.handlePress()}
       />
-	)
+    )
 	}
+}
+
+export class AddButton extends Component {
+
+  constructor(props, context) {
+    super(props, context)
+    this.state = {
+      busy: false,
+    }
+  }
+
+  handlePress() {
+    this.setState({busy: true})
+    // console.log(JSON.stringify(this.props.variables))
+    this.props.mutation(
+      {
+        variables: {
+          ...this.props.variables
+        }
+      }
+    ).then(() => {
+      this.props.events.forEach(function(event) {
+        Events.publish(event)
+      })
+    }).then(() => {
+      this.setState({busy: false})
+    })
+  }
+
+  render() {
+    return (
+      <Button 
+        icon={this.state.busy ? <ActivityIndicator/> : <Icon
+          name='ios-add-circle-outline'
+          color='#0f0'
+          type='ionicon'
+        />}
+        iconRight
+        buttonStyle={{ borderRadius: 20, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
+        title='Add'
+        titleStyle={{fontSize: 24, color: '#fff'}}
+        onPress={() => this.handlePress()}
+      />
+    )
+  }
 }
 
 export class Picker extends Component {
