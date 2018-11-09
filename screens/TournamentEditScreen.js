@@ -91,6 +91,12 @@ class TournamentEditScreen extends React.Component {
       const chips = sortChips(Tournament.chips)
       const smallestChipReq = smallestChipArray(chips, segments)
       const fees = sortEntryFees(Tournament.costs)
+      var totalChipStack = 0
+      var totalCost = 0
+      for (var i = 0, len = fees.length; i < len; i++) {
+        totalChipStack+=fees[i].chipStack*Tournament.costs[i]._buysMeta.count
+        totalCost+=fees[i].price*Tournament.costs[i]._buysMeta.count
+      }
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ScrollView style={{flex: 1}}
@@ -101,18 +107,9 @@ class TournamentEditScreen extends React.Component {
               />
             }
           >
-            <Card title={userIsOwner && 
-                <View style={{flexDirection: 'column', justifyContent: 'space-between'}}>
-                  <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <Text style={{flex:1}}></Text>
-                    <Text style={[styles.title, {flex: 4}]}>{Tournament.title || ""}</Text>
-                    <Icon name='edit' type='font-awesome' style={{flex:1}} onPress={this._navigateToGeneralInfoEdit.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
-                  </View>
-                  <Divider/>
-                </View>
-              }      
-              titleStyle={[styles.title, {}]}
-              flexDirection='column'>
+            <Card 
+              title={Tournament.title}
+            >
               <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={[styles.title, {}]}>{Tournament.subtitle ? Tournament.subtitle.toString() + "\n" : ""}</Text>
                 <Text style={[styles.title, {}]}>{dictionaryLookup(Tournament.game.toString(), "GameOptions", "long") + "\n"}</Text>
@@ -124,6 +121,7 @@ class TournamentEditScreen extends React.Component {
                 </View>
               }
             </Card>
+
             <Card title="Entry Fee(s)"
             >
               {
@@ -168,10 +166,15 @@ class TournamentEditScreen extends React.Component {
             </Card>
 
             <Card
-              title="Players and Buys"
+              title="Buy-Ins"
             >
-              <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
-                
+              <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                <Text style={[styles.title, {flex: 3}]}>
+                  {(totalCost).toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true})}
+                </Text>
+                <Text style={[styles.title, {flex: 3}]}>
+                  {(totalChipStack).toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true})}
+                </Text>
               </View>
               {userIsOwner && 
                 <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>

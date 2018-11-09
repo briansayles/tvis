@@ -98,7 +98,6 @@ export class AddButton extends Component {
 
   handlePress() {
     this.setState({busy: true})
-    // console.log(JSON.stringify(this.props.variables))
     this.props.mutation(
       {
         variables: {
@@ -115,18 +114,72 @@ export class AddButton extends Component {
   }
 
   render() {
+    const {mutation, ...props} = this.props
     return (
       <Button 
         icon={this.state.busy ? <ActivityIndicator/> : <Icon
           name='ios-add-circle-outline'
-          color='#0f0'
+          color='#fff'
           type='ionicon'
         />}
+        disabled={this.state.busy}
         iconRight
-        buttonStyle={{ borderRadius: 20, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
+        buttonStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
         title='Add'
-        titleStyle={{fontSize: 24, color: '#fff'}}
+        disabledStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#0508', alignSelf: 'flex-end'}}
+        titleStyle={{fontSize: 14, color: '#fff'}}
+        disabledTitleStyle={{fontSize: 14, }}
         onPress={() => this.handlePress()}
+        {...props}
+      />
+    )
+  }
+}
+
+export class RemoveButton extends Component {
+
+  constructor(props, context) {
+    super(props, context)
+    this.state = {
+      busy: false,
+    }
+  }
+
+  handlePress() {
+    this.setState({busy: true})
+    this.props.mutation(
+      {
+        variables: {
+          ...this.props.variables
+        }
+      }
+    ).then(() => {
+      this.props.events.forEach(function(event) {
+        Events.publish(event)
+      })
+    }).then(() => {
+      this.setState({busy: false})
+    })
+  }
+
+  render() {
+    const {mutation, ...props} = this.props
+    return (
+      <Button 
+        icon={this.state.busy ? <ActivityIndicator/> : <Icon
+          name='ios-remove-circle-outline'
+          color='#fff'
+          type='ionicon'
+        />}
+        disabled={this.state.busy || !this.props.variables.id}
+        iconRight
+        buttonStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#900', alignSelf: 'flex-end'}}
+        title='Remove'
+        disabledStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#9008', alignSelf: 'flex-end'}}
+        titleStyle={{fontSize: 14, color: '#fff'}}
+        disabledTitleStyle={{fontSize: 14, }}
+        onPress={() => this.handlePress()}
+        {...props}
       />
     )
   }

@@ -6,7 +6,7 @@ import { currentUserQuery, getTournamentBuysQuery, createCostBuyMutation, delete
 import { dictionaryLookup, sortEntryFees, totalItems } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
-import { AddButton, } from '../components/FormComponents'
+import { AddButton, RemoveButton, } from '../components/FormComponents'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/ListHeader'
 
@@ -28,8 +28,6 @@ class BuyListScreen extends React.Component {
 
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshCostList', () => this._refresh())
-    // const {getData: {loading, error, Tournament}} = this.props
-    // totalItems(Tournament, "price")
   }
 
 
@@ -49,13 +47,11 @@ class BuyListScreen extends React.Component {
   }
 
   _refresh() {
+    this.setState({loading: true})
     this.props.getData.refetch().then(() => this.setState({loading: false}))
   }
 
   _addButtonPressed(costItem) {
-    // console.log(costItem.chipStack + ", " + costItem.costType.toString())
-    // return
-
     this.setState({busy: true})
     this.props.createItem(
       {
@@ -110,26 +106,37 @@ class BuyListScreen extends React.Component {
               />
             }
           >
-            <List>
+            <List style={{flex: 1, }}>
               {
                 list && list.map((item, i) => (
 
                   <Card
                     key={i}
                     title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long")}
+                    containerStyle={{marginBottom: 10}}
                   >
                     <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
                       <Text>
-                        Count: {item.buys.length}
+                        Count: {item.buys.length}{'\n'}
+                        Cash In: {(item._buysMeta.count * item.price).toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true})}{'\n'}
+                        Chips Issued: {(item._buysMeta.count * item.chipStack).toLocaleString()}
                       </Text>
-                      <Text>
-                        Total: { }
-                      </Text>
-                      <AddButton 
-                        mutation={this.props.createItem}
-                        events={["RefreshCostList"]}
-                        variables={{costId: item.id}}
-                      />
+                      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <RemoveButton 
+                          containerStyle={{flex: 1}}
+                          mutation={this.props.deleteItem}
+                          events={["RefreshCostList"]}
+                          variables={{
+                            id: (item._buysMeta.count > 0 && item.buys[item._buysMeta.count -1].id) || null,
+                          }}
+                        />
+                        <AddButton
+                          containerStyle={{flex: 1}}
+                          mutation={this.props.createItem}
+                          events={["RefreshCostList"]}
+                          variables={{costId: item.id}}
+                        />
+                      </View>
                     </View>
                   </Card>
                 ))

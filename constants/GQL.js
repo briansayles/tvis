@@ -122,6 +122,9 @@ export const getTournamentQuery = gql`
             id
           } 
         }
+        _buysMeta {
+          count
+        }
       }
       segments (orderBy: bBlind_ASC) {
         id
@@ -629,6 +632,9 @@ export const getTournamentBuysQuery = gql`
         price
         chipStack
         costType
+        _buysMeta {
+          count
+        }
         buys {
           id
           player {id}

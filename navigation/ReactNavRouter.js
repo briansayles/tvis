@@ -18,6 +18,7 @@ import CostListScreen from '../screens/CostListScreen'
 import CostEditScreen from '../screens/CostEditScreen'
 import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
+import PayoutSetupScreen from '../screens/PayoutSetupScreen'
 
 export const TournamentsStack = createStackNavigator({
 	TournamentList: {
@@ -83,7 +84,13 @@ export const TournamentsStack = createStackNavigator({
 	BuyList: {
 		screen: BuyListScreen,
 		navigationOptions: {
-			title: 'TourneyVision'
+			title: 'Buyins'
+		}
+	},
+	PayoutSetup: {
+		screen: PayoutSetupScreen,
+		navigationOptions: {
+			title: 'Payout Setup'
 		}
 	},
 }, 
