@@ -51,31 +51,29 @@ class BuyListScreen extends React.Component {
     this.props.getData.refetch().then(() => this.setState({loading: false}))
   }
 
-  _addButtonPressed(costItem) {
+  async _addButtonPressed(costItem) {
     this.setState({busy: true})
-    this.props.createItem(
+    await this.props.createItem(
       {
         variables:
         {
           "costId": costItem.id
         }
       }
-    ).then((result) => {
-      Events.publish('RefreshCostList')
-    }).then(() => {
-      this.setState({busy: false})
-    })
+    )
+    await Events.publish('RefreshCostList')
+    this.setState({busy: false})
   }
 
   _editButtonPressed(id) {
     this.props.navigation.navigate('CostEdit', {id: id})
   }
 
-  _deleteButtonPressed(id) {
+  async _deleteButtonPressed(id) {
     this.setState({loading: true})
-    this.props.deleteItem({variables: {id: id} }).then(
-      () => Events.publish('RefreshCostList')
-    )
+    await this.props.deleteItem({variables: {id: id} })
+    await Events.publish('RefreshCostList')
+    this.setState({loading: false})
   }
 
   _search(searchText) {

@@ -1,4 +1,4 @@
-import Expo, { Audio, Notifications, AdMobRewarded, AdMobInterstitial } from 'expo'
+import Expo, { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, Constants, registerRootComponent} from 'expo'
 import React from 'react'
 import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
@@ -28,9 +28,9 @@ export const authorize_url = Auth0Config.authorizeURI
 export const graphQL_endpoint = GraphCoolConfig.endpoint
 export const graphQL_subscription_endpoint = GraphCoolConfig.wsClient
 export const graphQL_subscription_options = GraphCoolConfig.wsClientOptions
-export const redirect_uri = Expo.Constants.manifest.xde
+export const redirect_uri = Constants.manifest.xde
   ? ExpoConfig.redirectURI
-  : `${Expo.Constants.linkingUri}/redirect`
+  : `${Constants.linkingUri}/redirect`
 
 const httpLink = new HttpLink({ 
   uri: graphQL_endpoint,
@@ -159,7 +159,7 @@ class AppContainer extends React.Component {
         </ApolloProvider>
       )
     } else {
-      return <Expo.AppLoading />
+      return <AppLoading />
     }
   }
 }
@@ -175,4 +175,4 @@ const styles = StyleSheet.create({
   },
 })
 
-Expo.registerRootComponent(AppContainer)
+registerRootComponent(AppContainer)

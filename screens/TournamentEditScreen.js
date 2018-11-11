@@ -70,8 +70,8 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('BuyList', {id: id})
   }
 
-  _navigateToPrizeList(id) {
-    this.props.navigation.navigate('PrizeList', {id: id})
+  _navigateToPayoutLevelList(id) {
+    this.props.navigation.navigate('PayoutSetup', {id: id})
   }
 
   _refreshButtonPressed() {
@@ -91,6 +91,7 @@ class TournamentEditScreen extends React.Component {
       const chips = sortChips(Tournament.chips)
       const smallestChipReq = smallestChipArray(chips, segments)
       const fees = sortEntryFees(Tournament.costs)
+      const payoutLevels = Tournament.payoutLevels
       var totalChipStack = 0
       var totalCost = 0
       for (var i = 0, len = fees.length; i < len; i++) {
@@ -143,6 +144,26 @@ class TournamentEditScreen extends React.Component {
               {userIsOwner && 
                 <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
                     <Icon name='edit' type='font-awesome' onPress={this._navigateToCostList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                </View>
+              }
+            </Card>
+
+            <Card title="Payout Setup"
+            >
+              {
+                payoutLevels.map((u, i) => {
+                  return (
+                    <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                      <Text style={{}}>
+                        {u.levelNumber}
+                      </Text>
+                    </View>
+                  )
+                })
+              }
+              {userIsOwner && 
+                <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                    <Icon name='edit' type='font-awesome' onPress={this._navigateToPayoutLevelList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
                 </View>
               }
             </Card>

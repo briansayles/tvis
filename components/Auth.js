@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { graphql, gql, compose } from 'react-apollo'
 import { ActivityIndicator, Text, View, StyleSheet, Linking, AsyncStorage } from 'react-native'
 import { Button } from 'react-native-elements'
-import Expo from 'expo'
+import {AuthSession} from 'expo'
 import jwtDecoder from 'jwt-decode'
 
 import { redirect_uri, auth0_client_id, authorize_url, client } from '../main'

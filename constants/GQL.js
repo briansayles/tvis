@@ -126,6 +126,15 @@ export const getTournamentQuery = gql`
           count
         }
       }
+      payoutLevels (orderBy: levelNumber_ASC) {
+        id
+        levelNumber
+        payCount
+        playerCount
+      }
+      _payoutLevelsMeta {
+        count
+      }
       segments (orderBy: bBlind_ASC) {
         id
         duration
@@ -715,6 +724,70 @@ export const updateBuyMutation = gql`
 export const deleteBuyMutation = gql`
   mutation deleteBuy($id: ID!) {
     deleteBuy(id: $id) {
+      id
+    }
+  }
+`
+
+export const createTournamentPayoutLevelMutation = gql`
+  mutation createTournamentPayoutLevel( $tournamentId: ID!, $levelNumber: Int!, $payCount: Int!, $playerCount: Int!) {
+    createPayoutLevel (
+      tournamentId: $tournamentId
+      levelNumber: $levelNumber
+      payCount: $payCount
+      playerCount: $playerCount
+    )
+    {
+      id
+      levelNumber
+      payCount
+      playerCount
+    }
+  }
+`
+
+export const getTournamentPayoutLevelsQuery = gql`
+  query getTournament($id: ID) {
+    Tournament(id: $id)
+    {
+      id
+      user { id }
+      _payoutLevelsMeta {
+        count
+      }
+      payoutLevels (orderBy: levelNumber_ASC) {
+        id
+        levelNumber
+        payCount
+        playerCount
+      }
+    }
+  }
+`
+
+export const getPayoutLevelQuery = gql`
+  query getPayoutLevel($id: ID) {
+    payoutLevel(id: $id)
+    {
+      id
+      levelNumber
+      payCount
+      playerCount
+    }
+  }
+`
+
+export const updatePayoutLevelMutation = gql`
+  mutation updatePayoutLevelMutation ($id: ID!, $levelNumber: Int, $payCount: Int, $playerCount: Int ) {
+    updatePayoutLevel(id: $id, levelNumber: $levelNumber, payCount: $payCount, playerCount: $playerCount) {
+      id
+    }
+  }
+`
+
+export const deletePayoutLevelMutation = gql`
+  mutation deletePayoutLevel($id: ID!) {
+    deletePayoutLevel(id: $id) {
       id
     }
   }
