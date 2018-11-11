@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
-import { List, ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
+import { ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
 import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
 import { sortChips, numberToSuffixedString, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
@@ -105,7 +105,7 @@ class ChipListScreen extends React.Component {
               />
             }
           >
-            <List>
+            <View>
               {
                 list && list.map((item, i) => (
                   <Swipeout
@@ -134,7 +134,7 @@ class ChipListScreen extends React.Component {
                   </Swipeout>
                 ))
               }
-            </List>
+            </View>
           </ScrollView>
           <BannerAd/>
         </View>

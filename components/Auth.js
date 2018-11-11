@@ -35,9 +35,9 @@ class Auth extends Component {
 
   loginWithAuth0 = async () => {
     this.setState({loading: true})
-    const redirectUrl = Expo.AuthSession.getRedirectUrl();
+    const redirectUrl = AuthSession.getRedirectUrl();
     console.log(`Redirect URL (add this to Auth0): ${redirectUrl}`);
-    const result = await Expo.AuthSession.startAsync({
+    const result = await AuthSession.startAsync({
       authUrl: authorize_url + toQueryString({
         client_id: auth0_client_id,
         response_type: 'token',

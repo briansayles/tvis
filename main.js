@@ -1,4 +1,4 @@
-import Expo, { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, Constants, registerRootComponent} from 'expo'
+import { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, Constants, registerRootComponent} from 'expo'
 import React from 'react'
 import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'

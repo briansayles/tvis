@@ -1,7 +1,7 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage } from 'react-native'
-import { List, ListItem, Button } from 'react-native-elements'
+import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
+import { ListItem, Button } from 'react-native-elements'
 import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
 import Auth from '../components/Auth'
 import Events from '../api/events'
@@ -128,7 +128,7 @@ class TournamentListScreen extends React.Component {
               />
             }
           >
-            <List>
+            <View>
               {
                 list && list.map((item, i) => (
                   <Swipeout
@@ -162,7 +162,7 @@ class TournamentListScreen extends React.Component {
                   )
                 )
               }
-            </List>
+            </View>
           </ScrollView>
           <BannerAd />
         </View>

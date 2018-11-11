@@ -131,7 +131,7 @@ class TournamentTimerScreen extends React.Component {
 
   async _loadSound() {
     try {
-      const { sound: soundObject, status }  = await Audio.Sound.create(
+      const { sound: soundObject, status }  = await Audio.Sound.createAsync(
         require('../assets/sounds/3beeps.aiff'),
         {
           positionMillis: 0,

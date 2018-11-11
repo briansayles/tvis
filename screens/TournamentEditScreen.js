@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { Text, List, ListItem, Card, Button, Avatar, Icon, Divider} from 'react-native-elements';
+import { Text, ListItem, Card, Button, Avatar, Icon, Divider} from 'react-native-elements';
 import { currentUserQuery, getTournamentQuery, } from '../constants/GQL'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
@@ -174,7 +174,7 @@ class TournamentEditScreen extends React.Component {
               <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Button 
                   icon={<Icon
-                    name='ios-timer-outline'
+                    name='ios-timer'
                     color='white'
                     type='ionicon'
                   />}

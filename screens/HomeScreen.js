@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Expo from 'expo'
 
 export default class HomeScreen extends React.Component {
   

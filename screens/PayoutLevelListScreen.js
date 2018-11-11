@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
-import {List, ListItem, Button, Card, Icon} from 'react-native-elements'
+import { ListItem, Button, Card, Icon} from 'react-native-elements'
 import { currentUserQuery, getTournamentPayoutLevelsQuery, createTournamentPayoutLevelMutation, deletePayoutLevelMutation} from '../constants/GQL'
 import { dictionaryLookup, sortEntryFees, totalItems } from '../utilities/functions'
 import Events from '../api/events'
@@ -107,7 +107,7 @@ class PayoutLevelListScreen extends React.Component {
               />
             }
           >
-            <List>
+            <View>
               {
                 list && list.map((item, i) => (
                   <Swipeout
@@ -134,7 +134,7 @@ class PayoutLevelListScreen extends React.Component {
                   </Swipeout>
                 ))
               }
-            </List>
+            </View>
           </ScrollView>
           <BannerAd/>
         </View>

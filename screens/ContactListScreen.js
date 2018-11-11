@@ -1,12 +1,12 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, FlatList} from 'react-native'
-import {List, ListItem, Button, SearchBar, CheckBox} from 'react-native-elements'
+import { ListItem, Button, SearchBar, CheckBox} from 'react-native-elements'
 import {currentUserQuery, addCreditsMutation, getUserContactsQuery, } from '../constants/GQL'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
-import Expo, { AdMobRewarded, Contacts, Permissions, } from 'expo'
+import { AdMobRewarded, Contacts, Permissions, } from 'expo'
 import { showRewardedAd } from '../main'
 
 class ContactListScreen extends React.Component {
@@ -141,7 +141,7 @@ class ContactListScreen extends React.Component {
                   />
                 }
               >
-                <List>
+                <View>
                   {
                     filteredDeviceContacts && filteredDeviceContacts.map((item, i) => (
                       <Swipeout
@@ -168,7 +168,7 @@ class ContactListScreen extends React.Component {
                       </Swipeout>
                     ))
                   }
-                </List>
+                </View>
               </ScrollView>
             </View>
           }

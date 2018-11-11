@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
-import {List, ListItem, Button} from 'react-native-elements'
+import { ListItem, Button} from 'react-native-elements'
 import { currentUserQuery, tournamentCosts, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation, createCostBuyMutation, deleteBuyMutation, lastBuyOnCost} from '../constants/GQL'
 import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
 import Events from '../api/events'
@@ -120,7 +120,7 @@ class CostListScreen extends React.Component {
               />
             }
           >
-            <List>
+            <View>
               {
                 list && list.map((item, i) => (
                   <Swipeout
@@ -158,7 +158,7 @@ class CostListScreen extends React.Component {
                   </Swipeout>
                 ))
               }
-            </List>
+            </View>
           </ScrollView>
           <BannerAd/>
         </View>
