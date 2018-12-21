@@ -25,6 +25,7 @@ class TournamentTimerScreen extends React.Component {
         {
           timer: "00:00",
           currentBlinds: "---- / ----",
+          currentAnte: "",
         },
       segment: {sBlind: 0, bBlind: 0, duration: 0, ante: 0},
       nextSegment: null,
@@ -82,10 +83,10 @@ class TournamentTimerScreen extends React.Component {
             this.state.endOfRoundSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
               if(playbackStatus.didJustFinish) {
                 Speech.speak(
-                  this.state.nextSegment && ("The blinds are now " + this.state.display.currentBlinds), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
+                  this.state.nextSegment && ("The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
                   {
-                    rate: 0.85,
-                    pitch: 1.00,
+                    rate: 1.00,
+                    pitch: 0.8,
                   }
                 )
               }
@@ -159,7 +160,6 @@ class TournamentTimerScreen extends React.Component {
       // console.log('will receive currentUserQuery')
       // console.log(nextProps.currentUserQuery.user.id)
       this.setState({user: nextProps.currentUserQuery.user || null})
-
     }
   }
  
@@ -287,12 +287,19 @@ class TournamentTimerScreen extends React.Component {
               </View>
               <View style={{flex: 4, flexDirection: 'column', }}>
                 {Tournament.game != "CAP" && 
-                  <View style={{flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                  <View style={{flex: 3, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
                     <Text
                       style={[{flex: 1}, styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
                     >
                       {this.state.display.currentBlinds}
                     </Text>
+                    {this.state.display.currentAnte != null && 
+                      <Text
+                       style={[{flex: 1}, styles.anteText, this.state.noticeStatus && styles.blindsNoticeText]}
+                      >
+                        {this.state.display.currentAnte}
+                      </Text>
+                    }
                   </View>
                 }
                 {Tournament.game == "CAP" &&
@@ -422,6 +429,11 @@ const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
     fontSize: Math.min(responsiveHeight(10), responsiveWidth(10)),
+    textAlign: 'center',
+  },
+  anteText: {
+    color: 'rgba(225,225,225,1)',
+    fontSize: Math.min(responsiveHeight(8), responsiveWidth(8)),
     textAlign: 'center',
   },
   blindsNoticeText: {

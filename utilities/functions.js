@@ -113,7 +113,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  this.setState ({
 	    time: time,
 	    ms: 0,
-	    display: {timer: "", currentBlinds: "",},
+	    display: {timer: "", currentBlinds: "", currentAnte: ""},
 	    segment: segments[segments.length-1],
 	    nextSegment: null,
 	    csi: segments.length-1,
@@ -135,6 +135,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	  display: {
 	  	timer: timer.active ? msToTime(ms + 999) : msToTime(ms),
 	  	currentBlinds: numberToSuffixedString(segments[currentSegmentIndex].sBlind) + '/' + numberToSuffixedString(segments[currentSegmentIndex].bBlind),
+	  	currentAnte: segments[currentSegmentIndex].ante != null && "Ante: " + numberToSuffixedString(segments[currentSegmentIndex].ante)
 	  },
 	  segment: segments[currentSegmentIndex],
 	  nextSegment: currentSegmentIndex < segments.length -1 ? segments[currentSegmentIndex + 1] : null,
