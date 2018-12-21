@@ -20,6 +20,7 @@ import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
 
+
 export const TournamentsStack = createStackNavigator({
 	TournamentList: {
 		screen: TournamentListScreen,

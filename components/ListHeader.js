@@ -21,10 +21,12 @@ export class ListHeader extends React.Component {
 	    <View style={{
 	    	flex: responsiveFontSize(.006),
 	    	paddingTop: responsiveFontSize(1), 
-	    	paddingLeft: responsiveFontSize(2), 
+	    	paddingLeft: responsiveFontSize(2),
+	    	paddingBottom: responsiveFontSize(1),
 	    	flexDirection: 'row', 
 	    	justifyContent: 'space-between', 
-	    	alignItems: 'center'
+	    	alignItems: 'center',
+	    	backgroundColor: '#ddd',
 	    }}>
 	    	<Text style={{fontSize: responsiveFontSize(2.5)}}>
 	    		{this.props.title}

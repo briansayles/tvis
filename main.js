@@ -1,4 +1,4 @@
-import { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, Constants, registerRootComponent} from 'expo'
+import { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, registerRootComponent} from 'expo'
 import React from 'react'
 import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
@@ -7,7 +7,7 @@ import { createHttpLink, HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
 import { ApolloClient } from 'apollo-client'
-import { ApolloProvider } from 'react-apollo'
+import { ApolloProvider, } from 'react-apollo'
 
 import { getOperationAST } from 'graphql'
 import { ApolloLink, concat, split } from 'apollo-link'
@@ -20,17 +20,11 @@ import { Tabs } from './navigation/ReactNavRouter'
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
 import Auth from './components/Auth'
 
-import { Auth0Config, GraphCoolConfig, ExpoConfig } from './config'
-
-
-export const auth0_client_id = Auth0Config.clientId
-export const authorize_url = Auth0Config.authorizeURI
+import { GraphCoolConfig } from './config'
 export const graphQL_endpoint = GraphCoolConfig.endpoint
 export const graphQL_subscription_endpoint = GraphCoolConfig.wsClient
 export const graphQL_subscription_options = GraphCoolConfig.wsClientOptions
-export const redirect_uri = Constants.manifest.xde
-  ? ExpoConfig.redirectURI
-  : `${Constants.linkingUri}/redirect`
+
 
 const httpLink = new HttpLink({ 
   uri: graphQL_endpoint,

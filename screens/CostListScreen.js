@@ -8,7 +8,6 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/ListHeader'
-import { client } from '../main'
 
 class CostListScreen extends React.Component {
 
@@ -79,15 +78,15 @@ class CostListScreen extends React.Component {
     )
   }
 
-  _removeAnonymousBuyPressed(id) {
-    client.query({ query: lastBuyOnCost, variables: {costId: id}}).then(
-      (result) => {
-        this.props.deleteBuyMutation({variables: {id: result.data.allBuys[0].id}}).then(
-          () => Events.publish('RefreshCostList')
-        )
-      }
-    )
-  }
+  // _removeAnonymousBuyPressed(id) {
+  //   client.query({ query: lastBuyOnCost, variables: {costId: id}}).then(
+  //     (result) => {
+  //       this.props.deleteBuyMutation({variables: {id: result.data.allBuys[0].id}}).then(
+  //         () => Events.publish('RefreshCostList')
+  //       )
+  //     }
+  //   )
+  // }
 
   _search(searchText) {
     // searchText will be the text entered into the search bar
@@ -127,16 +126,16 @@ class CostListScreen extends React.Component {
                     key={i}
                     autoClose={true}
                     right={[
-                      {
-                        text: "+",
-                        onPress: this._addAnonymousBuyPressed.bind(this, item.id),
-                        type: 'primary',
-                      },
-                      {
-                        text: "-",
-                        onPress: this._removeAnonymousBuyPressed.bind(this, item.id),
-                        type: 'primary',
-                      },
+                      // {
+                      //   text: "+",
+                      //   onPress: this._addAnonymousBuyPressed.bind(this, item.id),
+                      //   type: 'primary',
+                      // },
+                      // {
+                      //   text: "-",
+                      //   onPress: this._removeAnonymousBuyPressed.bind(this, item.id),
+                      //   type: 'primary',
+                      // },
                       {
                         text: 'Edit',
                         onPress: this._editButtonPressed.bind(this, item.id),

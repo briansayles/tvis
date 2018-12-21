@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
-import { graphql, gql, compose } from 'react-apollo'
+import { graphql, gql, compose, withApollo } from 'react-apollo'
 import { ActivityIndicator, Text, View, StyleSheet, Linking, AsyncStorage } from 'react-native'
 import { Button } from 'react-native-elements'
-import {AuthSession} from 'expo'
+import {AuthSession, Constants, } from 'expo'
 import jwtDecoder from 'jwt-decode'
 
-import { redirect_uri, auth0_client_id, authorize_url, client } from '../main'
+import { Auth0Config, ExpoConfig } from '../config'
 
 import {currentUserQuery, createUserMutation} from '../constants/GQL'
 import Events from '../api/events'
 
-export const logout = async () => {
-  await AsyncStorage.removeItem('token')
-  client.resetStore()
-}
+const auth0_client_id = Auth0Config.clientId
+const authorize_url = Auth0Config.authorizeURI
+const redirect_uri = Constants.manifest.xde
+  ? ExpoConfig.redirectURI
+  : `${Constants.linkingUri}/redirect`
 
 const toQueryString = params => {
   return '?' + Object.entries(params)
@@ -31,12 +32,12 @@ class Auth extends Component {
   }
 
   componentDidMount() {
+    // const { client } = this.props
   }
 
   loginWithAuth0 = async () => {
     this.setState({loading: true})
     const redirectUrl = AuthSession.getRedirectUrl();
-    console.log(`Redirect URL (add this to Auth0): ${redirectUrl}`);
     const result = await AuthSession.startAsync({
       authUrl: authorize_url + toQueryString({
         client_id: auth0_client_id,
@@ -65,6 +66,8 @@ class Auth extends Component {
       .then(() => {
         this.props.fetchCurrentUser.refetch()
           .then(result => {
+            console.log('refetch result:' + '\n\n\n')
+            console.log(result)
             if (!result.data.user) {
               this.props.createUser({ variables: { encodedToken, username } })
                 .catch(error => {
@@ -74,6 +77,7 @@ class Auth extends Component {
             this.setState({loading: false})
           })
           .catch(error => {
+            alert('error logging in')
             console.error('ERROR: failed asking for current user: ', error)
             this.setState({loading: false})
           })
@@ -105,7 +109,8 @@ class Auth extends Component {
 
 export default compose(
   graphql(createUserMutation, { name: 'createUser' }),
-  graphql(currentUserQuery, { name: 'fetchCurrentUser' })
+  graphql(currentUserQuery, { name: 'fetchCurrentUser' }),
+  withApollo,
 )(Auth)
 
 const styles = StyleSheet.create({

@@ -1,7 +1,7 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
-import {List, ListItem, Button, Card, Icon} from 'react-native-elements'
+import { ListItem, Button, Card, Icon} from 'react-native-elements'
 import { currentUserQuery, getTournamentBuysQuery, createCostBuyMutation, deleteBuyMutation} from '../constants/GQL'
 import { dictionaryLookup, sortEntryFees, totalItems } from '../utilities/functions'
 import Events from '../api/events'
@@ -29,7 +29,6 @@ class BuyListScreen extends React.Component {
   componentDidMount() {
     this.refreshEvent = Events.subscribe('RefreshCostList', () => this._refresh())
   }
-
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentUserQuery) {
@@ -104,7 +103,7 @@ class BuyListScreen extends React.Component {
               />
             }
           >
-            <List style={{flex: 1, }}>
+            <View style={{flex: 1, }}>
               {
                 list && list.map((item, i) => (
 
@@ -139,7 +138,7 @@ class BuyListScreen extends React.Component {
                   </Card>
                 ))
               }
-            </List>
+            </View>
           </ScrollView>
           <BannerAd/>
         </View>

@@ -11,7 +11,7 @@ import { BannerAd } from '../components/Ads'
 class TournamentTimerScreen extends React.Component {
 
   static navigationOptions = {
-    title: 'TourneyVision'
+    title: 'TourneyVision',
   }
 
   constructor(props) {
@@ -41,6 +41,11 @@ class TournamentTimerScreen extends React.Component {
   }
 
   componentDidMount() {
+    // console.log('did mount')
+    // const { currentUserQuery: { loading, error, user } } = this.props
+    // console.log(this.props.currentUserQuery.user.id)
+    // this.setState({user: this.props.currentUserQuery.user || null})
+
     // AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
     // AdMobInterstitial.setTestDeviceID('EMULATOR');
     // AdMobInterstitial.requestAdAsync(() => AdMobInterstitial.showAdAsync())
@@ -147,14 +152,17 @@ class TournamentTimerScreen extends React.Component {
       console.log(error)
     }
   }
-
+  
   componentWillReceiveProps(nextProps) {
+    // console.log('will receive something')
     if (nextProps.currentUserQuery) {
-      const user = nextProps.currentUserQuery.user || null
-      this.setState({user: user})
+      // console.log('will receive currentUserQuery')
+      // console.log(nextProps.currentUserQuery.user.id)
+      this.setState({user: nextProps.currentUserQuery.user || null})
+
     }
   }
-  
+ 
   componentDidUpdate(prevProps) {
   }
 
@@ -163,8 +171,6 @@ class TournamentTimerScreen extends React.Component {
     clearInterval(this.clockInterval)
     clearInterval(this.interstitialInterval)
   }
-
-
 
   _animate() {
     this.chipFadeAnimation = new Animated.Value(1)
@@ -193,7 +199,7 @@ class TournamentTimerScreen extends React.Component {
     ).start()    
   }
 
-  _closeButtonPressed() {
+  _closeButtonPressed () {
     this.setState({modalVisible: !this.state.modalVisible})
   }
 
@@ -367,9 +373,9 @@ class TournamentTimerScreen extends React.Component {
 
                 { !this.state.activity &&
                   <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                    {userIsOwner && <Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                    {userIsOwner && <Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-                    {userIsOwner && <Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
                   </View>
                 }
 

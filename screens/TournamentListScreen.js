@@ -1,4 +1,4 @@
-import { graphql, compose } from 'react-apollo'
+import { graphql, compose, withApollo } from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
 import { ListItem, Button } from 'react-native-elements'
@@ -9,7 +9,6 @@ import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/ListHeader'
 import { AdMobRewarded } from 'expo'
-import { client, showRewardedAd } from '../main'
 import { convertItemToInputType } from '../utilities/functions'
 
 class TournamentListScreen extends React.Component {
@@ -69,6 +68,7 @@ class TournamentListScreen extends React.Component {
 
   _copyButtonPressed(id) {
     this.setState({loading: true})
+    const {client} = this.props
     client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
       const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
       const userId = user.id
@@ -156,7 +156,10 @@ class TournamentListScreen extends React.Component {
                     <ListItem
                       title={item.title}
                       subtitle={item.subtitle}
+                      subtitleStyle={{color: '#888'}}
+                      containerStyle={{backgroundColor: '#ddd'}}
                       onPress={this._editButtonPressed.bind(this, item.id)}
+                      chevron = {{color: "black"}}
                     />
                   </Swipeout>
                   )
@@ -180,4 +183,5 @@ export default compose(
   graphql(deleteTournamentMutation, { name: 'deleteItemMutation' }),
   graphql(currentUserTournamentsQuery, { name: 'getData' }),
   graphql(currentUserQuery, { name: 'currentUserQuery' }),
+  withApollo,
 )(TournamentListScreen)

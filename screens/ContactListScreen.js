@@ -7,7 +7,6 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { AdMobRewarded, Contacts, Permissions, } from 'expo'
-import { showRewardedAd } from '../main'
 
 class ContactListScreen extends React.Component {
   

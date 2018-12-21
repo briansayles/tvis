@@ -178,7 +178,7 @@ class TournamentEditScreen extends React.Component {
                     color='white'
                     type='ionicon'
                   />}
-                  buttonStyle={{ flex: 1, borderRadius: 20, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#080'}}
+                  buttonStyle={{ flex: 1, borderRadius: 10, backgroundColor: '#080', paddingLeft: 10}}
                   title='Timer'
                   titleStyle={{fontSize: 24, color: '#fff'}}
                   onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}
