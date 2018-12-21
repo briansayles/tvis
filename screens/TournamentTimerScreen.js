@@ -339,12 +339,17 @@ class TournamentTimerScreen extends React.Component {
                   </View>
                 }
                 {Tournament.game != "CAP" && 
-                  <View style={{flex: 2, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
+                  <View style={{flex: 2, flexDirection: 'column',  justifyContent: 'center', alignItems: 'center', }}>
                     <Text
                       style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                     >
                       {this.state.nextSegment && (this.state.nextSegment.sBlind.toLocaleString() + '/' + this.state.nextSegment.bBlind.toLocaleString())}
                       {!this.state.nextSegment && ("No more levels scheduled.")}
+                    </Text>
+                    <Text 
+                      style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                    >
+                      {this.state.nextSegment && this.state.nextSegment.ante && ("Ante: " + this.state.nextSegment.ante.toLocaleString())}
                     </Text>
                   </View>
                 }
