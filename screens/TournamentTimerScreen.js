@@ -42,14 +42,6 @@ class TournamentTimerScreen extends React.Component {
   }
 
   componentDidMount() {
-    // console.log('did mount')
-    // const { currentUserQuery: { loading, error, user } } = this.props
-    // console.log(this.props.currentUserQuery.user.id)
-    // this.setState({user: this.props.currentUserQuery.user || null})
-
-    // AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
-    // AdMobInterstitial.setTestDeviceID('EMULATOR');
-    // AdMobInterstitial.requestAdAsync(() => AdMobInterstitial.showAdAsync())
     this._loadSound()
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {
@@ -63,11 +55,6 @@ class TournamentTimerScreen extends React.Component {
         }
       )
     }, 5000)
-    // this.interstitialInterval = setInterval(() => {
-    //   AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
-    //   AdMobInterstitial.setTestDeviceID('EMULATOR');
-    //   AdMobInterstitial.requestAdAsync(() => AdMobInterstitial.showAdAsync())
-    // }, 5 * 60000)
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
       tickfunction(
@@ -155,10 +142,7 @@ class TournamentTimerScreen extends React.Component {
   }
   
   componentWillReceiveProps(nextProps) {
-    // console.log('will receive something')
     if (nextProps.currentUserQuery) {
-      // console.log('will receive currentUserQuery')
-      // console.log(nextProps.currentUserQuery.user.id)
       this.setState({user: nextProps.currentUserQuery.user || null})
     }
   }
@@ -279,141 +263,83 @@ class TournamentTimerScreen extends React.Component {
             colors={['#194a2f', '#257a25', '#194a2f']}
             style={{ flex: 1, margin: responsiveFontSize(1), paddingTop: responsiveFontSize(1), borderRadius: responsiveFontSize(3) }}
           >
-            <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
-              <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
+          <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+            <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
+          </View>
+          <View style={{flex: 8, flexDirection:'row', }}>
+            <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
             </View>
-            <View style={{flex: 8, flexDirection:'row', }}>
-              <View style={{flex: 2, flexDirection: 'column', paddingLeft: 5}}>
-              </View>
-              <View style={{flex: 4, flexDirection: 'column', }}>
-                {Tournament.game != "CAP" && 
-                  <View style={{flex: 3, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
-                    <Text
-                      style={[{flex: 1}, styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
-                    >
-                      {this.state.display.currentBlinds}
-                    </Text>
-                    {this.state.display.currentAnte != null && 
-                      <Text
-                       style={[{flex: 1}, styles.anteText, this.state.noticeStatus && styles.blindsNoticeText]}
-                      >
-                        {this.state.display.currentAnte}
-                      </Text>
-                    }
-                  </View>
-                }
-                {Tournament.game == "CAP" &&
-                  <View style={{flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
-                    <Text
-                      style={[{flex: 1}, styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
-                    >
-                      {
-                        segment.sBlind == 0 && ( "Cool " + segment.bBlind)
-                      }
-                      {
-                        segment.sBlind != 0 && segment.bBlind == 1 && ("Cap #" + segment.sBlind/10 + ".\n")
-                      }
-                      {
-                        segment.sBlind != 0 && segment.bBlind == 2 && ("Prepare Next")
-                      }
-                      {
-                        segment.sBlind != 0 && segment.bBlind == 3 && ("SWAP")
-                      }
-                    </Text>
-                  </View>
-                }
-                <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
-                  <Text 
-                    style={[{flex: 1}, styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
+            <View style={{flex: 4, flexDirection: 'column', }}>
+                <View style={{flex: 3, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+                  <Text
+                    style={[{flex: 1}, styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
                   >
-                    {this.state.display.timer}
+                    {this.state.display.currentBlinds}
+                  </Text>
+                  {this.state.display.currentAnte != null && 
+                    <Text
+                     style={[{flex: 1}, styles.anteText, this.state.noticeStatus && styles.blindsNoticeText]}
+                    >
+                      {this.state.display.currentAnte}
+                    </Text>
+                  }
+                </View>
+              <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
+                <Text 
+                  style={[{flex: 1}, styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
+                >
+                  {this.state.display.timer}
+                </Text>
+              </View>
+                <View style={{flex: 1, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
+                  <Text
+                    style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                  >
+                    Next Blinds:
                   </Text>
                 </View>
-                {Tournament.game != "CAP" && 
-                  <View style={{flex: 1, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
-                    <Text
-                      style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                    >
-                      Next Blinds:
-                    </Text>
-                  </View>
-                }
-                {Tournament.game != "CAP" && 
-                  <View style={{flex: 2, flexDirection: 'column',  justifyContent: 'center', alignItems: 'center', }}>
-                    <Text
-                      style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                    >
-                      {this.state.nextSegment && (this.state.nextSegment.sBlind.toLocaleString() + '/' + this.state.nextSegment.bBlind.toLocaleString())}
-                      {!this.state.nextSegment && ("No more levels scheduled.")}
-                    </Text>
-                    <Text 
-                      style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                    >
-                      {this.state.nextSegment && this.state.nextSegment.ante && ("Ante: " + this.state.nextSegment.ante.toLocaleString())}
-                    </Text>
-                  </View>
-                }
-                {Tournament.game == "CAP" && 
-                  <View style={{flex: 1, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
-                    <Text
-                      style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                    >
-                      Next:
-                    </Text>
-                  </View>
-                }
-                {Tournament.game == "CAP" && nextSegment && 
-                  <View style={{flex: 3, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
-                    <Text
-                      style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                    >
-                      {
-                        nextSegment.sBlind == 0 && ( "Cool " + nextSegment.bBlind)
-                      }
-                      {
-                        nextSegment.sBlind != 0 && nextSegment.bBlind == 1 && ("Cap #" + nextSegment.sBlind/10 + ".\n")
-                      }
-                      {
-                        nextSegment.sBlind != 0 && nextSegment.bBlind == 2 && ("Prepare Next")
-                      }
-                      {
-                        nextSegment.sBlind != 0 && nextSegment.bBlind == 3 && ("SWAP")
-                      }                  
-                    </Text>
-                  </View>
-                }
+                <View style={{flex: 2, flexDirection: 'column',  justifyContent: 'center', alignItems: 'center', }}>
+                  <Text
+                    style={[{flex: 1}, styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                  >
+                    {this.state.nextSegment && (this.state.nextSegment.sBlind.toLocaleString() + '/' + this.state.nextSegment.bBlind.toLocaleString())}
+                    {!this.state.nextSegment && ("No more levels scheduled.")}
+                  </Text>
+                  <Text 
+                    style={[{flex: 1}, styles.nextAnteText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
+                  >
+                    {this.state.nextSegment && this.state.nextSegment.ante && ("Ante: " + this.state.nextSegment.ante.toLocaleString())}
+                  </Text>
+                </View>
+              { !this.state.activity &&
+                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                  {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+                  {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                  {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                </View>
+              }
 
-                { !this.state.activity &&
-                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
-                  </View>
-                }
-
-                { this.state.activity &&
-                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                    <ActivityIndicator/>
-                  </View>
-                }
-               </View>
-              <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
-              </View>
+              { this.state.activity &&
+                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                  <ActivityIndicator/>
+                </View>
+              }
+             </View>
+            <View style={{flex: 2, flexDirection: 'column', paddingRight: 5}}>
             </View>
-            {Tournament.game != "CAP" && 
-              <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
-                {chips.map((u,i) => {
-                 if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
-                    return (
-                      <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', opacity: (this.state.csi + 1 <= smallestChipReq[i].segment) ? 1 : this.chipFadeAnimation}}>
-                        <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
-                        <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
-                      </Animated.View>
-                    )
-                  }
-                })}
-              </View>
-            }
+          </View>
+          <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
+            {chips.map((u,i) => {
+             if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
+                return (
+                  <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', opacity: (this.state.csi + 1 <= smallestChipReq[i].segment) ? 1 : this.chipFadeAnimation}}>
+                    <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
+                    <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
+                  </Animated.View>
+                )
+              }
+            })}
+          </View>
           </LinearGradient>
           <BannerAd/>
         </View>
@@ -447,6 +373,11 @@ const styles = StyleSheet.create({
   nextBlindsText: {
     color: 'rgba(30,30,30,1)',
     fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
+    textAlign: 'center',
+  },
+  nextAnteText: {
+    color: 'rgba(30,30,30,1)',
+    fontSize: Math.min(responsiveHeight(5), responsiveWidth(5)),
     textAlign: 'center',
   },
   nextBlindsNoticeText: {

@@ -66,8 +66,7 @@ export function	msToTime(duration, includeFractions, alwaysIncludeHours) {
   var milliseconds = parseInt((duration%1000)/100)
       , seconds = parseInt((duration/1000)%60)
       , minutes = parseInt((duration/(1000*60))%60)
-      , hours = parseInt((duration/(1000*60*60))%24);
-  // hours = (hours < 10) ? "0" + hours : hours
+      , hours = parseInt((duration/(1000*60*60))%24)
   minutes = (minutes < 10) ? "0" + minutes : minutes
   seconds = (seconds < 10) ? "0" + seconds : seconds
   var output
@@ -95,7 +94,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	const msPerMinute = 60 * 1000
 	const noticeMilliseconds = noticeSeconds * 1000
 	const tourney = this.props.getTournamentQuery.Tournament
-	const segments = sortSegments(tourney.segments) //.sort( (a,b) => {
+	const segments = sortSegments(tourney.segments)
 	const timer = tourney.timer
 	const time = new Date()
 	const totalElapsedMS = Math.max(0,timer.active ? timer.elapsed + time.valueOf() - this.state.offsetFromServerTime - new Date(timer.updatedAt).valueOf() : timer.elapsed)
@@ -182,27 +181,22 @@ export function sortEntryFees (fees) {
 
 
 export function totalItems (items) {
-	// console.log(items)
 	var total = items.price * items.buys.length
-	// for (var i = 0, len = items.length; i < len; i++) {
-	// 	total += items[i].price
-	// }
-	console.log(total)
 }
 
 const {height, width} = Dimensions.get('window');
 
 export const responsiveHeight = (h) => {
   return height*(h/100);
-};
+}
 
 export const responsiveWidth = (w) => {
   return width*(w/100);
-};
+}
 
 export const responsiveFontSize = (f) => {
   return Math.sqrt((height*height)+(width*width))*(f/100);
-};
+}
 
 export const checkUserCredits = (userId, creditsRequired) => {
 	return
@@ -225,7 +219,4 @@ export const creditCheck = (userId, creditsRequired) => {
 			return true
 		})
 	}
-	//TODO: Get the reward value from showRewardedAd().
-	//TODO: Ensure that credits received are adequate before returning true.
-
 }

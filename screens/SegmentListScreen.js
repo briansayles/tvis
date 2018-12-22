@@ -50,7 +50,7 @@ class SegmentListScreen extends React.Component {
       {
         variables:
         {
-          "tournamentId": parentId, //this.props.getData.Tournament.id,
+          "tournamentId": parentId,
           "sBlind": 0,
           "bBlind": 0,
           "duration": duration,
@@ -75,7 +75,6 @@ class SegmentListScreen extends React.Component {
   }
 
   _search(searchText) {
-    // searchText will be the text entered into the search bar
   }
 
   render() {

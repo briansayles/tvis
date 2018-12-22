@@ -74,7 +74,6 @@ class ChipListScreen extends React.Component {
   }
 
   _search(searchText) {
-    // searchText will be the text entered into the search bar
   }
 
   render() {
