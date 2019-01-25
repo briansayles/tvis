@@ -2,7 +2,6 @@ import { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, reg
 import React from 'react'
 import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
-
 import { createHttpLink, HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
