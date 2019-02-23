@@ -54,8 +54,6 @@ class PayoutLevelListScreen extends React.Component {
       }
     ).then((result) => {
       Events.publish('RefreshPayoutLevelList')
-      // console.log(result.data)
-      // this._editButtonPressed(result.data.createPayoutLevel.id)
     })
   }
 
@@ -70,6 +68,8 @@ class PayoutLevelListScreen extends React.Component {
     )
   }
 
+  _search(searchText) {
+  }
 
   render() {
     const { getData: { loading, error, Tournament } } = this.props

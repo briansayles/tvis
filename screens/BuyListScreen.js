@@ -76,7 +76,6 @@ class BuyListScreen extends React.Component {
   }
 
   _search(searchText) {
-    // searchText will be the text entered into the search bar
   }
 
   render() {
@@ -110,28 +109,28 @@ class BuyListScreen extends React.Component {
                   <Card
                     key={i}
                     title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long")}
-                    containerStyle={{marginBottom: 10}}
+                    containerStyle={{marginBottom: 4}}
                   >
-                    <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
-                      <Text>
+                    <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <Text style={{flex: 2}}>
                         Count: {item.buys.length}{'\n'}
                         Cash In: {(item._buysMeta.count * item.price).toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true})}{'\n'}
                         Chips Issued: {(item._buysMeta.count * item.chipStack).toLocaleString()}
                       </Text>
-                      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <AddButton
+                          mutation={this.props.createItem}
+                          events={["RefreshCostList"]}
+                          variables={{costId: item.id}}
+                          containerStyle={{flex: 2}}
+                        />
                         <RemoveButton 
-                          containerStyle={{flex: 1}}
                           mutation={this.props.deleteItem}
                           events={["RefreshCostList"]}
                           variables={{
                             id: (item._buysMeta.count > 0 && item.buys[item._buysMeta.count -1].id) || null,
                           }}
-                        />
-                        <AddButton
-                          containerStyle={{flex: 1}}
-                          mutation={this.props.createItem}
-                          events={["RefreshCostList"]}
-                          variables={{costId: item.id}}
+                          containerStyle={{flex: 2}}
                         />
                       </View>
                     </View>

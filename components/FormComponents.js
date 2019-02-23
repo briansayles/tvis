@@ -124,11 +124,9 @@ export class AddButton extends Component {
         />}
         disabled={this.state.busy}
         iconRight
-        buttonStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
+        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 0, marginTop: 4, backgroundColor: '#050', alignSelf: "flex-end"}}
         title='Add'
-        disabledStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#0508', alignSelf: 'flex-end'}}
         titleStyle={{fontSize: 14, color: '#fff'}}
-        disabledTitleStyle={{fontSize: 14, }}
         onPress={() => this.handlePress()}
         {...props}
       />
@@ -173,11 +171,9 @@ export class RemoveButton extends Component {
         />}
         disabled={this.state.busy || !this.props.variables.id}
         iconRight
-        buttonStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#900', alignSelf: 'flex-end'}}
-        title='Remove'
-        disabledStyle={{ borderRadius: 10, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#9008', alignSelf: 'flex-end'}}
+        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 0, marginTop: 4, backgroundColor: '#900', alignSelf: "flex-end"}}
+        title="Remove"
         titleStyle={{fontSize: 14, color: '#fff'}}
-        disabledTitleStyle={{fontSize: 14, }}
         onPress={() => this.handlePress()}
         {...props}
       />
