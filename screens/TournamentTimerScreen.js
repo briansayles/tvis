@@ -207,9 +207,9 @@ class TournamentTimerScreen extends React.Component {
     this.props.updateTournamentTimerMutation(
       { variables: {
         id: tourney.timer.id,
-        // now: new Date(), 
+        now: new Date(), 
         active: !(tourney.timer.active),
-        // tournamentId: tourney.id,
+        tournamentId: tourney.id,
         elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
         } 
       }

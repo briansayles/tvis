@@ -374,7 +374,7 @@ export const deleteTournamentMutation = gql`
 `
 
 export const updateTournamentTimerMutation = gql`
-  mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int) {
+  mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int, $tournamentId: ID!, $now: DateTime) {
     updateTimer(id: $id, active: $active, elapsed: $elapsed) {
       id
     }
