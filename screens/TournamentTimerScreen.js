@@ -83,10 +83,10 @@ class TournamentTimerScreen extends React.Component {
             this.state.endOfRoundSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
               if(playbackStatus.didJustFinish) {
                 Speech.speak(
-                  this.state.nextSegment && ("The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
+                  this.state.nextSegment && ("Dinky donk. Dinky to the donkey. The blinds are up bitches! The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
                   {
                     rate: 1.00,
-                    pitch: 0.8,
+                    pitch: 1,
                   }
                 )
               }
@@ -110,7 +110,7 @@ class TournamentTimerScreen extends React.Component {
                 Speech.speak(
                   this.state.nextSegment && ("One minute remaining in this round."),
                   {
-                    rate: 0.85,
+                    rate: 1,
                     pitch: 1.00,
                   }
                 )
@@ -169,7 +169,7 @@ class TournamentTimerScreen extends React.Component {
   componentWillUnmount () {
     clearTimeout(this.recheckServerTime)
     clearInterval(this.clockInterval)
-    clearInterval(this.interstitialInterval)
+    // clearInterval(this.interstitialInterval)
   }
 
   _animate() {
@@ -199,26 +199,28 @@ class TournamentTimerScreen extends React.Component {
     ).start()    
   }
 
-  _closeButtonPressed () {
-    this.setState({modalVisible: !this.state.modalVisible})
-  }
-
-  _toggleTimerButtonPressed() {
+  async _toggleTimerButtonPressed(tourney) {
     this.setState({activity: 'toggling'})
-    const tourney = this.props.getTournamentQuery.Tournament
+    //console.log('getting tourney from props')
+    //const tourney = await this.props.getTournamentQuery.Tournament
+    // console.log('mutating')
     this.props.updateTournamentTimerMutation(
       { variables: {
         id: tourney.timer.id,
-        now: new Date(), 
-        active: !tourney.timer.active,
-        tournamentId: tourney.id,
+        // now: new Date(), 
+        active: !(tourney.timer.active),
+        // tournamentId: tourney.id,
         elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
         } 
       }
     ).then(()=>{
+      // this.setState({activity: null})
+      //console.log('refetching')
       this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
+    }).then(()=>{
+      // console.log('animating')
+      this._animate()
     })
-    this._animate()
   }
 
   _fwdButtonPressed() {
@@ -234,6 +236,7 @@ class TournamentTimerScreen extends React.Component {
         }
       }
     ).then(()=>{
+      // this.setState({activity: null})
       this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
     this._animate()
@@ -252,6 +255,7 @@ class TournamentTimerScreen extends React.Component {
         } 
       }
     ).then(()=>{
+      // this.setState({activity: null})
       this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
     this._animate()
@@ -386,7 +390,7 @@ class TournamentTimerScreen extends React.Component {
                 { !this.state.activity &&
                   <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
                     {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this)}></Button>}
+                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this, Tournament)}></Button>}
                     {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
                   </View>
                 }

@@ -1,6 +1,6 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, StyleSheet } from 'react-native'
+import { ActivityIndicator, Text, View, StyleSheet, ScrollView, RefreshControl } from 'react-native'
 import { getCostQuery, updateCostMutation} from '../constants/GQL'
 import Events from '../api/events'
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
@@ -12,12 +12,21 @@ class CostEditScreen extends React.Component {
     super(props)
     this.state = {
       formValues: {},
+      refreshing: false,
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.getCostQuery.Cost) {
-      this.setState({formValues: nextProps.getCostQuery.Cost})
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.getCostQuery && nextProps.getCostQuery.Cost) {
+  //     this.setState({formValues: nextProps.getCostQuery.Cost})
+  //   }
+  // }
+
+  componentDidUpdate(prevProps, prevState) {
+    // alert('componentDidUpdate')
+    if (prevProps.getCostQuery !== this.props.getCostQuery) {
+      // alert('setting formValues')
+      this.setState({formValues: this.props.getCostQuery.Cost})
     }
   }
 
@@ -27,6 +36,12 @@ class CostEditScreen extends React.Component {
       [fieldName]: value,
     }}))
   }
+
+  _refresh() {
+    this.props.getCostQuery.refetch()
+  }
+
+
 
   render() {
     const { getCostQuery: { loading, error, Cost } } = this.props
@@ -74,7 +89,6 @@ class CostEditScreen extends React.Component {
             events={["RefreshCosttList", "RefreshEditor"]}
           />
         </FormView>
-
     	)
     }
   }
