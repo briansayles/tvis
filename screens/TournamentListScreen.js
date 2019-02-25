@@ -8,7 +8,7 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/ListHeader'
-import { AdMobRewarded } from 'expo'
+import { AdMobRewarded, } from 'expo'
 import { convertItemToInputType } from '../utilities/functions'
 
 class TournamentListScreen extends React.Component {

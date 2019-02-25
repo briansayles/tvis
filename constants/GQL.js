@@ -374,23 +374,26 @@ export const deleteTournamentMutation = gql`
 `
 
 export const updateTournamentTimerMutation = gql`
-  mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int, $tournamentId: ID!, $now: DateTime) {
+  mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int) {
     updateTimer(id: $id, active: $active, elapsed: $elapsed) {
       id
-    }
-    updateTournament(id: $tournamentId, childrenUpdatedAt: $now) {
-      id
+      active
+      createdAt
       updatedAt
-      timer {
-        id
-        active
-        createdAt
-        updatedAt
-        elapsed
-      }
+      elapsed
     }
   }
 `
+
+export const updateTournamentChildren = gql`
+  mutation updateTournamentChildren ($id: ID!, $now: DateTime) {
+    updateTournament(id: $id, childrenUpdatedAt: $now) {
+      id
+      updatedAt
+    }
+  }
+`
+
 export const createTournamentSegmentMutation = gql`
   mutation createTournamentSegment( $tournamentId: ID!, $sBlind: Int=1, $bBlind: Int=2, $duration: Int=20) {
     createSegment (

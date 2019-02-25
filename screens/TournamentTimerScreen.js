@@ -2,9 +2,9 @@ import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { Dimensions, Easing, Animated, ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Button, Avatar, Icon } from 'react-native-elements'
-import { KeepAwake, Audio, AdMobInterstitial, LinearGradient, Speech } from 'expo'
+import { KeepAwake, Audio, AdMobInterstitial, LinearGradient, Speech, ScreenOrientation } from 'expo'
 import { smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
-import { currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription} from '../constants/GQL'
+import { currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription, updateTournamentChildren} from '../constants/GQL'
 import { GraphCoolConfig } from '../config'
 import { BannerAd } from '../components/Ads'
 
@@ -16,6 +16,7 @@ class TournamentTimerScreen extends React.Component {
 
   constructor(props) {
     super(props)
+    ScreenOrientation.allowAsync(ScreenOrientation.Orientation.ALL);
     this.state = {
       orientation: this._isPortrait() ? 'portrait' : 'landscape',
       user: null,
@@ -55,11 +56,10 @@ class TournamentTimerScreen extends React.Component {
   }
 
 
-  componentDidMount() {
+  async componentDidMount() {
     // console.log('did mount')
-    // const { currentUserQuery: { loading, error, user } } = this.props
-    // console.log(this.props.currentUserQuery.user.id)
-    // this.setState({user: this.props.currentUserQuery.user || null})
+    const { currentUserQuery: { loading, error, user } } = await this.props
+    this.setState({user: user || null})
 
     // AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
     // AdMobInterstitial.setTestDeviceID('EMULATOR');
@@ -89,7 +89,7 @@ class TournamentTimerScreen extends React.Component {
           try {
             await this.state.endOfRoundSoundObject.setStatusAsync({
               positionMillis: 0,
-              volume: 0.8,
+              volume: 1,
               rate: 0.5,
               shouldPlay: true,
               shouldCorrectPitch: false,
@@ -97,7 +97,7 @@ class TournamentTimerScreen extends React.Component {
             this.state.endOfRoundSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
               if(playbackStatus.didJustFinish) {
                 Speech.speak(
-                  this.state.nextSegment && ("Dinky donk. Dinky to the donkey. The blinds are up bitches! The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
+                  this.state.nextSegment && ("Dinky donck. Dinky to the donkey. The blinds are up bitches! The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
                   {
                     rate: 1.00,
                     pitch: 1,
@@ -114,7 +114,7 @@ class TournamentTimerScreen extends React.Component {
           try {
             await this.state.noticeSoundObject.setStatusAsync({
               positionMillis: 0,
-              volume: 0.3,
+              volume: 0.75,
               rate: 3,
               shouldPlay: true,
               shouldCorrectPitch: false,
@@ -136,16 +136,16 @@ class TournamentTimerScreen extends React.Component {
         },
       )
     }, 100)
-    this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-      document: tournamentSubscription,
-      updateQuery: (previous, {subscriptionData}) => {
-        this.props.getTournamentQuery.refetch()
-        return
-      },
-      onError: (err) => {
-        console.error(err)
-      },
-    })
+    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
+    //   document: tournamentSubscription,
+    //   updateQuery: (previous, {subscriptionData}) => {
+    //     this.props.getTournamentQuery.refetch()
+    //     return
+    //   },
+    //   onError: (err) => {
+    //     console.error(err)
+    //   },
+    // })
     this._animate()
   }
 
@@ -167,18 +167,7 @@ class TournamentTimerScreen extends React.Component {
       console.log(error)
     }
   }
-  
-  componentWillReceiveProps(nextProps) {
-    // console.log('will receive something')
-    if (nextProps.currentUserQuery) {
-      // console.log('will receive currentUserQuery')
-      // console.log(nextProps.currentUserQuery.user.id)
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-  }
- 
-  componentDidUpdate(prevProps) {
-  }
+
 
   componentWillUnmount () {
     Dimensions.removeEventListener('change', this._handleOrientationChange)
@@ -216,62 +205,61 @@ class TournamentTimerScreen extends React.Component {
 
   async _toggleTimerButtonPressed(tourney) {
     this.setState({activity: 'toggling'})
-    //console.log('getting tourney from props')
-    //const tourney = await this.props.getTournamentQuery.Tournament
-    // console.log('mutating')
-    this.props.updateTournamentTimerMutation(
-      { variables: {
-        id: tourney.timer.id,
-        now: new Date(), 
-        active: !(tourney.timer.active),
-        tournamentId: tourney.id,
-        elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
-        } 
-      }
-    ).then(()=>{
-      // this.setState({activity: null})
-      //console.log('refetching')
-      this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
-    }).then(()=>{
-      // console.log('animating')
+    try {
+      const mutation2 = await this.props.updateTournamentChildrenMutation({variables: {
+          now: new Date(),
+          id: tourney.id
+          }
+        }
+      )
+      const mutation1 = await this.props.updateTournamentTimerMutation({ variables: {
+          id: tourney.timer.id,
+          active: !(tourney.timer.active),
+          elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
+          } 
+        }
+      )
+    } catch (error) {
+      console.log(error)
+    } finally {
+      this.setState({activity: null})
       this._animate()
-    })
+    }
   }
 
-  _fwdButtonPressed() {
+  _fwdButtonPressed(tourney) {
     this.setState({activity: 'advancing'})
-    const tourney = this.props.getTournamentQuery.Tournament
-    this.props.updateTournamentTimerMutation(
-      { variables: {
-        id: tourney.timer.id,
-        now: new Date(),
-        tournamentId: tourney.id,
-        elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
 
+
+    this.props.updateTournamentTimerMutation({ variables: {
+        id: tourney.timer.id,
+        elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
         }
       }
     ).then(()=>{
-      // this.setState({activity: null})
-      this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
+      this.props.updateTournamentChildrenMutation({variables: {
+        now: new Date(),
+        id: tourney.id
+        }
+      }).then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
     this._animate()
   }
 
-  _resetTimerButtonPressed() {
+  _resetTimerButtonPressed(tourney) {
     this.setState({activity: 'resetting'})
-    const tourney = this.props.getTournamentQuery.Tournament
-    this.props.updateTournamentTimerMutation(
-      { variables: {
+    this.props.updateTournamentTimerMutation({ variables: {
         id: tourney.timer.id,
-        now: new Date(), 
         active: false,
-        tournamentId: tourney.id,
         elapsed: 0
         } 
       }
     ).then(()=>{
-      // this.setState({activity: null})
-      this.props.getTournamentQuery.refetch().then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
+      this.props.updateTournamentChildrenMutation({variables: {
+        now: new Date(),
+        id: tourney.id
+        }
+      }).then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
     })
     this._animate()
   }
@@ -293,12 +281,12 @@ class TournamentTimerScreen extends React.Component {
       return (
         <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
           <KeepAwake/>
-          <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', }}>
+          <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
             <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
           </View>
           <LinearGradient
             colors={['#194a2f', '#257a25', '#194a2f']}
-            style={{ flex: 10, margin: responsiveFontSize(1), paddingTop: responsiveFontSize(1), borderRadius: responsiveFontSize(3) }}
+            style={{ flex: 10, margin: responsiveFontSize(1), padding: responsiveFontSize(1), borderRadius: responsiveFontSize(3) }}
           >
             <View style={{flex: 8, flexDirection:'row', }}>
               <View style={{flex: this.state.orientation == 'portrait' ? 2 : 1, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'flex-end', paddingLeft: 5}}>
@@ -313,8 +301,8 @@ class TournamentTimerScreen extends React.Component {
                   }
                 })}
               </View>
-              <View style={{flex: 4, flexDirection: 'column', }}>
-                <View style={{flex: 3, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+              <View style={{flex: 4, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center',}}>
+                <View style={{flex: 5, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', }}>
                   <Text
                     style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
                   >
@@ -327,22 +315,18 @@ class TournamentTimerScreen extends React.Component {
                       {this.state.display.currentAnte}
                     </Text>
                   }
-                </View>
-                <View style={{flex: 2, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
                   <Text 
                     style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
                   >
                     {this.state.display.timer}
                   </Text>
                 </View>
-                <View style={{flex: 1, flexDirection: 'row',  justifyContent: 'center', alignItems: 'center', }}>
+                <View style={{flex: 4, flexDirection: 'column',  justifyContent: 'space-evenly', alignItems: 'center', }}>
                   <Text
                     style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                   >
                     Next Blinds:
                   </Text>
-                </View>
-                <View style={{flex: 2.25, flexDirection: 'column',  justifyContent: 'space-evenly', alignItems: 'center', }}>
                   <Text
                     style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
                   >
@@ -356,24 +340,24 @@ class TournamentTimerScreen extends React.Component {
                   </Text>
                 </View>
                 { !this.state.activity && this.state.orientation == 'portrait' &&
-                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this, Tournament)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                    {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this, Tournament)}></Button>}
+                    {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this, Tournament)}></Button>}
+                    {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this, Tournament)}></Button>}
                   </View>
                 }
                 { this.state.activity && this.state.orientation == 'portrait' &&
-                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                     <ActivityIndicator/>
                   </View>
                 }
-               </View>
+              </View>
               <View style={{flex: this.state.orientation == 'portrait' ? 2 : 1, flexDirection: 'column', paddingRight: 5}}>
                 { !this.state.activity && this.state.orientation == 'landscape' &&
                   <View style={{flex: 2, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center'}}>
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this)}></Button>}
+                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this, Tournament)}></Button>}
                     {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this, Tournament)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this)}></Button>}
+                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this, Tournament)}></Button>}
                   </View>
                 }
                 { this.state.activity && this.state.orientation == 'landscape' &&
@@ -410,6 +394,7 @@ export default compose(
   graphql(getServerTimeMutation, { name: 'getServerTimeMutation', }),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
+  graphql(updateTournamentChildren, {name: 'updateTournamentChildrenMutation'})
 )(TournamentTimerScreen)
 
 
