@@ -1,7 +1,7 @@
 const tintColor = '#009900';
 
 export default {
-  BANNER_ID: 'ca-app-pub-3013833975597353/8848678187', // TEST ID: ca-app-pub-3940256099942544/6300978111, ACTUAL ID: ca-app-pub-3013833975597353/8848678187
+	BANNER_ID: 'ca-app-pub-3013833975597353/8848678187', // TEST ID: ca-app-pub-3940256099942544/6300978111, ACTUAL ID: ca-app-pub-3013833975597353/8848678187
 	REWARDED_ID: 'ca-app-pub-3013833975597353/5103764479', // TEST ID: ca-app-pub-3940256099942544/1712485313, ACTUAL ID: ca-app-pub-3013833975597353/5103764479
 	INTERSTITIAL_ID: 'ca-app-pub-3013833975597353/7633439481', // TEST ID: ca-app-pub-3940256099942544/1033173712, ACTUAL ID: ca-app-pub-3013833975597353/7633439481
 	REVMOB_ID: '5a5ca4b4a30c3b1c882dfe7b',
@@ -12,7 +12,6 @@ export default {
 		{longName: "Limit 7 Card Stud", shortName: "L7S"},
 		{longName: "H.O.R.S.E.", shortName: "HORSE"},
 		{longName: "H.O.S.E.", shortName: "HOSE"},
-		{longName: "Cold Capping", shortName: "CAP"}
 	],
 	EntryFeeOptions: [
 		{longName: "Standard Buy-In", shortName: "Buyin"},

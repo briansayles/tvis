@@ -90,7 +90,7 @@ class ChipListScreen extends React.Component {
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ListHeader 
             title="Chips" 
-            showAddButton={this.state.user} 
+            showAddButton={true}
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
             // onSearch={this._search}

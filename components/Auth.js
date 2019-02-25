@@ -32,7 +32,6 @@ class Auth extends Component {
   }
 
   componentDidMount() {
-    // const { client } = this.props
   }
 
   loginWithAuth0 = async () => {
@@ -46,8 +45,6 @@ class Auth extends Component {
         redirect_uri: redirectUrl,
       }),
     });
-
-    console.log(result);
     if (result.type === 'success') {
       this.handleParams(result.params);
     }
@@ -66,8 +63,6 @@ class Auth extends Component {
       .then(() => {
         this.props.fetchCurrentUser.refetch()
           .then(result => {
-            console.log('refetch result:' + '\n\n\n')
-            console.log(result)
             if (!result.data.user) {
               this.props.createUser({ variables: { encodedToken, username } })
                 .catch(error => {
