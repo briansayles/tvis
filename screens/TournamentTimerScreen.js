@@ -57,13 +57,8 @@ class TournamentTimerScreen extends React.Component {
 
 
   async componentDidMount() {
-    // console.log('did mount')
     const { currentUserQuery: { loading, error, user } } = await this.props
     this.setState({user: user || null})
-
-    // AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
-    // AdMobInterstitial.setTestDeviceID('EMULATOR');
-    // AdMobInterstitial.requestAdAsync(() => AdMobInterstitial.showAdAsync())
     this._loadSound()
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {
@@ -77,11 +72,6 @@ class TournamentTimerScreen extends React.Component {
         }
       )
     }, 5000)
-    // this.interstitialInterval = setInterval(() => {
-    //   AdMobInterstitial.setAdUnitID('ca-app-pub-3013833975597353/7633439481'); // Test ID, Replace with your-admob-unit-id
-    //   AdMobInterstitial.setTestDeviceID('EMULATOR');
-    //   AdMobInterstitial.requestAdAsync(() => AdMobInterstitial.showAdAsync())
-    // }, 5 * 60000)
     this.clockInterval = setInterval(()=> {
       const tickfunction = tick.bind(this)
       tickfunction(
@@ -206,17 +196,17 @@ class TournamentTimerScreen extends React.Component {
   async _toggleTimerButtonPressed(tourney) {
     this.setState({activity: 'toggling'})
     try {
-      const mutation2 = await this.props.updateTournamentChildrenMutation({variables: {
-          now: new Date(),
-          id: tourney.id
-          }
-        }
-      )
-      const mutation1 = await this.props.updateTournamentTimerMutation({ variables: {
+      await this.props.updateTournamentTimerMutation({ variables: {
           id: tourney.timer.id,
           active: !(tourney.timer.active),
           elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
           } 
+        }
+      )
+      await this.props.updateTournamentChildrenMutation({variables: {
+          now: new Date(),
+          id: tourney.id
+          }
         }
       )
     } catch (error) {
@@ -227,41 +217,47 @@ class TournamentTimerScreen extends React.Component {
     }
   }
 
-  _fwdButtonPressed(tourney) {
+  async _fwdButtonPressed(tourney) {
     this.setState({activity: 'advancing'})
-
-
-    this.props.updateTournamentTimerMutation({ variables: {
+    try {
+      await this.props.updateTournamentTimerMutation({ variables: {
         id: tourney.timer.id,
         elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
-        }
-      }
-    ).then(()=>{
-      this.props.updateTournamentChildrenMutation({variables: {
+      }})
+      await this.props.updateTournamentChildrenMutation({variables: {
         now: new Date(),
         id: tourney.id
-        }
-      }).then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
-    })
-    this._animate()
+      }})
+    } catch (error) {
+      console.log(error)
+    } finally {
+      this.setState({activity: null})
+      this._animate()
+    }
   }
 
-  _resetTimerButtonPressed(tourney) {
+
+
+  async _resetTimerButtonPressed(tourney) {
     this.setState({activity: 'resetting'})
-    this.props.updateTournamentTimerMutation({ variables: {
+    try {
+      await this.props.updateTournamentTimerMutation({ variables: {
         id: tourney.timer.id,
         active: false,
         elapsed: 0
         } 
-      }
-    ).then(()=>{
-      this.props.updateTournamentChildrenMutation({variables: {
+      })
+      await this.props.updateTournamentChildrenMutation({variables: {
         now: new Date(),
         id: tourney.id
         }
-      }).then(()=>this.setState({activity: null})).catch(()=>this.setState({activity: null}))
-    })
-    this._animate()
+      })
+    } catch (error) {
+      console.log(error)
+    } finally {
+      this.setState({activity: null})
+      this._animate()
+    }
   }
 
   render() {
@@ -281,12 +277,12 @@ class TournamentTimerScreen extends React.Component {
       return (
         <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
           <KeepAwake/>
-          <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+          <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', }}>
             <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
           </View>
           <LinearGradient
             colors={['#194a2f', '#257a25', '#194a2f']}
-            style={{ flex: 10, margin: responsiveFontSize(1), padding: responsiveFontSize(1), borderRadius: responsiveFontSize(3) }}
+            style={{ flex: 11, margin: responsiveFontSize(1), padding: responsiveFontSize(1), borderRadius: responsiveFontSize(3) }}
           >
             <View style={{flex: 8, flexDirection:'row', }}>
               <View style={{flex: this.state.orientation == 'portrait' ? 2 : 1, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'flex-end', paddingLeft: 5}}>
@@ -402,12 +398,10 @@ const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
     fontSize: Math.min(responsiveHeight(10), responsiveWidth(10)),
-    textAlign: 'center',
   },
   anteText: {
     color: 'rgba(225,225,225,1)',
     fontSize: Math.min(responsiveHeight(8), responsiveWidth(8)),
-    textAlign: 'center',
   },
   blindsNoticeText: {
     fontWeight: '300',
@@ -424,15 +418,13 @@ const styles = StyleSheet.create({
     color: 'rgba(225,225,225,1)',
     fontFamily: 'Menlo',
     fontSize: Math.min(responsiveHeight(9), responsiveWidth(9)),
-    textAlign: 'center',
   },
   timerNoticeText: {
     color: 'red',
   },
   titleText: {
-    fontSize: Math.min(responsiveHeight(5), responsiveWidth(5)),
+    fontSize: Math.min(responsiveHeight(4.5), responsiveWidth(4.5)),
     color: '#000',
-    textAlign: 'center',
   },
   chipText: {
     fontSize: responsiveFontSize(2.5),
