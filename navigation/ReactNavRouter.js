@@ -19,7 +19,7 @@ import CostEditScreen from '../screens/CostEditScreen'
 import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
-
+import TimerEditScreen from '../screens/TimerEditScreen'
 
 export const TournamentsStack = createStackNavigator({
 	TournamentList: {
@@ -38,6 +38,12 @@ export const TournamentsStack = createStackNavigator({
 		screen: TournamentEditScreen,
 		navigationOptions: {
 			title: 'Tourney Dashboard',
+		}
+	},
+	TimerEdit: {
+		screen: TimerEditScreen,
+		navigationOptions: {
+			title: 'Timer Editor'
 		}
 	},
 	SegmentList: {

@@ -42,6 +42,10 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('Details', {id: id})
   }
 
+  _navigateToTimerEditorButtonPressed(timer) {
+    this.props.navigation.navigate('TimerEdit', {timer: timer})
+  }
+
   _navigateToSegmentList(id) {
     this.props.navigation.navigate('SegmentList', {id: id})
   }
@@ -58,8 +62,8 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('PlayerList', {id: id})
   }
 
-  _navigateToGeneralInfoEdit(id) {
-    this.props.navigation.navigate('GeneralInfoEdit', {id: id})
+  _navigateToGeneralInfoEdit(tourney) {
+    this.props.navigation.navigate('GeneralInfoEdit', {tourney: tourney})
   }
 
   _navigateToCostList(id) {
@@ -114,7 +118,7 @@ class TournamentEditScreen extends React.Component {
               </View>
               {userIsOwner && 
                 <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                    <Icon name='edit' type='font-awesome' onPress={this._navigateToGeneralInfoEdit.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                    <Icon name='edit' type='font-awesome' onPress={this._navigateToGeneralInfoEdit.bind(this, Tournament)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
                 </View>
               }
             </Card>
@@ -180,6 +184,11 @@ class TournamentEditScreen extends React.Component {
                   onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}
                 />
               </View>
+              {userIsOwner && 
+                <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                    <Icon name='edit' type='font-awesome' onPress={this._navigateToTimerEditorButtonPressed.bind(this, Tournament.timer)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                </View>
+              }
             </Card>
 
             <Card

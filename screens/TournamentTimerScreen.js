@@ -40,6 +40,7 @@ class TournamentTimerScreen extends React.Component {
       timerActive: false,
       activity: null,
       endOfRoundSoundObject: null,
+      timerCustomizations: {},
     }
     Dimensions.addEventListener('change', this._handleOrientationChange)
   }
@@ -57,6 +58,8 @@ class TournamentTimerScreen extends React.Component {
 
 
   async componentDidMount() {
+    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
+    this.setState({timerCustomizations: {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor}})
     this.setState({user: this.props.currentUserQuery.user})
     this._loadSound()
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
@@ -86,7 +89,7 @@ class TournamentTimerScreen extends React.Component {
             this.state.endOfRoundSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
               if(playbackStatus.didJustFinish) {
                 Speech.speak(
-                  this.state.nextSegment && ("Dinky donck. Dinky to the donkey. The blinds are up bitches! The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
+                  this.state.nextSegment && (this.state.timerCustomizations.endOfRoundSpeech + "The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
                   {
                     rate: 1.00,
                     pitch: 1,
@@ -111,7 +114,7 @@ class TournamentTimerScreen extends React.Component {
             this.state.noticeSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
               if(playbackStatus.didJustFinish) {
                 Speech.speak(
-                  this.state.nextSegment && ("One minute remaining in this round."),
+                  this.state.nextSegment && (this.state.timerCustomizations.oneMinuteRemainingSpeech),
                   {
                     rate: 1,
                     pitch: 1.00,

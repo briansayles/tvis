@@ -111,6 +111,11 @@ export const getTournamentQuery = gql`
         createdAt
         updatedAt
         elapsed
+        oneMinuteRemainingSpeech
+        playOneMinuteRemainingSound
+        endOfRoundSpeech
+        playEndOfRoundSound
+        backgroundColor
       }
       costs (orderBy: chipStack_DESC) {
         id
@@ -374,13 +379,20 @@ export const deleteTournamentMutation = gql`
 `
 
 export const updateTournamentTimerMutation = gql`
-  mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int) {
-    updateTimer(id: $id, active: $active, elapsed: $elapsed) {
+  mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int, $oneMinuteRemainingSpeech: String, $playOneMinuteRemainingSound: Boolean, $endOfRoundSpeech: String, $playEndOfRoundSound: Boolean, $backgroundColor: String) {
+    updateTimer(id: $id, active: $active, elapsed: $elapsed, oneMinuteRemainingSpeech: $oneMinuteRemainingSpeech,
+    playOneMinuteRemainingSound: $playOneMinuteRemainingSound, endOfRoundSpeech: $endOfRoundSpeech, playEndOfRoundSound: $playEndOfRoundSound,
+    backgroundColor: $backgroundColor) {
       id
       active
       createdAt
       updatedAt
       elapsed
+      oneMinuteRemainingSpeech
+      playOneMinuteRemainingSound
+      endOfRoundSpeech
+      playEndOfRoundSound
+      backgroundColor
     }
   }
 `
