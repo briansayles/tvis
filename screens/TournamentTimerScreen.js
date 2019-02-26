@@ -59,7 +59,14 @@ class TournamentTimerScreen extends React.Component {
 
   async componentDidMount() {
     const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
-    this.setState({timerCustomizations: {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor}})
+    await this.setState({timerCustomizations: {
+      oneMinuteRemainingSpeech: oneMinuteRemainingSpeech || "", 
+      playOneMinuteRemainingSound: playOneMinuteRemainingSound || true, 
+      endOfRoundSpeech: endOfRoundSpeech || "", 
+      playEndOfRoundSound: playEndOfRoundSound || true, 
+      backgroundColor: backgroundColor || "#0f8",
+    }})
+    
     this.setState({user: this.props.currentUserQuery.user})
     this._loadSound()
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
