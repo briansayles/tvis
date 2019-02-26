@@ -24,53 +24,48 @@ class ChipListScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshChipList', () => this._refresh())
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-  }
-  
-  componentDidUpdate(prevProps) {
+    this.setState({user: this.props.currentUserQuery.user})
+    this.refreshEventSubscription = Events.subscribe('RefreshChipList', () => this._onRefresh())
   }
 
   componentWillUnmount () {
-    this.refreshEvent.remove()
+    this.refreshEventSubscription.remove()
   }
 
-  _refresh() {
-    this.props.getData.refetch().then(() => this.setState({loading: false}))
+  _onRefresh = async () => {
+    await this.props.getData.refetch()
   }
 
-  _addButtonPressed(parentId) {
+  _addButtonPressed = async () => {
     this.setState({loading: true})
-    this.props.createItem(
+    result = await this.props.createItem(
       {
         variables:
         {
-          "tournamentId": parentId,
+          "tournamentId": this.props.getData.Tournament.id,
           "denom": 1,
           "color": "#fff",
         }
       }
-    ).then((result) => {
-      Events.publish('RefreshChipList')
-      this._editButtonPressed(result.data.createChip.id)
-    }
     )
+    Events.publish('RefreshChipList')
+    this.setState({loading: false})
+    this._editButtonPressed(result.data.createChip.id) 
   }
 
-  _editButtonPressed(id) {
-    this.props.navigation.navigate('ChipEdit', {id: id})
+  _editButtonPressed(chip) {
+    this.props.navigation.navigate('ChipEdit', 
+      {
+        chip: chip
+      }
+    )
   }
   
   _deleteButtonPressed(id) {
     this.setState({loading: true})
     this.props.deleteItem({variables: {id: id} }).then(
       () => Events.publish('RefreshChipList')
-    )
+    ).then(()=>this.setState({loading: false}))
   }
 
   _search(searchText) {
@@ -92,17 +87,11 @@ class ChipListScreen extends React.Component {
             title="Chips" 
             showAddButton={true}
             loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
+            onAddButtonPress={this._addButtonPressed}
             // onSearch={this._search}
           />
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
-              />
-            }
           >
             <View>
               {
@@ -113,7 +102,7 @@ class ChipListScreen extends React.Component {
                     right={[
                       {
                         text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item.id),
+                        onPress: this._editButtonPressed.bind(this, item),
                         type: 'primary',
                       },
                       {
@@ -128,7 +117,7 @@ class ChipListScreen extends React.Component {
                     titleStyle={{color: item.color != "#fff" ? item.color : "#000"}} 
                     title={dictionaryLookup(item.color, "ChipColorOptions", "long")}
                     subtitle={numberToSuffixedString(item.denom)}
-                    onPress={this._editButtonPressed.bind(this, item.id)}
+                    onPress={this._editButtonPressed.bind(this, item)}
                   />
                   </Swipeout>
                 ))

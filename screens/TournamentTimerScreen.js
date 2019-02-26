@@ -57,8 +57,7 @@ class TournamentTimerScreen extends React.Component {
 
 
   async componentDidMount() {
-    const { currentUserQuery: { loading, error, user } } = await this.props
-    this.setState({user: user || null})
+    this.setState({user: this.props.currentUserQuery.user})
     this._loadSound()
     this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
       {

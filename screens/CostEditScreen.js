@@ -16,18 +16,9 @@ class CostEditScreen extends React.Component {
     }
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.getCostQuery && nextProps.getCostQuery.Cost) {
-  //     this.setState({formValues: nextProps.getCostQuery.Cost})
-  //   }
-  // }
-
-  componentDidUpdate(prevProps, prevState) {
-    // alert('componentDidUpdate')
-    if (prevProps.getCostQuery !== this.props.getCostQuery) {
-      // alert('setting formValues')
-      this.setState({formValues: this.props.getCostQuery.Cost})
-    }
+  async componentDidMount() {
+    const {price, chipStack, costType} = this.props.navigation.getParam('cost')
+    await this.setState({formValues: {price, chipStack, costType}})
   }
 
   handleInputChange (fieldName, value) {
@@ -44,12 +35,12 @@ class CostEditScreen extends React.Component {
 
 
   render() {
-    const { getCostQuery: { loading, error, Cost } } = this.props
-    if (loading) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
-      return <Text>Error!</Text>
-    } else {
+    // const { getCostQuery: { loading, error, Cost } } = this.props
+    // if (loading) {
+    //   return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+    // } else if (error) {
+    //   return <Text>Error!</Text>
+    // } else {
      	return (
         <FormView contentContainerStyle={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
         
@@ -72,7 +63,7 @@ class CostEditScreen extends React.Component {
           <Picker
             prompt="Choose entry fee type"
             title="Entry Fee Type"
-            initialValue={Cost.costType || "Pick entry fee type..."}
+            initialValue={this.state.formValues.costType || "Pick entry fee type..."}
             selectedValue={this.state.formValues.costType}
             onValueChange={(itemValue, itemIndex) => this.handleInputChange('costType', itemValue)}
           >
@@ -84,17 +75,17 @@ class CostEditScreen extends React.Component {
 
           <SubmitButton 
             mutation={this.props.updateCostMutation}
-            id={Cost.id}
+            id={this.props.navigation.getParam('cost').id}
             variables={this.state.formValues}
             events={["RefreshCosttList", "RefreshEditor"]}
           />
         </FormView>
     	)
-    }
+    // }
   }
 }
 
 export default compose(
-  graphql(getCostQuery, { name: 'getCostQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  // graphql(getCostQuery, { name: 'getCostQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(updateCostMutation, { name: 'updateCostMutation'}),
 )(CostEditScreen)

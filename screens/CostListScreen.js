@@ -61,10 +61,14 @@ class CostListScreen extends React.Component {
     })
   }
 
-  _editButtonPressed(id) {
-    this.props.navigation.navigate('CostEdit', {id: id})
+  _editButtonPressed(cost) {
+    this.props.navigation.navigate('CostEdit', 
+      {
+        cost: cost
+      }
+    )
   }
-
+  
   _deleteButtonPressed(id) {
     this.setState({loading: true})
     this.props.deleteItem({variables: {id: id} }).then(
@@ -117,7 +121,7 @@ class CostListScreen extends React.Component {
                     right={[
                       {
                         text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item.id),
+                        onPress: this._editButtonPressed.bind(this, item),
                         type: 'primary',
                       },
                       {
@@ -131,7 +135,7 @@ class CostListScreen extends React.Component {
                   <ListItem
                     title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + (item.price && item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}))}
                     subtitle={item.chipStack && item.chipStack.toLocaleString() + ' Chips, ' + item._buysMeta.count + ' buys.'}
-                    onPress={this._editButtonPressed.bind(this, item.id)}
+                    onPress={this._editButtonPressed.bind(this, item)}
                   />
                   </Swipeout>
                 ))

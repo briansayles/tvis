@@ -63,8 +63,8 @@ class SegmentListScreen extends React.Component {
     )
   }
 
-	_editButtonPressed(id) {
-    this.props.navigation.navigate('SegmentEdit', {id: id})
+	_editButtonPressed(segment) {
+    this.props.navigation.navigate('SegmentEdit', {segment: segment})
   }
 
   _deleteButtonPressed(id) {
@@ -114,7 +114,7 @@ class SegmentListScreen extends React.Component {
                     right={[
                       {
                         text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item.id),
+                        onPress: this._editButtonPressed.bind(this, item),
                         type: 'primary',
                       },
                       {
@@ -128,7 +128,7 @@ class SegmentListScreen extends React.Component {
                   <ListItem
                     title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
                     subtitle={item.duration + " minutes"}
-                    onPress={this._editButtonPressed.bind(this, item.id)}
+                    onPress={this._editButtonPressed.bind(this, item)}
                   />
                   </Swipeout>
                 ))

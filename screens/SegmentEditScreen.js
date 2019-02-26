@@ -16,11 +16,16 @@ class SegmentEditScreen extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.getSegmentQuery.Segment) {
-      this.setState({formValues: nextProps.getSegmentQuery.Segment})
-    }
+  async componentDidMount() {
+    const {sBlind, bBlind, ante, duration} = this.props.navigation.getParam('segment')
+    this.setState({formValues: {sBlind, bBlind, ante, duration}})
   }
+
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.getSegmentQuery.Segment) {
+  //     this.setState({formValues: nextProps.getSegmentQuery.Segment})
+  //   }
+  // }
 
   handleInputChange (fieldName, value) {
     this.setState(({formValues}) => ({formValues: {
@@ -33,12 +38,12 @@ class SegmentEditScreen extends React.Component {
   }
 
   render() {
-    const { getSegmentQuery: { loading, error, Segment } } = this.props
-    if (loading) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
-      return <Text>Error!</Text>
-    } else {  
+    // const { getSegmentQuery: { loading, error, Segment } } = this.props
+    // if (loading) {
+    //   return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+    // } else if (error) {
+    //   return <Text>Error!</Text>
+    // } else {  
      	return (
         <FormView contentContainerStyle={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
 
@@ -75,7 +80,7 @@ class SegmentEditScreen extends React.Component {
           <Picker
             prompt="Choose your duration"
             title="Duration (in minutes)"
-            initialValue={Segment.duration || "Pick duration..."}
+            initialValue={this.state.formValues.duration || "Pick duration..."}
             selectedValue={this.state.formValues.duration}
             onValueChange={(itemValue, itemIndex) => this.handleInputChange('duration', parseInt(itemValue))}
           >
@@ -87,17 +92,17 @@ class SegmentEditScreen extends React.Component {
 
           <SubmitButton 
             mutation={this.props.updateSegmentMutation}
-            id={Segment.id}
+            id={this.props.navigation.getParam('segment').id}
             variables={this.state.formValues}
             events={["RefreshSegmentList", "RefreshEditor"]}
           />
          </FormView>
     	)
-    }
+    // }
   }
 }
 
 export default compose(
-  graphql(getSegmentQuery, { name: 'getSegmentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
+  // graphql(getSegmentQuery, { name: 'getSegmentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(updateSegmentMutation, { name: 'updateSegmentMutation'}),
 )(SegmentEditScreen)

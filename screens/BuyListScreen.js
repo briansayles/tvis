@@ -16,10 +16,10 @@ class BuyListScreen extends React.Component {
     super(props)
     this.state = {
       user: null,
-      refreshing: false,
+      // refreshing: false,
       loading: false,
-      busy: false,
-      costs: {},
+      // busy: false,
+      // costs: {},
     }
   }
 
@@ -27,53 +27,55 @@ class BuyListScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshCostList', () => this._refresh())
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-    if (!nextProps.getData.loading) {
-      for (var i = 0, len = nextProps.getData.Tournament.costs.length; i < len; i++) {
-        var total = totalItems(nextProps.getData.Tournament.costs[i])
-      }
-    }
+    this.setState({user: this.props.currentUserQuery.user})
+    this.refreshEventSubscription = Events.subscribe('RefreshCostList', () => this._onRefresh())
   }
 
   componentWillUnmount () {
-    this.refreshEvent.remove()
+    this.refreshEventSubscription.remove()
   }
 
-  _refresh() {
-    this.setState({loading: true})
-    this.props.getData.refetch().then(() => this.setState({loading: false}))
+  _onRefresh = async () => {
+  //   this.setState({refreshing: true})
+    await this.props.getData.refetch()
+  //   this.setState({refreshing: false})
   }
 
-  async _addButtonPressed(costItem) {
-    this.setState({busy: true})
-    await this.props.createItem(
-      {
-        variables:
-        {
-          "costId": costItem.id
-        }
-      }
-    )
-    await Events.publish('RefreshCostList')
-    this.setState({busy: false})
-  }
+  // componentWillReceiveProps(nextProps) {
+    // if (nextProps.currentUserQuery) {
+    //   this.setState({user: nextProps.currentUserQuery.user || null})
+    // }
+    // if (!nextProps.getData.loading) {
+    //   for (var i = 0, len = nextProps.getData.Tournament.costs.length; i < len; i++) {
+    //     var total = totalItems(nextProps.getData.Tournament.costs[i])
+    //   }
+    // }
+  // }
 
-  _editButtonPressed(id) {
-    this.props.navigation.navigate('CostEdit', {id: id})
-  }
+  // async _addButtonPressed(costItem) {
+  //   this.setState({busy: true})
+  //   await this.props.createItem(
+  //     {
+  //       variables:
+  //       {
+  //         "costId": costItem.id
+  //       }
+  //     }
+  //   )
+  //   await Events.publish('RefreshCostList')
+  //   this.setState({busy: false})
+  // }
 
-  async _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    await this.props.deleteItem({variables: {id: id} })
-    await Events.publish('RefreshCostList')
-    this.setState({loading: false})
-  }
+  // _editButtonPressed(id) {
+  //   this.props.navigation.navigate('CostEdit', {id: id})
+  // }
+
+  // async _deleteButtonPressed(id) {
+  //   this.setState({loading: true})
+  //   await this.props.deleteItem({variables: {id: id} })
+  //   await Events.publish('RefreshCostList')
+  //   this.setState({loading: false})
+  // }
 
   _search(searchText) {
   }
@@ -95,12 +97,6 @@ class BuyListScreen extends React.Component {
           />
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
-              />
-            }
           >
             <View style={{flex: 1, }}>
               {

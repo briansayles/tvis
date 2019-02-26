@@ -21,22 +21,22 @@ class TournamentEditScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshEditor', () => this._refreshButtonPressed())
+    this.setState({user: this.props.currentUserQuery.user})
+    this.refreshEventSubscription = Events.subscribe('RefreshEditor', () => this._onRefresh())
   }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      const user = nextProps.currentUserQuery.user || null
-      this.setState({user: user})
-    }
-  }
-  
-  componentDidUpdate(prevProps) {
-  }
-
+ 
   componentWillUnmount () {
-    this.refreshEvent.remove()
+    this.refreshEventSubscription.remove()
   }
+
+  _onRefresh = async () => {
+    this.setState({refreshing: true})
+    await this.props.getTournamentQuery.refetch()
+    this.setState({refreshing: false})
+  }
+
+  // componentDidUpdate(prevProps) {
+  // }
 
   _navigateToTimerButtonPressed(id) {
     this.props.navigation.navigate('Details', {id: id})
@@ -74,10 +74,6 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('PayoutSetup', {id: id})
   }
 
-  _refreshButtonPressed() {
-    this.props.getTournamentQuery.refetch()
-  }
-
   render() {
     const { getTournamentQuery: { loading, error, Tournament } } = this.props
     const editButtonColor = dictionaryLookup("editButtonColor")
@@ -104,7 +100,7 @@ class TournamentEditScreen extends React.Component {
             refreshControl={
               <RefreshControl
                 refreshing={this.state.refreshing}
-                onRefresh={this._refreshButtonPressed.bind(this)}
+                onRefresh={this._onRefresh}
               />
             }
           >
