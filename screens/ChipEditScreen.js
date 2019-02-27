@@ -20,6 +20,11 @@ class ChipEditScreen extends React.Component {
   async componentDidMount() {
     const {denom, color} = this.props.navigation.getParam('chip')
     this.setState({formValues: {denom, color}})
+    this.submitButtonPressedEvent = Events.subscribe("ChipEditSubmitted", () => this.props.navigation.goBack())
+  }
+
+  componentWillUnmount () {
+    this.submitButtonPressedEvent.remove()
   }
 
   handleInputChange (fieldName, value) {
@@ -29,53 +34,48 @@ class ChipEditScreen extends React.Component {
     }}))
   }
 
-  handleValueChange (values) {
+  _isDirty() {
+    const {denom: p1, color: p2} = this.props.navigation.getParam('chip')
+    const {denom: f1, color: f2} = this.state.formValues
+    return p1 != f1 || p2 != f2
   }
 
   render() {
-    // const { getChipQuery: { loading, error, Chip } } = this.props
-    // if (loading) {
-    //   return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    // } else if (error) {
-    //   return <Text>Error!</Text>
-    // } else {
-     	return (
-        <FormView contentContainerStyle={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+   	return (
+      <FormView contentContainerStyle={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
 
-          <MyInput
-            title="Denomination"
-            value={this.state.formValues.denom || 0}
-            onChangeText={(text) => this.handleInputChange('denom', parseInt(text))}
-            keyboardType="numeric"
-          />
+        <MyInput
+          title="Denomination"
+          value={(this.state.formValues.denom || 0).toString()}
+          onChangeText={(text) => this.handleInputChange('denom', parseInt(text))}
+          keyboardType="numeric"
+        />
 
-          <Picker
-            prompt="Choose a color"
-            title="Chip color"
-            initialValue={this.props.navigation.getParam('chip').color || "Pick color..."}
-            selectedValue={this.state.formValues.color || '#fff'}
-            onValueChange={(itemValue, itemIndex) => this.handleInputChange('color', itemValue)}
-          >
-            {dictionaryLookup("ChipColorOptions").map((item, i) => (
-              <Picker.Item key={i} label={item.longName} value={item.shortName}/>
-            ))
-            }
-          </Picker>
+        <Picker
+          prompt="Choose a color"
+          title="Chip color"
+          initialValue={this.props.navigation.getParam('chip').color || "Pick color..."}
+          selectedValue={this.state.formValues.color || '#fff'}
+          onValueChange={(itemValue, itemIndex) => this.handleInputChange('color', itemValue)}
+        >
+          {dictionaryLookup("ChipColorOptions").map((item, i) => (
+            <Picker.Item key={i} label={item.longName} value={item.shortName}/>
+          ))
+          }
+        </Picker>
 
-          <SubmitButton 
-            mutation={this.props.updateChipMutation}
-            id={this.props.navigation.getParam('chip').id}
-            variables={this.state.formValues}
-
-            events={["RefreshChipList"]}
-          />
-        </FormView>
-    	)
-    // }
+        <SubmitButton 
+          mutation={this.props.updateChipMutation}
+          id={this.props.navigation.getParam('chip').id}
+          variables={this.state.formValues}
+          events={["RefreshChipList", "ChipEditSubmitted"]}
+          disabled={!this._isDirty()}
+        />
+      </FormView>
+  	)
   }
 }
 
 export default compose(
-  // graphql(getChipQuery, { name: 'getChipQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(updateChipMutation, { name: 'updateChipMutation'}),
 )(ChipEditScreen)

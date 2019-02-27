@@ -33,8 +33,8 @@ export class MyInput extends Component {
   render() {
 		return (
 				<Input
-          {...this.props}
 					value={this.props.value.toString()}
+          {...this.props}
 				/>
 		)
 	}
@@ -70,6 +70,7 @@ export class SubmitButton extends Component {
   }
 
 	render() {
+    const {mutation, events, ...props} = this.props
 		return (
 	    <Button 
         icon={this.state.busy ? <ActivityIndicator/> : <Icon
@@ -78,10 +79,12 @@ export class SubmitButton extends Component {
           type='ionicon'
         />}
         iconRight
-        buttonStyle={{ borderRadius: 20, marginTop: 24, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
+        buttonStyle={{ borderRadius: 20, marginTop: 18, paddingLeft: 6, paddingRight: 12, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
+        disabledStyle={{backgroundColor: "#0004"}}
         title='Submit'
-        titleStyle={{fontSize: 24, color: '#fff'}}
+        titleStyle={{fontSize: 18, color: '#fff'}}
         onPress={() => this.handlePress()}
+        {...props}
       />
     )
 	}

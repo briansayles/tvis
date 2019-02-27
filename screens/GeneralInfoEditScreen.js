@@ -12,7 +12,6 @@ class GeneralInfoEditScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      // refreshing: false,
       formValues: {},
     }
   }
@@ -23,29 +22,12 @@ class GeneralInfoEditScreen extends React.Component {
   async componentDidMount() {
     const {title, subtitle, comments, game} = this.props.navigation.getParam('tourney')
     this.setState({formValues: {title, subtitle, comments, game}})
-    // this.refreshEvent = Events.subscribe('RefreshGeneralInfo', () => this._refreshButtonPressed())
+    this.submitButtonPressedEvent = Events.subscribe("GeneralInfoSubmitted", () => this.props.navigation.goBack())
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //     if (nextProps.getTournamentQuery.Tournament) {
-  //       this.setState({formValues: nextProps.getTournamentQuery.Tournament})
-  //     }
-  // }
-  
-  // componentDidUpdate(prevProps) {
-
-  // }
-
-  // componentWillUnmount () {
-  //   this.refreshEvent.remove()
-  // }
-
-  // _refreshButtonPressed() {
-  //   this.props.getTournamentQuery.refetch()
-  // }
-
-  // handleValueChange (values) {
-  // }
+  componentWillUnmount () {
+     this.submitButtonPressedEvent.remove()
+  }
 
   handleInputChange (fieldName, value) {
     this.setState(({formValues}) => ({formValues: {
@@ -54,65 +36,63 @@ class GeneralInfoEditScreen extends React.Component {
     }}))
   }
 
+  _isDirty() {
+    const {title: p1, subtitle: p2, comments: p3, game: p4} = this.props.navigation.getParam('tourney')
+    const {title: f1, subtitle: f2, comments: f3, game: f4} = this.state.formValues
+    return p1 != f1 || p2 != f2 || p3 != f3 || p4 != f4
+  }
+
   render() {
-    // const { getTournamentQuery: { loading, error, Tournament } } = this.props
-    // if (loading) {
-    //   return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    // } else if (error) {
-    //   return <Text>Error!</Text>
-    // } else {
-      return (
-        <FormView contentContainerStyle={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-          <MyInput
-            title="Title"
-            value={this.state.formValues.title || ""}
-            placeholder="Enter title here..."
-            onChangeText={(text) => this.handleInputChange('title', text)}
-          />
-          
-          <MyInput
-            title="Subtitle"
-            value={this.state.formValues.subtitle || ""}
-            placeholder="Enter subtitle here..."
-            onChangeText={(text) => this.handleInputChange('subtitle', text)}
-          />
+    return (
+      <FormView contentContainerStyle={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+        <MyInput
+          title="Title"
+          value={this.state.formValues.title || ""}
+          placeholder="Enter title here..."
+          onChangeText={(text) => this.handleInputChange('title', text)}
+        />
+        
+        <MyInput
+          title="Subtitle"
+          value={this.state.formValues.subtitle || ""}
+          placeholder="Enter subtitle here..."
+          onChangeText={(text) => this.handleInputChange('subtitle', text)}
+        />
 
-          <MyInput
-            style={{height: 100}}
-            title="Comments"
-            value={this.state.formValues.comments || ""}
-            placeholder="Enter comments here..."
-            onChangeText={(text) => this.handleInputChange('comments', text)}
-            multiline = {true}
-            numberOfLines = {6}
-          />
+        <MyInput
+          style={{height: 100}}
+          title="Comments"
+          value={this.state.formValues.comments || ""}
+          placeholder="Enter comments here..."
+          onChangeText={(text) => this.handleInputChange('comments', text)}
+          multiline = {true}
+          numberOfLines = {6}
+        />
 
-          <Picker
-            prompt="Choose your game"
-            title="Game"
-            initialValue={this.state.formValues.game || "Pick game..."}
-            selectedValue={this.state.formValues.game}
-            onValueChange={(itemValue, itemIndex) => this.handleInputChange('game', itemValue)}
-          >
-            {dictionaryLookup("GameOptions").map((item, i) => (
-              <Picker.Item key={i} label={item.longName} value={item.shortName}/>
-            ))
-            }
-          </Picker>
-          <SubmitButton 
-            mutation={this.props.updateTournamentMutation}
-            id={this.props.navigation.getParam('tourney').id}
-            variables={this.state.formValues}
-            events={["RefreshEditor", "RefreshTournamentList"]}
-          />
-        </FormView>
-      )
-    // }
+        <Picker
+          prompt="Choose your game"
+          title="Game"
+          initialValue={this.state.formValues.game || "Pick game..."}
+          selectedValue={this.state.formValues.game}
+          onValueChange={(itemValue, itemIndex) => this.handleInputChange('game', itemValue)}
+        >
+          {dictionaryLookup("GameOptions").map((item, i) => (
+            <Picker.Item key={i} label={item.longName} value={item.shortName}/>
+          ))
+          }
+        </Picker>
+        <SubmitButton 
+          mutation={this.props.updateTournamentMutation}
+          id={this.props.navigation.getParam('tourney').id}
+          variables={this.state.formValues}
+          events={["RefreshEditor", "RefreshTournamentList", "GeneralInfoSubmitted"]}
+          disabled={!this._isDirty()}
+        />
+      </FormView>
+    )
   }
 }
 
 export default compose(
-  // graphql(currentUserQuery, { name: 'currentUserQuery', }),
   graphql(updateTournamentMutation, { name: 'updateTournamentMutation'}),
-  // graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
 )(GeneralInfoEditScreen)
