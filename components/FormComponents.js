@@ -79,9 +79,9 @@ export class SubmitButton extends Component {
           type='ionicon'
         />}
         iconRight
-        buttonStyle={{ borderRadius: 20, marginTop: 18, paddingLeft: 6, paddingRight: 12, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
-        disabledStyle={{backgroundColor: "#0004"}}
-        title='Submit'
+        buttonStyle={{ borderRadius: 20, marginTop: 18, paddingLeft: 10, paddingRight: 12, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
+        disabledStyle={{backgroundColor: "#0504"}}
+        title='Submit  '
         titleStyle={{fontSize: 18, color: '#fff'}}
         onPress={() => this.handlePress()}
         {...props}
@@ -127,8 +127,8 @@ export class AddButton extends Component {
         />}
         disabled={this.state.busy}
         iconRight
-        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 0, marginTop: 4, backgroundColor: '#050', alignSelf: "flex-end"}}
-        title='Add'
+        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, marginTop: 8, backgroundColor: '#050', alignSelf: "flex-end"}}
+        title='Add  '
         titleStyle={{fontSize: 14, color: '#fff'}}
         onPress={() => this.handlePress()}
         {...props}
@@ -174,8 +174,8 @@ export class RemoveButton extends Component {
         />}
         disabled={this.state.busy || !this.props.variables.id}
         iconRight
-        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 0, marginTop: 4, backgroundColor: '#900', alignSelf: "flex-end"}}
-        title="Remove"
+        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, marginTop: 8, backgroundColor: '#900', alignSelf: "flex-end"}}
+        title="Remove  "
         titleStyle={{fontSize: 14, color: '#fff'}}
         onPress={() => this.handlePress()}
         {...props}
