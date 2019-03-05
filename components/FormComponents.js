@@ -1,11 +1,112 @@
 import React, { Component } from 'react'
 import ReactNative, {
-  Platform, View, TouchableOpacity, Text, StyleSheet, ActionSheetIOS, ActivityIndicator
+  Platform, View, TouchableOpacity, TouchableHighlight, StyleSheet, ActionSheetIOS, ActivityIndicator
 } from 'react-native'
-import { Button, Icon, Input} from 'react-native-elements'
+import { ThemeProvider, ThemeConsumer, Button, Icon, Input, Text, SearchBar} from 'react-native-elements'
 import { dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { responsiveFontSize } from '../utilities/functions'
+
+
+export const theme= {
+  Button: {
+    titleStyle: {
+      color: '#ccc',
+    },
+    icon: {
+      color: 'blue',
+      
+    }
+  },
+  Text: {
+    style: {
+      color: '#777'
+    }
+  },
+  Card: {
+    containerStyle: {
+      backgroundColor: '#eee',
+      borderRadius: 10,
+      padding: 10,
+      margin: 10,
+    },
+  },
+  ListItem: {
+    wrapperStyle: {
+      backgroundColor: 'blue',
+    },
+    topDivider: true,
+    bottomDivider: true,
+    chevron: true,
+  },
+}
+
+
+export class ListHeader extends React.Component {
+  constructor(props) {
+    super(props)
+  }
+  
+  _handleAddButtonPressed() {
+    this.props.onAddButtonPress()
+  }
+
+  _handleSearchBoxChanged(text) {
+    this.props.onSearch(text)
+  }
+
+  render() {
+    return (
+      <View style={{
+        flex: responsiveFontSize(.006),
+        paddingTop: responsiveFontSize(1), 
+        paddingLeft: responsiveFontSize(2),
+        paddingBottom: responsiveFontSize(1),
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        backgroundColor: '#ddd',
+      }}>
+        <Text style={{fontSize: responsiveFontSize(2.5)}}>
+          {this.props.title}
+        </Text>
+        {this.props.onSearch &&
+          <SearchBar 
+            containerStyle={{
+              marginBottom: 1,
+              paddingBottom: 10,
+              backgroundColor: 'orange'
+            }}
+            ref={search => this.search = search}
+            inputStyle={{fontSize: responsiveFontSize(1)}}
+            placeholder="search..."
+            lightTheme
+            round
+            clearIcon={{ name: "cancel" }}
+            onChangeText={(text) => this._handleSearchBoxChanged(text)}
+          />
+        }
+        {this.props.showAddButton && !this.props.loading &&
+          <TouchableHighlight
+            style={{marginRight: responsiveFontSize(2)}}
+            onPress={()=> this._handleAddButtonPressed()} 
+          >
+            <Icon name='add' size={responsiveFontSize(2.5)}/>
+          </TouchableHighlight>
+        }
+        {this.props.showAddButton && this.props.loading &&
+          <View style={{marginRight: responsiveFontSize(2)}}>
+            <ActivityIndicator
+              color="rgba(100, 100, 100, 1)"
+              size="small"        
+            />
+          </View>
+        }
+      </View>
+    )
+  }
+}
 
 export class FormView extends Component {
 	constructor(props, context) {

@@ -7,7 +7,7 @@ import Auth from '../components/Auth'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
-import { ListHeader } from '../components/ListHeader'
+import { ListHeader, } from '../components/FormComponents'
 import { AdMobRewarded, } from 'expo'
 import { convertItemToInputType } from '../utilities/functions'
 
@@ -47,7 +47,7 @@ class TournamentListScreen extends React.Component {
     this.setState({loading: true})
     this.props.createItemMutation(
       {
-        variables: { "userId": parentId }
+        variables: { "userId": parentId, "duration": undefined, title: undefined } // note: undefined is passed to allow the defaults in the GQL to be used.
       }
     ).then((result) => {
       Events.publish('RefreshTournamentList')
@@ -154,6 +154,7 @@ class TournamentListScreen extends React.Component {
                   >
                     <ListItem
                       title={item.title}
+                      titleStyle={item.timer.active ? styles.activeTitle : {}}
                       subtitle={item.subtitle}
                       subtitleStyle={{color: '#888'}}
                       containerStyle={{backgroundColor: '#ddd'}}
@@ -184,3 +185,11 @@ export default compose(
   graphql(currentUserQuery, { name: 'currentUserQuery' }),
   withApollo,
 )(TournamentListScreen)
+
+
+const styles = StyleSheet.create({
+  activeTitle: {
+    fontWeight: 'bold',
+    color: 'red',
+  },
+});

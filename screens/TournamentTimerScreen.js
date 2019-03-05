@@ -7,6 +7,7 @@ import { smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, s
 import { currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription, updateTournamentChildren} from '../constants/GQL'
 import { GraphCoolConfig } from '../config'
 import { BannerAd } from '../components/Ads'
+import Events from '../api/events'
 
 class TournamentTimerScreen extends React.Component {
 
@@ -222,6 +223,7 @@ class TournamentTimerScreen extends React.Component {
       console.log(error)
     } finally {
       this.setState({activity: null})
+      Events.publish("RefreshTournamentList")
       this._animate()
     }
   }
@@ -231,6 +233,7 @@ class TournamentTimerScreen extends React.Component {
     try {
       await this.props.updateTournamentTimerMutation({ variables: {
         id: tourney.timer.id,
+        active: tourney.timer.active,
         elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
       }})
       await this.props.updateTournamentChildrenMutation({variables: {

@@ -108,9 +108,9 @@ class TournamentEditScreen extends React.Component {
             <Card
               title={<View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
                 {userIsOwner && <Text style={{flex: 1}}></Text> }
-                <Text style={[styles.cardTitle, {flex: 6, textAlign: 'center'}]}>Tournament Timer</Text>
+                <Text style={[styles.cardTitle, {flex: 10}]}>Tournament Timer</Text>
                 {userIsOwner && 
-                  <Icon style={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToTimerEditorButtonPressed.bind(this, Tournament.timer)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToTimerEditorButtonPressed.bind(this, Tournament.timer)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
                 }
               </View> }
             >
@@ -123,7 +123,7 @@ class TournamentEditScreen extends React.Component {
                   />}
                   buttonStyle={{ flex: 1, borderRadius: 10, backgroundColor: '#080', paddingLeft: 10}}
                   title='Timer'
-                  titleStyle={{fontSize: 24, color: '#fff'}}
+                  titleStyle={{fontSize: 24}}
                   onPress={this._navigateToTimerButtonPressed.bind(this, Tournament.id)}
                 />
               </View>
@@ -132,9 +132,9 @@ class TournamentEditScreen extends React.Component {
             <Card
               title={<View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
                 {userIsOwner && <Text style={{flex: 1}}></Text> }
-                <Text style={[styles.cardTitle, {flex: 6, textAlign: 'center'}]}>Chip Denominations</Text>
+                <Text style={[styles.cardTitle, {flex: 10}]}>Chip Denominations</Text>
                 {userIsOwner && 
-                  <Icon style={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToChipList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToChipList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
                 }
               </View> }
             >
@@ -143,7 +143,7 @@ class TournamentEditScreen extends React.Component {
                   return (
                     <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
                       <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
-                      <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
+                      <Text style={styles.chipText}>{numberToSuffixedString(u.denom)}</Text>
                     </View>
                   )
                 })}
@@ -153,34 +153,34 @@ class TournamentEditScreen extends React.Component {
             <Card 
               title={<View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
                 {userIsOwner && <Text style={{flex: 1}}></Text> }
-                <Text style={[styles.cardTitle, {flex: 6, textAlign: 'center'}]}>{Tournament.title}</Text>
+                <Text style={[styles.cardTitle, {flex: 10}]}>{Tournament.title}</Text>
                 {userIsOwner && 
-                  <Icon style={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToGeneralInfoEdit.bind(this, Tournament)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToGeneralInfoEdit.bind(this, Tournament)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
                 }
               </View> }
             >
               <View style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={[styles.title, {}]}>{Tournament.subtitle ? Tournament.subtitle.toString() + "\n" : ""}</Text>
-                <Text style={[styles.title, {}]}>{dictionaryLookup(Tournament.game.toString(), "GameOptions", "long") + "\n"}</Text>
-                <Text style={[styles.title, {}]}>{Tournament.comments ? Tournament.comments.toString() : ''}</Text>
+                <Text style={styles.title}>{Tournament.subtitle ? Tournament.subtitle.toString() + "\n" : ""}</Text>
+                <Text style={styles.title}>{dictionaryLookup(Tournament.game.toString(), "GameOptions", "long") + "\n"}</Text>
+                <Text style={styles.title}>{Tournament.comments ? Tournament.comments.toString() : ''}</Text>
               </View>
             </Card>
 
             <Card
               title={<View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
                 {userIsOwner && <Text style={{flex: 1}}></Text> }
-                <Text style={[styles.cardTitle, {flex: 6, textAlign: 'center'}]}>Buy Ins</Text>
+                <Text style={[styles.cardTitle, {flex: 10}]}>Buy Ins</Text>
                 {userIsOwner && 
-                  <Icon style={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToBuyList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToBuyList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
                 }
               </View> }
             >
-              <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={[styles.title, {flex: 3}]}>
+              <View key={i} style={{flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
+                <Text style={styles.title} containerStyle={{flex: 3}}>
                   {(totalCost).toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true})}
                 </Text>
-                <Text style={[styles.title, {flex: 3}]}>
-                  {(totalChipStack).toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true})}
+                <Text style={styles.title} containerStyle={{flex: 3}}>
+                  {(totalChipStack).toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true})} Chips
                 </Text>
               </View>
             </Card>
@@ -188,9 +188,11 @@ class TournamentEditScreen extends React.Component {
             <Card
               title={<View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
                 {userIsOwner && <Text style={{flex: 1}}></Text> }
-                <Text style={[styles.cardTitle, {flex: 6, textAlign: 'center'}]}>Payout Setup</Text>
+                <Text style={[styles.cardTitle, {flex: 10}]} >
+                  Payout Setup
+                </Text>
                 {userIsOwner && 
-                  <Icon style={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToPayoutLevelList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToPayoutLevelList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
                 }
               </View> }
             >
@@ -199,7 +201,7 @@ class TournamentEditScreen extends React.Component {
                   payoutLevels.map((u, i) => {
                     return (
                       <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={{}}>
+                        <Text style={styles.title}>
                           {u.levelNumber}
                         </Text>
                       </View>
@@ -212,46 +214,43 @@ class TournamentEditScreen extends React.Component {
             <Card
               title={<View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
                 {userIsOwner && <Text style={{flex: 1}}></Text> }
-                <Text style={[styles.cardTitle, {flex: 6, textAlign: 'center'}]}>Entry Fees</Text>
+                <Text style={[styles.cardTitle, {flex: 10}]}>Entry Fees</Text>
                 {userIsOwner && 
-                  <Icon style={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToCostList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToCostList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
                 }
               </View> }
             >
-              <View style={{flexDirection: 'column', justifyContent: 'space-around', paddingTop: 3, paddingBottom: 3}}>
                 {
                   fees.map((u, i) => {
                     return (
-                      <View key={i} style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                        <Text style={[styles.title, {flex: 3}]}>
+                      <View key={i} style={{flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
+                        <Text style={styles.title} containerStyle={{flex: 3}}>
                           {u.price && u.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}) + "\n" + 
                           (dictionaryLookup(u.costType.toString(), "EntryFeeOptions", "long") || "")}
                         </Text>
-                        <Icon style={[{flex: 1}]} name="arrow-right" type="font-awesome"/> 
-                        <Text style={[styles.title, {flex: 3}]}>
-                          {u.chipStack && u.chipStack.toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true}) + " Tournament Chips."}
+                        <Text style={styles.title} containerStyle={{flex: 3}}>
+                          {u.chipStack && u.chipStack.toLocaleString(undefined, {style: 'decimal', maximumFractionDigits: 0, useGrouping: true}) + "\nChips"}
                         </Text>
                       </View>
                     )
                   })
                 }
-              </View>
             </Card>
 
             <Card
               title={<View style={{flexDirection: 'row', flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
                 {userIsOwner && <Text style={{flex: 1}}></Text> }
-                <Text style={[styles.cardTitle, {flex: 6, textAlign: 'center'}]}>Blinds Schedule</Text>
+                <Text style={[styles.cardTitle, {flex: 10}]}>Blinds Schedule</Text>
                 {userIsOwner && 
-                  <Icon style={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToSegmentList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(2)}/>
+                  <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={this._navigateToSegmentList.bind(this, Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
                 }
               </View> }
             >
               <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <Text style={[styles.title, {flex: 2, textDecorationLine: 'underline'}]}>Minutes</Text>
-                <Text style={[styles.title, {flex: 2, textDecorationLine: 'underline'}]}>Small Blind</Text>
-                <Text style={[styles.title, {flex: 2, textDecorationLine: 'underline'}]}>Big Blind</Text>
-                <Text style={[styles.title, {flex: 1, textDecorationLine: 'underline'}]}>Ante</Text>
+                <Text style={styles.blindsHeader}>Minutes</Text>
+                <Text style={styles.blindsHeader}>Small Blind</Text>
+                <Text style={styles.blindsHeader}>Big Blind</Text>
+                <Text style={styles.blindsHeader}>Ante</Text>
               </View>
               <View style={{flexDirection: 'column', justifyContent: 'space-around', paddingTop: 3, paddingBottom: 3}}>              
                 {
@@ -259,10 +258,10 @@ class TournamentEditScreen extends React.Component {
                     return (
                       <View key={i} style={{flexDirection: 'column'}}>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                          <Text style={[styles.title, {flex: 2}]}>{u.duration.toString()}</Text>
-                          <Text style={[styles.title, {flex: 2}]}>{u.sBlind ? numberToSuffixedString(u.sBlind) : ''}</Text>
-                          <Text style={[styles.title, {flex: 2}]}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
-                          <Text style={[styles.title, {flex: 1}]}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
+                          <Text style={styles.blinds}>{u.duration ? u.duration.toString() : ''}</Text>
+                          <Text style={styles.blinds}>{u.sBlind ? numberToSuffixedString(u.sBlind) : ''}</Text>
+                          <Text style={styles.blinds}>{u.bBlind ? numberToSuffixedString(u.bBlind) : ''}</Text>
+                          <Text style={styles.blinds}>{u.ante ? numberToSuffixedString(u.ante) : ''}</Text>
                         </View>
                         { smallestChipReq.map((s, si) => {
                           if (s.segment === i && i < segments.length -1 ) {
@@ -295,7 +294,9 @@ export default compose(
 const styles = StyleSheet.create({
   cardTitle: {
     fontSize: responsiveFontSize(2.25),
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: '#777',
+    textAlign: 'center'
   },
   title: {
     fontSize: responsiveFontSize(2),
@@ -305,5 +306,16 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: responsiveFontSize(3),
+  },
+  blindsHeader: {
+    fontSize: responsiveFontSize(2),
+    textAlign: 'center',
+    flex: 2,
+    textDecorationLine: 'underline',
+  },
+  blinds: {
+    fontSize: responsiveFontSize(2),
+    textAlign: 'center',
+    flex: 2,
   },
 });

@@ -70,13 +70,21 @@ export const addCreditsMutation = gql`
 
 export const currentUserTournamentsQuery = gql`
   query currentUserTournaments {
-    user {
+    user 
+    {
       id
       name
-      tournaments {
+      tournaments
+      {
         id
         title
         subtitle
+        updatedAt
+        childrenUpdatedAt
+        timer {
+          id
+          active
+        }
       }
     }
   }
@@ -260,7 +268,6 @@ export const createTournamentMutation = gql`
           bBlind:40
           duration:$duration
         }      
-
         {
           sBlind:25
           bBlind:50

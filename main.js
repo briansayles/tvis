@@ -1,6 +1,8 @@
 import { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, registerRootComponent} from 'expo'
 import React from 'react'
 import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
+import { ThemeProvider, } from 'react-native-elements'
+import { theme } from './components/FormComponents'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { createHttpLink, HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
@@ -148,7 +150,9 @@ class AppContainer extends React.Component {
     if (this.state.appIsReady) {
       return (
         <ApolloProvider client={client}>
-          <Tabs onNavigationStateChange={null} />
+          <ThemeProvider theme={theme}>
+            <Tabs onNavigationStateChange={null} />
+          </ThemeProvider>
         </ApolloProvider>
       )
     } else {
