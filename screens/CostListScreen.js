@@ -14,7 +14,6 @@ class CostListScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      user: null,
       refreshing: false,
       loading: false,
     }
@@ -24,27 +23,21 @@ class CostListScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshCostList', () => this._refresh())
-  }
-
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
+    this.refreshEventSubscription = Events.subscribe('RefreshCostList', () => this._onRefresh())
   }
 
   componentWillUnmount () {
-    this.refreshEvent.remove()
+    this.refreshEventSubscription.remove()
   }
 
-  _refresh() {
-    this.props.getData.refetch().then(() => this.setState({loading: false}))
+  _onRefresh = async () => {
+    console.log('_onRefresh CostListScreen')
+    await this.props.getData.refetch()
   }
 
-  _addButtonPressed() {
+  _addButtonPressed = async () => {
     this.setState({loading: true})
-    this.props.createItem(
+    result = await this.props.createItem(
       {
         variables:
         {
@@ -54,11 +47,11 @@ class CostListScreen extends React.Component {
           "chipStack": 1000,
         }
       }
-    ).then((result) => {
-      Events.publish('RefreshCostList')
-      console.log(result.data)
-      this._editButtonPressed(result.data.createCost.id)
-    })
+    )
+    Events.publish('RefreshCostList')
+    this.setState({loading: false})
+    console.log('passing cost: ' + JSON.stringify(result.data.createCost))
+    this._editButtonPressed(result.data.createCost)
   }
 
   _editButtonPressed(cost) {
@@ -73,32 +66,28 @@ class CostListScreen extends React.Component {
     this.setState({loading: true})
     this.props.deleteItem({variables: {id: id} }).then(
       () => Events.publish('RefreshCostList')
-    )
-  }
-
-  _addAnonymousBuyPressed(id) {
-    this.props.createCostBuyMutation({variables: {costId: id}}).then(
-      () => Events.publish('RefreshCostList')
-    )
+    ).then(()=>this.setState({loading: false}))
   }
 
   _search(searchText) {
   }
 
   render() {
-    const { getData: { loading, error, allCosts } } = this.props
-    if (loading) {
+    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
+    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
+    if (loadingData || loadingUser || !Tournament || !user) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
+    } else if (errorData || errorUser) {
       return <Text>Error!</Text>
     } else {
-      const userIsOwner = this.state.user && allCosts.length > 0 && this.state.user.id === allCosts[0].tournament.user.id
-      const list = sortEntryFees(allCosts)
+      const userIsOwner = user.id === Tournament.user.id
+      const parent = Tournament
+      const list = sortEntryFees(parent.costs)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ListHeader 
             title="Entry Fee(s)" 
-            showAddButton={this.state.user} 
+            showAddButton={userIsOwner} 
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed.bind(this)}
             // onSearch={this._search}
@@ -108,7 +97,7 @@ class CostListScreen extends React.Component {
             refreshControl={
               <RefreshControl
                 refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
+                onRefresh={this._onRefresh.bind(this)}
               />
             }
           >
@@ -152,8 +141,6 @@ class CostListScreen extends React.Component {
 export default compose(
   graphql(createTournamentCostMutation, {name: 'createItem'}),
   graphql(deleteCostMutation, { name: 'deleteItem' }),
-  graphql(tournamentCosts, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(createCostBuyMutation, {name: 'createCostBuyMutation', }),
-  graphql(deleteBuyMutation, {name: 'deleteBuyMutation', }),
+  graphql(getTournamentCostsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
 )(CostListScreen)

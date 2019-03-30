@@ -72,13 +72,14 @@ class PayoutLevelListScreen extends React.Component {
   }
 
   render() {
-    const { getData: { loading, error, Tournament } } = this.props
-    if (loading) {
+    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
+    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
+    if (loadingData || loadingUser) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
+    } else if (errorData || errorUser) {
       return <Text>Error!</Text>
     } else {
-      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
+      const userIsOwner = user.id === Tournament.user.id
       const parent = Tournament
       const rawList = Tournament.payoutLevels
       const list = []
@@ -93,7 +94,7 @@ class PayoutLevelListScreen extends React.Component {
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ListHeader 
             title="Payout Levels" 
-            showAddButton={this.state.user} 
+            showAddButton={userIsOwner} 
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
             // onSearch={this._search}

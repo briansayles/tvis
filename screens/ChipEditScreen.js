@@ -1,8 +1,6 @@
-import {graphql, compose} from 'react-apollo'
-import gql from 'graphql-tag'
+import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import { List, ListItem, } from 'react-native-elements';
 import { getChipQuery, updateChipMutation} from '../constants/GQL'
 import Events from '../api/events'
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
@@ -43,10 +41,11 @@ class ChipEditScreen extends React.Component {
   render() {
    	return (
       <FormView contentContainerStyle={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-
+        <Text>{this.props.navigation.getParam('chip').id || "NO ID AVAILABLE"}</Text>
         <MyInput
           title="Denomination"
           value={(this.state.formValues.denom || 0).toString()}
+          placeholder="Enter denomination here..."
           onChangeText={(text) => this.handleInputChange('denom', parseInt(text))}
           keyboardType="numeric"
         />

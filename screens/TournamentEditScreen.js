@@ -13,7 +13,6 @@ class TournamentEditScreen extends React.Component {
     super(props)
     this.state = {
       refreshing: false,
-      user: null,
     }
   }
 
@@ -21,17 +20,25 @@ class TournamentEditScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.setState({user: this.props.currentUserQuery.user})
     this.refreshEventSubscription = Events.subscribe('RefreshEditor', () => this._onRefresh())
   }
- 
+
+  componentWillReceiveProps = async (nextProps) => {
+    nextProps.getTournamentQuery.refetch()
+    nextProps.currentUserQuery.refetch()
+  }
+
   componentWillUnmount () {
     this.refreshEventSubscription.remove()
   }
 
   _onRefresh = async () => {
+    console.log('refreshing TournamentEditScreen')
     this.setState({refreshing: true})
     await this.props.getTournamentQuery.refetch()
+    console.log(JSON.stringify(this.props.getTournamentQuery.Tournament))
+    await this.props.currentUserQuery.refetch()
+    console.log(JSON.stringify(this.props.currentUserQuery.user))
     this.setState({refreshing: false})
   }
 
@@ -71,19 +78,22 @@ class TournamentEditScreen extends React.Component {
     this.props.navigation.navigate('BuyList', {id: id})
   }
 
+
+
   _navigateToPayoutLevelList(id) {
     this.props.navigation.navigate('PayoutSetup', {id: id})
   }
 
   render() {
-    const { getTournamentQuery: { loading, error, Tournament } } = this.props
+    const { getTournamentQuery: { loading: loadingData, error: errorData, Tournament } } = this.props
+    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
     const editButtonColor = dictionaryLookup("editButtonColor")
-    if (loading) {
+    if (loadingData || loadingUser || !Tournament || !user) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
+    } else if (errorData || errorUser) {
       return <Text>Error!</Text>
     } else {
-      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
+      const userIsOwner = user.id === Tournament.user.id
       const segments = sortSegments(Tournament.segments)
       const chips = sortChips(Tournament.chips)
       const smallestChipReq = smallestChipArray(chips, segments)

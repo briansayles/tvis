@@ -41,7 +41,6 @@ class SegmentEditScreen extends React.Component {
   render() {
    	return (
       <FormView contentContainerStyle={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-
         <MyInput
           title="Small Blind"
           value={(this.state.formValues.sBlind || "").toString()}
@@ -59,7 +58,7 @@ class SegmentEditScreen extends React.Component {
           onFocus={(currentText = '') => {
             this.setState(({formValues}) => ({formValues: {
               ...formValues,
-              bBlind: parseInt(this.state.formValues.sBlind) * 2,
+              bBlind: this.state.formValues.bBlind || parseInt(this.state.formValues.sBlind) * 2,
             }}))
           }}
         />
@@ -89,7 +88,7 @@ class SegmentEditScreen extends React.Component {
           mutation={this.props.updateSegmentMutation}
           id={this.props.navigation.getParam('segment').id}
           variables={this.state.formValues}
-          events={["RefreshSegmentList", "RefreshEditor", "SegmentEditSubmitted"]}
+          events={["RefreshSegmentList", "SegmentEditSubmitted"]}
           disabled={!this._isDirty()}
         />
        </FormView>
