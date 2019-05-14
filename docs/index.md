@@ -1,6 +1,4 @@
-# TourneyVision
-
-## About
+# About
 
 TourneyVision is a poker tournament management app that you can use to organize and run
 your own home poker tournaments. It helps you to:
@@ -18,16 +16,16 @@ your own home poker tournaments. It helps you to:
 * Keep track of tables and player seating (FUTURE)
 * Have seats assigned randomly at the start of a tournament or when combining tables (FUTURE)
  
-## License
+# License
 
 No license. Copyright **Brian Sayles** [Brian Sayles](https://github.com/briansayles)
 
-## Built With
+# Built With
 
 * Expo
 * ReactNative
 * React
 
-## Acknowledgments
+# Acknowledgments
 
 * Many packages were used in the development of this project. They'll be listed here (eventually)
