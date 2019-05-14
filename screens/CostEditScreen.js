@@ -17,7 +17,7 @@ class CostEditScreen extends React.Component {
 
   async componentDidMount() {
     const {price, chipStack, costType} = this.props.navigation.getParam('cost')
-    await this.setState({formValues: {price, chipStack, costType}})
+    this.setState({formValues: {price, chipStack, costType}})
     this.submitButtonPressedEvent = Events.subscribe("CostEditSubmitted", () => this.props.navigation.goBack())
   }
 
@@ -41,7 +41,7 @@ class CostEditScreen extends React.Component {
   render() {
    	return (
       <FormView contentContainerStyle={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-      
+        <Text>{this.props.navigation.getParam('cost').id || "NO ID AVAILABLE"}</Text>
         <MyInput
           title="Price"
           value={(this.state.formValues.price || "").toString()}
@@ -75,7 +75,7 @@ class CostEditScreen extends React.Component {
           mutation={this.props.updateCostMutation}
           id={this.props.navigation.getParam('cost').id}
           variables={this.state.formValues}
-          events={["RefreshCosttList", "RefreshEditor", "CostEditSubmitted"]}
+          events={["RefreshCostList", "CostEditSubmitted"]}
           disabled={!this._isDirty()}
         />
       </FormView>

@@ -14,7 +14,7 @@ class ChipListScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      user: null,
+      // user: null,
       refreshing: false,
       loading: false,
     }
@@ -24,7 +24,6 @@ class ChipListScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.setState({user: this.props.currentUserQuery.user})
     this.refreshEventSubscription = Events.subscribe('RefreshChipList', () => this._onRefresh())
   }
 
@@ -50,7 +49,8 @@ class ChipListScreen extends React.Component {
     )
     Events.publish('RefreshChipList')
     this.setState({loading: false})
-    this._editButtonPressed(result.data.createChip.id) 
+    console.log('passing chip: ' + JSON.stringify(result.data.createChip))
+    this._editButtonPressed(result.data.createChip)
   }
 
   _editButtonPressed(chip) {
@@ -72,20 +72,21 @@ class ChipListScreen extends React.Component {
   }
 
   render() {
-    const { getData: { loading, error, Tournament } } = this.props
-    if (loading) {
+    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
+    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
+    if (loadingData || loadingUser) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
+    } else if (errorData || errorUser) {
       return <Text>Error!</Text>
     } else {
-      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
+      const userIsOwner = user.id === Tournament.user.id
       const parent = Tournament
       const list = sortChips(parent.chips)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ListHeader 
             title="Chips" 
-            showAddButton={true}
+            showAddButton={userIsOwner}
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed}
             // onSearch={this._search}

@@ -572,9 +572,6 @@ export const getTournamentCostsQuery = gql`
     Tournament(id: $id)
     {
       id
-      title
-      comments
-      game
       user { id }
       costs (orderBy: chipStack_DESC) {
         id
@@ -620,6 +617,9 @@ export const getCostQuery = gql`
       price
       chipStack
       costType
+      _buysMeta {
+        count
+      }
       tournament {
         id
       }

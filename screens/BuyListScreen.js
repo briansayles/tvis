@@ -16,10 +16,7 @@ class BuyListScreen extends React.Component {
     super(props)
     this.state = {
       user: null,
-      // refreshing: false,
       loading: false,
-      // busy: false,
-      // costs: {},
     }
   }
 
@@ -31,63 +28,31 @@ class BuyListScreen extends React.Component {
     this.refreshEventSubscription = Events.subscribe('RefreshCostList', () => this._onRefresh())
   }
 
+  componentWillReceiveProps = async (nextProps) => {
+    nextProps.getData.refetch()
+    nextProps.currentUserQuery.refetch()
+  }
+
   componentWillUnmount () {
     this.refreshEventSubscription.remove()
   }
 
   _onRefresh = async () => {
-  //   this.setState({refreshing: true})
     await this.props.getData.refetch()
-  //   this.setState({refreshing: false})
   }
-
-  // componentWillReceiveProps(nextProps) {
-    // if (nextProps.currentUserQuery) {
-    //   this.setState({user: nextProps.currentUserQuery.user || null})
-    // }
-    // if (!nextProps.getData.loading) {
-    //   for (var i = 0, len = nextProps.getData.Tournament.costs.length; i < len; i++) {
-    //     var total = totalItems(nextProps.getData.Tournament.costs[i])
-    //   }
-    // }
-  // }
-
-  // async _addButtonPressed(costItem) {
-  //   this.setState({busy: true})
-  //   await this.props.createItem(
-  //     {
-  //       variables:
-  //       {
-  //         "costId": costItem.id
-  //       }
-  //     }
-  //   )
-  //   await Events.publish('RefreshCostList')
-  //   this.setState({busy: false})
-  // }
-
-  // _editButtonPressed(id) {
-  //   this.props.navigation.navigate('CostEdit', {id: id})
-  // }
-
-  // async _deleteButtonPressed(id) {
-  //   this.setState({loading: true})
-  //   await this.props.deleteItem({variables: {id: id} })
-  //   await Events.publish('RefreshCostList')
-  //   this.setState({loading: false})
-  // }
 
   _search(searchText) {
   }
 
   render() {
-    const { getData: { loading, error, Tournament } } = this.props
-    if (loading) {
+    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
+    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
+    if (loadingData || loadingUser) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
+    } else if (errorData || errorUser) {
       return <Text>Error!</Text>
     } else {
-      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
+      const userIsOwner = user.id === Tournament.user.id
       const list = sortEntryFees(Tournament.costs)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>

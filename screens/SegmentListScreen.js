@@ -14,7 +14,7 @@ class SegmentListScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      user: null,
+      // user: null,
       refreshing: false,
       loading: false,
     }
@@ -27,11 +27,11 @@ class SegmentListScreen extends React.Component {
     this.refreshEvent = Events.subscribe('RefreshSegmentList', () => this._refresh())
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.currentUserQuery) {
+  //     this.setState({user: nextProps.currentUserQuery.user || null})
+  //   }
+  // }
   
   componentDidUpdate(prevProps) {
   }
@@ -58,7 +58,7 @@ class SegmentListScreen extends React.Component {
       }
     ).then((result) => {
       Events.publish('RefreshSegmentList')
-      this._editButtonPressed(result.data.createSegment.id)
+      this._editButtonPressed(result.data.createSegment)
     }
     )
   }
@@ -78,20 +78,21 @@ class SegmentListScreen extends React.Component {
   }
 
   render() {
-    const { getData: { loading, error, Tournament } } = this.props
-    if (loading) {
+    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
+    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
+    if (loadingData || loadingUser) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
+    } else if (errorData || errorUser) {
       return <Text>Error!</Text>
     } else {
-      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
+      const userIsOwner = user.id === Tournament.user.id
       const parent = Tournament
       const list = sortSegments(parent.segments)
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
           <ListHeader 
             title="Blinds" 
-            showAddButton={this.state.user} 
+            showAddButton={userIsOwner} 
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
             // onSearch={this._search}
