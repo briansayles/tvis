@@ -1,4 +1,4 @@
-# About
+# TourneyVision
 
 TourneyVision is a poker tournament management app that you can use to organize and run
 your own home poker tournaments. It helps you to:
