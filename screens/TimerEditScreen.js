@@ -17,8 +17,8 @@ class TimerEditScreen extends React.Component {
   }
 
   async componentDidMount() {
-    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = this.props.navigation.getParam('timer')
-    this.setState({formValues: {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor}})
+    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor, elapsed, active} = this.props.navigation.getParam('timer')
+    this.setState({formValues: {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor, elapsed, active}})
     this.submitButtonPressedEvent = Events.subscribe("TimerEditSubmitted", () => this.props.navigation.goBack())
   }
 

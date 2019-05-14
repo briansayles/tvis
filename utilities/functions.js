@@ -128,7 +128,7 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	const ms = duration - totalElapsedMS
 	if (currentSegmentIndex > this.state.csi && currentSegmentIndex > 0 && this.state.csi != null && this.state.timerActive) {
 		endOfRoundFunction()
-	} else if (ms < noticeMilliseconds && this.state.ms >= noticeMilliseconds && this.state.timerActive) {
+	} else if (ms < noticeMilliseconds && this.state.ms >= noticeMilliseconds && this.state.timerActive && ms > noticeMilliseconds - 1000) {
 		noticeFunction()
 	}
 

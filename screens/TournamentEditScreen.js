@@ -33,12 +33,9 @@ class TournamentEditScreen extends React.Component {
   }
 
   _onRefresh = async () => {
-    console.log('refreshing TournamentEditScreen')
     this.setState({refreshing: true})
     await this.props.getTournamentQuery.refetch()
-    console.log(JSON.stringify(this.props.getTournamentQuery.Tournament))
     await this.props.currentUserQuery.refetch()
-    console.log(JSON.stringify(this.props.currentUserQuery.user))
     this.setState({refreshing: false})
   }
 

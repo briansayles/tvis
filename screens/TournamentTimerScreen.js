@@ -136,16 +136,6 @@ class TournamentTimerScreen extends React.Component {
         },
       )
     }, 100)
-    // this.updateTournamentSubscription = this.props.getTournamentQuery.subscribeToMore({
-    //   document: tournamentSubscription,
-    //   updateQuery: (previous, {subscriptionData}) => {
-    //     this.props.getTournamentQuery.refetch()
-    //     return
-    //   },
-    //   onError: (err) => {
-    //     console.error(err)
-    //   },
-    // })
     this._animate()
   }
 
@@ -173,7 +163,6 @@ class TournamentTimerScreen extends React.Component {
     Dimensions.removeEventListener('change', this._handleOrientationChange)
     clearTimeout(this.recheckServerTime)
     clearInterval(this.clockInterval)
-    // clearInterval(this.interstitialInterval)
   }
 
   _animate() {
@@ -204,12 +193,18 @@ class TournamentTimerScreen extends React.Component {
   }
 
   async _toggleTimerButtonPressed(tourney) {
+    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
     this.setState({activity: 'toggling'})
     try {
       await this.props.updateTournamentTimerMutation({ variables: {
           id: tourney.timer.id,
           active: !(tourney.timer.active),
-          elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
+          elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
+          oneMinuteRemainingSpeech,
+          playOneMinuteRemainingSound,
+          endOfRoundSpeech,
+          playEndOfRoundSound,
+          backgroundColor,
           } 
         }
       )
@@ -229,12 +224,18 @@ class TournamentTimerScreen extends React.Component {
   }
 
   async _fwdButtonPressed(tourney) {
+    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
     this.setState({activity: 'advancing'})
     try {
       await this.props.updateTournamentTimerMutation({ variables: {
         id: tourney.timer.id,
         active: tourney.timer.active,
-        elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0)
+        elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
+        oneMinuteRemainingSpeech,
+        playOneMinuteRemainingSound,
+        endOfRoundSpeech,
+        playEndOfRoundSound,
+        backgroundColor,
       }})
       await this.props.updateTournamentChildrenMutation({variables: {
         now: new Date(),
@@ -251,12 +252,18 @@ class TournamentTimerScreen extends React.Component {
 
 
   async _resetTimerButtonPressed(tourney) {
+    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
     this.setState({activity: 'resetting'})
     try {
       await this.props.updateTournamentTimerMutation({ variables: {
         id: tourney.timer.id,
         active: false,
-        elapsed: 0
+        elapsed: 0,
+        oneMinuteRemainingSpeech,
+        playOneMinuteRemainingSound,
+        endOfRoundSpeech,
+        playEndOfRoundSound,
+        backgroundColor,
         } 
       })
       await this.props.updateTournamentChildrenMutation({variables: {
