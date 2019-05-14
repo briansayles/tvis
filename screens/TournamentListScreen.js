@@ -99,11 +99,11 @@ class TournamentListScreen extends React.Component {
   }
 
   render() {
-    const { getData: { loading, error, user } } = this.props
-    if (loading) {
+    const { getData: { loading: loadingData, error: errorData, user } } = this.props
+    if (loadingData) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
-      return (<Text>{error.message}</Text>)
+    } else if (errorData) {
+      return <Text>Error!</Text>
     } else if (!user) {
       return (<Auth/>)
     } else {

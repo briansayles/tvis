@@ -126,8 +126,12 @@ export function tick(endOfRoundFunction, noticeSeconds, noticeFunction) {
 	}
 	const duration = cumulativeMS + segments[currentSegmentIndex].duration * msPerMinute
 	const ms = duration - totalElapsedMS
-	if (ms < noticeMilliseconds && this.state.ms >= noticeMilliseconds && this.state.timerActive) {noticeFunction()}
-	if (currentSegmentIndex > this.state.csi && currentSegmentIndex > 0 && this.state.csi != null && this.state.timerActive) {endOfRoundFunction()}
+	if (currentSegmentIndex > this.state.csi && currentSegmentIndex > 0 && this.state.csi != null && this.state.timerActive) {
+		endOfRoundFunction()
+	} else if (ms < noticeMilliseconds && this.state.ms >= noticeMilliseconds && this.state.timerActive) {
+		noticeFunction()
+	}
+
 	this.setState ({
 	  time: time,
 	  ms: ms,
