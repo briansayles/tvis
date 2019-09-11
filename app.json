@@ -4,14 +4,14 @@
     "description": "TourneyVision",
     "slug": "tvis",
     "privacy": "unlisted",
-    "sdkVersion": "32.0.0",
+    "sdkVersion": "34.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
     "icon": "./assets/icons/app-icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "cover",
+      "resizeMode": "contain",
       "backgroundColor": "#5b9f33"
     },
     "notification": {

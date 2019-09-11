@@ -1,8 +1,11 @@
 import React from 'react'
-import {createBottomTabNavigator, createStackNavigator} from 'react-navigation'
-import {Icon} from 'react-native-elements'
-
+import { createAppContainer } from 'react-navigation'
+import { createBottomTabNavigator } from 'react-navigation-tabs'
+import { createStackNavigator } from 'react-navigation-stack'
+import { Icon } from 'react-native-elements'
+import { Ionicons } from '@expo/vector-icons'
 import Auth from '../components/Auth'
+import { responsiveFontSize } from '../utilities/functions'
 
 import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
@@ -21,82 +24,82 @@ import ProfileScreen from '../screens/ProfileScreen'
 import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
 import TimerEditScreen from '../screens/TimerEditScreen'
 
-export const TournamentsStack = createStackNavigator({
+const TournamentsStack = createStackNavigator({
 	TournamentList: {
 		screen: TournamentListScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	Details: {
 		screen: TournamentTimerScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 
 		}
 	},
 	Edit: {
 		screen: TournamentEditScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Tourney Dashboard',
 		}
 	},
 	TimerEdit: {
 		screen: TimerEditScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Timer Editor'
 		}
 	},
 	SegmentList: {
 		screen: SegmentListScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	SegmentEdit: {
 		screen: SegmentEditScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Segment Editor',
 		}
 	},
 	ChipList: {
 		screen: ChipListScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	ChipEdit: {
 		screen: ChipEditScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Chip Editor',
 		}
 	},
 	GeneralInfoEdit: {
 		screen: GeneralInfoEditScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'General Info',
 		}
 	},
 	CostList: {
 		screen: CostListScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	CostEdit: {
 		screen: CostEditScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Entry Fee Editor',
 		}
 	},
 	BuyList: {
 		screen: BuyListScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Buyins'
 		}
 	},
 	PayoutSetup: {
 		screen: PayoutLevelListScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Payout Setup'
 		}
 	},
@@ -104,60 +107,62 @@ export const TournamentsStack = createStackNavigator({
 {
   	mode: 'modal',
   	headerMode: 'screen',
-  	navigationOptions: {
+  	defaultNavigationOptions: {
 	}
 })
 
-export const ProfileStack = createStackNavigator({
+const ProfileStack = createStackNavigator({
 	Profile: {
 		screen: ProfileScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Profile'
 		}
 	}
 })
 
-export const ContactsStack = createStackNavigator({
+const ContactsStack = createStackNavigator({
 	Contacts: {
 		screen: ContactListScreen,
-		navigationOptions: {
+		defaultNavigationOptions: {
 			title: 'Contacts'
 		}
 	}
 })
 
-export const Tabs = createBottomTabNavigator({
+const TabNavigator = createBottomTabNavigator({
 	Home: {
 		screen: HomeScreen,
 		navigationOptions: {
 			title: 'Home',
 			tabBarLabel: 'Home',
-			tabBarIcon: ({tintColor}) => <Icon name="home" size={35} color={tintColor}/>,
+			tabBarIcon: ({tintColor}) => <Ionicons name="ios-home" size={responsiveFontSize(2.5)} color={tintColor}/>,
 		}
 	},
 	Tournaments: {
 		screen: TournamentsStack,
 		navigationOptions: {
 			tabBarLabel: 'Tournaments',
-			tabBarIcon: ({tintColor}) => <Icon name="list" size={35} color={tintColor}/>,
+			tabBarIcon: ({tintColor}) => <Ionicons name="ios-list" size={responsiveFontSize(2.5)} color={tintColor}/>,
 		}
 	},
 	Contacts: {
 		screen: ContactsStack,
 		navigationOptions: {
 			tabBarLabel: 'Contacts',
-			tabBarIcon: ({tintColor}) => <Icon name="group" size={35} color={tintColor}/>,
+			tabBarIcon: ({tintColor}) => <Ionicons name="ios-contacts" size={responsiveFontSize(2.5)} color={tintColor}/>,
 		}
 	},
 	Profile: {
 		screen: ProfileStack,
 		navigationOptions: {
 			tabBarLabel: 'Me',
-			tabBarIcon: ({tintColor}) => <Icon name="account-circle" size={35} color={tintColor}/>,
+			tabBarIcon: ({tintColor}) => <Ionicons name="ios-settings" size={responsiveFontSize(2.5)} color={tintColor}/>,
 		}
 	}
 },
 {
-	initialRouteName: 'Tournaments',
+	initialRouteName: 'Home',
 }
 )
+
+export default createAppContainer(TabNavigator)

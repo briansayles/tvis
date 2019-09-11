@@ -7,7 +7,7 @@ import { dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { responsiveFontSize } from '../utilities/functions'
-
+import {Ionicons, MaterialIcons} from '@expo/vector-icons'
 
 export const theme= {
   Button: {
@@ -71,28 +71,13 @@ export class ListHeader extends React.Component {
         <Text style={{fontSize: responsiveFontSize(2.5)}}>
           {this.props.title}
         </Text>
-        {this.props.onSearch &&
-          <SearchBar 
-            containerStyle={{
-              marginBottom: 1,
-              paddingBottom: 10,
-              backgroundColor: 'orange'
-            }}
-            ref={search => this.search = search}
-            inputStyle={{fontSize: responsiveFontSize(1)}}
-            placeholder="search..."
-            lightTheme
-            round
-            clearIcon={{ name: "cancel" }}
-            onChangeText={(text) => this._handleSearchBoxChanged(text)}
-          />
-        }
+
         {this.props.showAddButton && !this.props.loading &&
           <TouchableHighlight
             style={{marginRight: responsiveFontSize(2)}}
             onPress={()=> this._handleAddButtonPressed()} 
           >
-            <Icon name='add' size={responsiveFontSize(2.5)}/>
+            <Ionicons name='ios-add' size={responsiveFontSize(2)}/>
           </TouchableHighlight>
         }
         {this.props.showAddButton && this.props.loading &&

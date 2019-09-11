@@ -1,13 +1,13 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
 import { ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
 import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
 import { sortChips, numberToSuffixedString, dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
-import { ListHeader } from '../components/ListHeader'
+import { ListHeader } from '../components/FormComponents'
 
 class ChipListScreen extends React.Component {
 

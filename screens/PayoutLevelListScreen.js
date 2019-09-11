@@ -8,7 +8,7 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { AddButton, RemoveButton, } from '../components/FormComponents'
 import { BannerAd } from '../components/Ads'
-import { ListHeader } from '../components/ListHeader'
+import { ListHeader } from '../components/FormComponents'
 
 class PayoutLevelListScreen extends React.Component {
   constructor(props) {

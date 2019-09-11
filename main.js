@@ -1,9 +1,12 @@
-import { Audio, Notifications, AdMobRewarded, AdMobInterstitial, AppLoading, registerRootComponent} from 'expo'
+import { Notifications, AppLoading, registerRootComponent} from 'expo'
+import { Audio } from 'expo-av'
+import { AdMobRewarded, AdMobInterstitial } from 'expo-ads-admob'
+
 import React from 'react'
 import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { ThemeProvider, } from 'react-native-elements'
 import { theme } from './components/FormComponents'
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@expo/vector-icons'
 import { createHttpLink, HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
@@ -16,7 +19,7 @@ import { WebSocketLink } from 'apollo-link-ws'
 
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
-import { Tabs } from './navigation/ReactNavRouter'
+import AppNavContainer from './navigation/ReactNavRouter'
 
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
 import Auth from './components/Auth'
@@ -103,6 +106,7 @@ class AppContainer extends React.Component {
       shouldDuckAndroid: true,
       interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
       playThroughEarpieceAndroid: true,
+      staysActiveInBackground: true,
     })
   }  
 
@@ -132,14 +136,13 @@ class AppContainer extends React.Component {
         ],
         fonts: [
           FontAwesome.font,
-          MaterialCommunityIcons.font
+          MaterialCommunityIcons.font,
+          MaterialIcons.font,
+          Ionicons.font,
         ],
       })
     } catch (e) {
-      console.warn(
-        'There was an error caching assets (see: main.js), perhaps due to a ' +
-          'network timeout, so we skipped caching. Reload the app to try again.'
-      )
+      console.warn(e.message)
       console.log(e.message)
     } finally {
       this.setState({ appIsReady: true })
@@ -150,9 +153,7 @@ class AppContainer extends React.Component {
     if (this.state.appIsReady) {
       return (
         <ApolloProvider client={client}>
-          <ThemeProvider theme={theme}>
-            <Tabs onNavigationStateChange={null} />
-          </ThemeProvider>
+            <AppNavContainer onNavigationStateChange={null} />
         </ApolloProvider>
       )
     } else {

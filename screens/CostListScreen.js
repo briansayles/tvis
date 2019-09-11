@@ -7,7 +7,7 @@ import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
-import { ListHeader } from '../components/ListHeader'
+import { ListHeader } from '../components/FormComponents'
 
 class CostListScreen extends React.Component {
 

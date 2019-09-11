@@ -1,8 +1,13 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
-import { Dimensions, Easing, Animated, ActivityIndicator, Text, View, ScrollView, ListView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
+import { Dimensions, Easing, Animated, ActivityIndicator, Text, View, ScrollView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Button, Avatar, Icon } from 'react-native-elements'
-import { KeepAwake, Audio, AdMobInterstitial, LinearGradient, Speech, ScreenOrientation } from 'expo'
+import { ScreenOrientation } from 'expo';
+import * as Speech from 'expo-speech';
+import { LinearGradient } from 'expo-linear-gradient';
+import { AdMobInterstitial } from 'expo-ads-admob';
+import { Audio } from 'expo-av';
+import { activateKeepAwake, deactivateKeepAwake, } from 'expo-keep-awake';
 import { smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import { currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription, updateTournamentChildren} from '../constants/GQL'
 import { GraphCoolConfig } from '../config'
@@ -17,7 +22,7 @@ class TournamentTimerScreen extends React.Component {
 
   constructor(props) {
     super(props)
-    ScreenOrientation.allowAsync(ScreenOrientation.Orientation.ALL);
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     this.state = {
       orientation: this._isPortrait() ? 'portrait' : 'landscape',
       user: null,
@@ -59,6 +64,7 @@ class TournamentTimerScreen extends React.Component {
 
 
   async componentDidMount() {
+    activateKeepAwake()
     const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
     await this.setState({timerCustomizations: {
       oneMinuteRemainingSpeech: oneMinuteRemainingSpeech || "", 
@@ -160,6 +166,7 @@ class TournamentTimerScreen extends React.Component {
 
 
   componentWillUnmount () {
+    deactivateKeepAwake()
     Dimensions.removeEventListener('change', this._handleOrientationChange)
     clearTimeout(this.recheckServerTime)
     clearInterval(this.clockInterval)
@@ -295,7 +302,6 @@ class TournamentTimerScreen extends React.Component {
 
       return (
         <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
-          <KeepAwake/>
           <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', }}>
             <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
           </View>

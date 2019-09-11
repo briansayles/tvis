@@ -1,6 +1,6 @@
 import { graphql, compose, withApollo } from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
 import { ListItem, Button } from 'react-native-elements'
 import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
 import Auth from '../components/Auth'
@@ -8,8 +8,9 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader, } from '../components/FormComponents'
-import { AdMobRewarded, } from 'expo'
+import { AdMobRewarded, } from 'expo-ads-admob'
 import { convertItemToInputType } from '../utilities/functions'
+import { Ionicons } from '@expo/vector-icons'
 
 class TournamentListScreen extends React.Component {
   
@@ -111,13 +112,13 @@ class TournamentListScreen extends React.Component {
       const list = parent.tournaments
       return (
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-          <ListHeader 
+          {true && <ListHeader 
             title="Tournaments" 
             showAddButton={this.state.user} 
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
             // onSearch={this._search}
-          />
+          />}
           <ScrollView 
             style={{flex: 1, marginLeft: 5, marginRight: 5}}
             refreshControl={
@@ -127,7 +128,7 @@ class TournamentListScreen extends React.Component {
               />
             }
           >
-            <View>
+            {true && <View>
               {
                 list && list.map((item, i) => (
                   <Swipeout
@@ -159,13 +160,13 @@ class TournamentListScreen extends React.Component {
                       subtitleStyle={{color: '#888'}}
                       containerStyle={{backgroundColor: '#ddd'}}
                       onPress={this._editButtonPressed.bind(this, item.id)}
-                      chevron = {{color: "black"}}
+                      chevron
                     />
                   </Swipeout>
                   )
                 )
               }
-            </View>
+            </View> }
           </ScrollView>
           <BannerAd />
         </View>

@@ -1,6 +1,6 @@
 import { graphql, compose } from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
 import { getChipQuery, updateChipMutation} from '../constants/GQL'
 import Events from '../api/events'
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'

@@ -1,6 +1,7 @@
 import React from 'react'
 import { View, Dimensions, } from 'react-native'
-import { AdMobBanner, AdMobInterstitial, PublisherBanner, AdMobRewarded } from 'expo'
+// import { PublisherBanner } from 'expo'
+import { AdMobBanner, AdMobInterstitial, AdMobRewarded} from 'expo-ads-admob'
 import dict from '../constants/Dictionary'
 
 export class BannerAd extends React.Component {

@@ -1,12 +1,14 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, ListView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, FlatList} from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, FlatList} from 'react-native'
 import { ListItem, Button, SearchBar, CheckBox} from 'react-native-elements'
 import {currentUserQuery, addCreditsMutation, getUserContactsQuery, } from '../constants/GQL'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
-import { AdMobRewarded, Contacts, Permissions, } from 'expo'
+import { AdMobRewarded } from 'expo-ads-admob';
+import * as Contacts from 'expo-contacts'
+import * as Permissions from 'expo-permissions'
 
 class ContactListScreen extends React.Component {
   

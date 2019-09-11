@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
-import { Permissions, Notifications } from 'expo';
-
+import { Notifications } from 'expo';
+import * as Permissions from 'expo-permissions'
 // Example server, implemented in Rails: https://git.io/vKHKv
 const PUSH_ENDPOINT = 'https://exponent-push-server.herokuapp.com/tokens';
 
