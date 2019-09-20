@@ -8,6 +8,7 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
+import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
 class ChipListScreen extends React.Component {
 
@@ -83,7 +84,7 @@ class ChipListScreen extends React.Component {
       const parent = Tournament
       const list = sortChips(parent.chips)
       return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
           <ListHeader 
             title="Chips" 
             showAddButton={userIsOwner}
@@ -115,10 +116,13 @@ class ChipListScreen extends React.Component {
                     ]}
                   >
                   <ListItem 
-                    titleStyle={{color: item.color != "#fff" ? item.color : "#000"}} 
                     title={dictionaryLookup(item.color, "ChipColorOptions", "long")}
                     subtitle={numberToSuffixedString(item.denom)}
                     onPress={this._editButtonPressed.bind(this, item)}
+                    titleStyle={[ styles.listItemTitle, { color: item.color != "#fff" ? item.color : "#000" }]}
+                    subtitleStyle={[ styles.listItemSubtitle, ]}
+                    bottomDivider
+                    chevron
                   />
                   </Swipeout>
                 ))
@@ -138,3 +142,17 @@ export default compose(
   graphql(getTournamentChipsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
 )(ChipListScreen)
+
+const styles = StyleSheet.create({
+  active: {
+    fontWeight: 'bold',
+  },
+  listItemTitle: {
+    fontSize: responsiveFontSize(1.75),
+
+  },
+  listItemSubtitle: {
+    fontSize: responsiveFontSize(1.5),
+    color: '#888'
+  }
+});

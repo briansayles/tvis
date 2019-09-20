@@ -9,6 +9,7 @@ import { BannerAd } from '../components/Ads'
 import { AdMobRewarded } from 'expo-ads-admob';
 import * as Contacts from 'expo-contacts'
 import * as Permissions from 'expo-permissions'
+import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
 class ContactListScreen extends React.Component {
   
@@ -108,7 +109,7 @@ class ContactListScreen extends React.Component {
     } else {
       const { deviceContacts, user, filteredDeviceContacts } = this.state
       return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
           {this.state.contactsPermission == 'denied' && 
             <Text>
               Permission to access this device\'s contacts has been denied, which limits the apps functionality. To allow access, you will need to go to your device SETTINGS and manually enable access via the Privacy tab.
@@ -165,6 +166,7 @@ class ContactListScreen extends React.Component {
                         <ListItem
                           title={item.name}
                           onPress={this._editButtonPressed.bind(this, item.id)}
+                          bottomDivider
                         />
                       </Swipeout>
                     ))

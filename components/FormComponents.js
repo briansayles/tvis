@@ -5,6 +5,7 @@ import ReactNative, {
 import { ThemeProvider, ThemeConsumer, Button, Icon, Input, Text, SearchBar} from 'react-native-elements'
 import { dictionaryLookup } from '../utilities/functions'
 import Events from '../api/events'
+import Swipeout from 'react-native-swipeout'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { responsiveFontSize } from '../utilities/functions'
 import {Ionicons, MaterialIcons} from '@expo/vector-icons'
@@ -43,7 +44,22 @@ export const theme= {
 }
 
 
-export class ListHeader extends React.Component {
+export class myList extends Component {
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <View>
+        <Swipeout>
+        </Swipeout>
+      </View>
+    )
+  }  
+}
+
+export class ListHeader extends Component {
   constructor(props) {
     super(props)
   }
@@ -59,29 +75,32 @@ export class ListHeader extends React.Component {
   render() {
     return (
       <View style={{
-        flex: responsiveFontSize(.006),
+        flex: responsiveFontSize(.01),
         paddingTop: responsiveFontSize(1), 
         paddingLeft: responsiveFontSize(2),
         paddingBottom: responsiveFontSize(1),
         flexDirection: 'row', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        backgroundColor: '#ddd',
+        backgroundColor: 'white',
+        borderBottomColor: '#888',
+        borderBottomStyle: 'solid',
+        borderBottomWidth: responsiveFontSize(.05),
       }}>
-        <Text style={{fontSize: responsiveFontSize(2.5)}}>
+        <Text style={{fontSize: responsiveFontSize(2)}}>
           {this.props.title}
         </Text>
 
         {this.props.showAddButton && !this.props.loading &&
           <TouchableHighlight
-            style={{marginRight: responsiveFontSize(2)}}
+            style={{marginRight: responsiveFontSize(3)}}
             onPress={()=> this._handleAddButtonPressed()} 
           >
-            <Ionicons name='ios-add' size={responsiveFontSize(2)}/>
+            <Ionicons name='ios-add' size={responsiveFontSize(4)} color="green"/>
           </TouchableHighlight>
         }
         {this.props.showAddButton && this.props.loading &&
-          <View style={{marginRight: responsiveFontSize(2)}}>
+          <View style={{marginRight: responsiveFontSize(3)}}>
             <ActivityIndicator
               color="rgba(100, 100, 100, 1)"
               size="small"        
@@ -346,5 +365,4 @@ export class Picker extends Component {
     }
   }
 }
-
 

@@ -1,6 +1,6 @@
 import {graphql, compose} from 'react-apollo'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, RefreshControl, } from 'react-native'
+import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet,} from 'react-native'
 import { ListItem, Button} from 'react-native-elements'
 import { currentUserQuery, tournamentCosts, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation, createCostBuyMutation, deleteBuyMutation, lastBuyOnCost} from '../constants/GQL'
 import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
@@ -8,6 +8,7 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
+import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
 class CostListScreen extends React.Component {
 
@@ -84,7 +85,7 @@ class CostListScreen extends React.Component {
       const parent = Tournament
       const list = sortEntryFees(parent.costs)
       return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
           <ListHeader 
             title="Entry Fee(s)" 
             showAddButton={userIsOwner} 
@@ -125,6 +126,11 @@ class CostListScreen extends React.Component {
                     title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + (item.price && item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}))}
                     subtitle={item.chipStack && item.chipStack.toLocaleString() + ' Chips, ' + item._buysMeta.count + ' buys.'}
                     onPress={this._editButtonPressed.bind(this, item)}
+                    titleStyle={[ styles.listItemTitle, ]}
+                    subtitleStyle={[ styles.listItemSubtitle, ]}
+                    bottomDivider
+                    chevron
+
                   />
                   </Swipeout>
                 ))
@@ -144,3 +150,17 @@ export default compose(
   graphql(getTournamentCostsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
 )(CostListScreen)
+
+const styles = StyleSheet.create({
+  active: {
+    fontWeight: 'bold',
+  },
+  listItemTitle: {
+    fontSize: responsiveFontSize(1.75),
+
+  },
+  listItemSubtitle: {
+    fontSize: responsiveFontSize(1.5),
+    color: '#888'
+  }
+});

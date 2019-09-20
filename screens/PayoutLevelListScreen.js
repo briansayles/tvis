@@ -9,6 +9,7 @@ import Swipeout from 'react-native-swipeout'
 import { AddButton, RemoveButton, } from '../components/FormComponents'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
+import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
 class PayoutLevelListScreen extends React.Component {
   constructor(props) {
@@ -91,7 +92,7 @@ class PayoutLevelListScreen extends React.Component {
         list.push({cumulativePayCount, cumulativePlayerCount, id: rawList[i].id, levelNumber: rawList[i].levelNumber})
       }
       return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
           <ListHeader 
             title="Payout Levels" 
             showAddButton={userIsOwner} 
@@ -131,6 +132,8 @@ class PayoutLevelListScreen extends React.Component {
                   <ListItem 
                     title={'Pay ' + item.cumulativePayCount + ' for up to ' + item.cumulativePlayerCount + ' players.'}
                     onPress={this._editButtonPressed.bind(this, item.id)}
+                    bottomDivider
+                    chevron
                   />
                   </Swipeout>
                 ))

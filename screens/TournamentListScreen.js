@@ -9,7 +9,7 @@ import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader, } from '../components/FormComponents'
 import { AdMobRewarded, } from 'expo-ads-admob'
-import { convertItemToInputType } from '../utilities/functions'
+import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 import { Ionicons } from '@expo/vector-icons'
 
 class TournamentListScreen extends React.Component {
@@ -111,16 +111,16 @@ class TournamentListScreen extends React.Component {
       const parent = user
       const list = parent.tournaments
       return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
-          {true && <ListHeader 
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
+          <ListHeader 
             title="Tournaments" 
             showAddButton={this.state.user} 
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
             // onSearch={this._search}
-          />}
+          />
           <ScrollView 
-            style={{flex: 1, marginLeft: 5, marginRight: 5}}
+            style={{flex: 1, paddingLeft: 5, paddingRight: 5}}
             refreshControl={
               <RefreshControl
                 refreshing={this.state.refreshing}
@@ -128,11 +128,12 @@ class TournamentListScreen extends React.Component {
               />
             }
           >
-            {true && <View>
+            <View>
               {
                 list && list.map((item, i) => (
                   <Swipeout
                     key={i}
+                    style={{ flex: 1 }}
                     autoClose={true}
                     right={[
                       {
@@ -155,18 +156,19 @@ class TournamentListScreen extends React.Component {
                   >
                     <ListItem
                       title={item.title}
-                      titleStyle={item.timer.active ? styles.activeTitle : {}}
+                      titleStyle={[ styles.listItemTitle, item.timer.active ? styles.active : {}]}
                       subtitle={item.subtitle}
-                      subtitleStyle={{color: '#888'}}
-                      containerStyle={{backgroundColor: '#ddd'}}
+                      subtitleStyle={[ styles.listItemSubtitle, item.timer.active ? styles.active : {}]}
                       onPress={this._editButtonPressed.bind(this, item.id)}
                       chevron
+                      bottomDivider
+                      rightIcon={item.timer.active && <Ionicons name="ios-timer"/>}
                     />
                   </Swipeout>
                   )
                 )
               }
-            </View> }
+            </View>
           </ScrollView>
           <BannerAd />
         </View>
@@ -189,8 +191,15 @@ export default compose(
 
 
 const styles = StyleSheet.create({
-  activeTitle: {
+  active: {
     fontWeight: 'bold',
-    color: 'red',
   },
+  listItemTitle: {
+    fontSize: responsiveFontSize(1.75),
+
+  },
+  listItemSubtitle: {
+    fontSize: responsiveFontSize(1.5),
+    color: '#888'
+  }
 });

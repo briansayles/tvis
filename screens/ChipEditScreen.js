@@ -40,8 +40,7 @@ class ChipEditScreen extends React.Component {
 
   render() {
    	return (
-      <FormView contentContainerStyle={{backgroundColor: '#aaa', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-        <Text>{this.props.navigation.getParam('chip').id || "NO ID AVAILABLE"}</Text>
+      <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
         <MyInput
           title="Denomination"
           value={(this.state.formValues.denom || 0).toString()}

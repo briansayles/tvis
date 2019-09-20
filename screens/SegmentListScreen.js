@@ -8,6 +8,7 @@ import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
+import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
 class SegmentListScreen extends React.Component {
 
@@ -89,7 +90,7 @@ class SegmentListScreen extends React.Component {
       const parent = Tournament
       const list = sortSegments(parent.segments)
       return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between'}}>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
           <ListHeader 
             title="Blinds" 
             showAddButton={userIsOwner} 
@@ -130,6 +131,10 @@ class SegmentListScreen extends React.Component {
                     title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
                     subtitle={item.duration + " minutes"}
                     onPress={this._editButtonPressed.bind(this, item)}
+                    titleStyle={[ styles.listItemTitle, ]}
+                    subtitleStyle={[ styles.listItemSubtitle, ]}
+                    bottomDivider
+                    chevron
                   />
                   </Swipeout>
                 ))
@@ -149,3 +154,18 @@ export default compose(
   graphql(getTournamentSegmentsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
   graphql(currentUserQuery, { name: 'currentUserQuery', }),
 )(SegmentListScreen)
+
+
+const styles = StyleSheet.create({
+  active: {
+    fontWeight: 'bold',
+  },
+  listItemTitle: {
+    fontSize: responsiveFontSize(1.75),
+
+  },
+  listItemSubtitle: {
+    fontSize: responsiveFontSize(1.5),
+    color: '#888'
+  }
+});

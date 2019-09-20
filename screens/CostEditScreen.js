@@ -40,8 +40,7 @@ class CostEditScreen extends React.Component {
 
   render() {
    	return (
-      <FormView contentContainerStyle={{backgroundColor: '#ccc', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-        <Text>{this.props.navigation.getParam('cost').id || "NO ID AVAILABLE"}</Text>
+      <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
         <MyInput
           title="Price"
           value={(this.state.formValues.price || "").toString()}

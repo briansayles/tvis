@@ -153,7 +153,7 @@ class AppContainer extends React.Component {
     if (this.state.appIsReady) {
       return (
         <ApolloProvider client={client}>
-            <AppNavContainer onNavigationStateChange={null} />
+          <AppNavContainer onNavigationStateChange={null} />
         </ApolloProvider>
       )
     } else {
