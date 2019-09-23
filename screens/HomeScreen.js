@@ -1,4 +1,5 @@
 import React from 'react';
+import { graphql, compose, withApollo } from 'react-apollo'
 import {
   Alert,
   Image,
@@ -10,8 +11,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { currentUserQuery, } from '../constants/GQL'
+import Auth from '../components/Auth'
 
-export default class HomeScreen extends React.Component {
+class HomeScreen extends React.Component {
   
   constructor(props) {
     super(props)
@@ -29,6 +32,7 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
+    const { currentUserQuery: { user } } = this.props
     return (
       <View style={styles.container}>
         <ScrollView
@@ -48,11 +52,22 @@ export default class HomeScreen extends React.Component {
               Tap 'Tournaments' to get started.
             </Text>
           </View>
+          { !user && 
+            <View style={{paddingTop: 20}}>
+              <Auth/>
+            </View>
+          }
         </ScrollView>
       </View>
     )
   }
 }
+
+export default compose(
+  graphql(currentUserQuery, { name: 'currentUserQuery' }),
+  withApollo,
+)(HomeScreen)
+
 
 const styles = StyleSheet.create({
   container: {
