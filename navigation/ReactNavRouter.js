@@ -164,4 +164,9 @@ const TabNavigator = createBottomTabNavigator({
 }
 )
 
-export default AppNavContainer = createAppContainer(TabNavigator)
+let Navigation = createAppContainer(TabNavigator)
+
+export default () => <Navigation theme="light" />
+
+
+

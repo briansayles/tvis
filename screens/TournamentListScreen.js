@@ -75,7 +75,7 @@ class TournamentListScreen extends React.Component {
       const userId = user.id
       const newTitle = "Copy of " + title
       const costsInput = costs.map((i, index) => {
-        return convertItemToInputType (i, ["tournamentId"])
+        return convertItemToInputType (i, ["tournamentId", "buys", "_buysMeta"])
       })
       const chipsInput = chips.map((i, index) => {
         return convertItemToInputType (i, ["tournamentId"])
@@ -83,12 +83,14 @@ class TournamentListScreen extends React.Component {
       const segmentsInput = segments.map((i, index) => {
         return convertItemToInputType (i, ["tournamentId"])
       })
+
       client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
         userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
       }}).then((result) => {
         Events.publish('RefreshTournamentList')
         this._editButtonPressed(result.data.createTournament.id)
       }).catch((error) => {
+        console.log(error.message)
         this.setState({loading: false})
       })
     }).catch((error) => {

@@ -4,7 +4,7 @@
     "description": "TourneyVision",
     "slug": "tvis",
     "privacy": "unlisted",
-    "sdkVersion": "34.0.0",
+    "sdkVersion": "35.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
@@ -29,7 +29,15 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tourneyvision.tourneyvision"
+      "bundleIdentifier": "com.tourneyvision.tourneyvision",
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3013833975597353~9684490974"
+      }
+    },
+    "android": {
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3013833975597353~9684490974"
+      }
     },
     "githubUrl": "https://github.com/briansayles/tvis"
   }

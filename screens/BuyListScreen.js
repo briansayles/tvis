@@ -69,7 +69,7 @@ class BuyListScreen extends React.Component {
 
                   <Card
                     key={i}
-                    title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long")}
+                    title={item.costType && (dictionaryLookup(item.costType, "EntryFeeOptions", "long") + " ($" + item.price + ")")}
                     containerStyle={{marginBottom: 4}}
                   >
                     <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>

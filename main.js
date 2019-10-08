@@ -19,7 +19,7 @@ import { WebSocketLink } from 'apollo-link-ws'
 
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
-import AppNavContainer from './navigation/ReactNavRouter'
+import Navigation from './navigation/ReactNavRouter'
 
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
 import Auth from './components/Auth'
@@ -75,7 +75,7 @@ class AppContainer extends React.Component {
   }
 
   componentWillMount() {
-    this._loadAssetsAsync()
+    // this._loadAssetsAsync()
   }
 
   componentDidMount() {
@@ -97,6 +97,7 @@ class AppContainer extends React.Component {
         console.log('user rewarded' + JSON.stringify(reward))   
       }
     )
+    this._loadAssetsAsync()
 
     this._notificationSubscription = this._registerForPushNotifications();
     Audio.setAudioModeAsync({
@@ -128,11 +129,10 @@ class AppContainer extends React.Component {
     alert('Push notification ${origin} with data: ${JSON.stringify(data)}')
   }
 
-  async _loadAssetsAsync() {
+  _loadAssetsAsync() {
     try {
-      await cacheAssetsAsync({
+      cacheAssetsAsync({
         images: [
-          
         ],
         fonts: [
           FontAwesome.font,
@@ -143,7 +143,6 @@ class AppContainer extends React.Component {
       })
     } catch (e) {
       console.warn(e.message)
-      console.log(e.message)
     } finally {
       this.setState({ appIsReady: true })
     }
@@ -153,7 +152,7 @@ class AppContainer extends React.Component {
     if (this.state.appIsReady) {
       return (
         <ApolloProvider client={client}>
-          <AppNavContainer onNavigationStateChange={null} />
+          <Navigation onNavigationStateChange={null} />
         </ApolloProvider>
       )
     } else {

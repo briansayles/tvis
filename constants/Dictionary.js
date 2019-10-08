@@ -34,9 +34,10 @@ export default {
 		{longName: "Light Blue", shortName: "#cff"}
 	],
 	DurationOptions: [
-		{longName: "1 min.", shortName: "1"},
-		{longName: "2 min.", shortName: "2"},
 		{longName: "5 min.", shortName: "5"},
+		{longName: "6 min.", shortName: "6"},
+		{longName: "7 min.", shortName: "7"},
+		{longName: "8 min.", shortName: "8"},
 		{longName: "10 min.", shortName: "10"},
 		{longName: "12 min.", shortName: "12"},
 		{longName: "15 min.", shortName: "15"},
