@@ -23,10 +23,10 @@ class TournamentEditScreen extends React.Component {
     this.refreshEventSubscription = Events.subscribe('RefreshEditor', () => this._onRefresh())
   }
 
-  componentWillReceiveProps = async (nextProps) => {
-    nextProps.getTournamentQuery.refetch()
-    nextProps.currentUserQuery.refetch()
-  }
+  // componentWillReceiveProps = async (nextProps) => {
+  //   nextProps.getTournamentQuery.refetch()
+  //   nextProps.currentUserQuery.refetch()
+  // }
 
   componentWillUnmount () {
     this.refreshEventSubscription.remove()
@@ -74,8 +74,6 @@ class TournamentEditScreen extends React.Component {
   _navigateToBuyList(id) {
     this.props.navigation.navigate('BuyList', {id: id})
   }
-
-
 
   _navigateToPayoutLevelList(id) {
     this.props.navigation.navigate('PayoutSetup', {id: id})

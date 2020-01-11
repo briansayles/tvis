@@ -28,10 +28,10 @@ class BuyListScreen extends React.Component {
     this.refreshEventSubscription = Events.subscribe('RefreshCostList', () => this._onRefresh())
   }
 
-  componentWillReceiveProps = async (nextProps) => {
-    nextProps.getData.refetch()
-    nextProps.currentUserQuery.refetch()
-  }
+  // componentWillReceiveProps = async (nextProps) => {
+  //   nextProps.getData.refetch()
+  //   nextProps.currentUserQuery.refetch()
+  // }
 
   componentWillUnmount () {
     this.refreshEventSubscription.remove()

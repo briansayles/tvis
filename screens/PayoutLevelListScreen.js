@@ -27,11 +27,11 @@ class PayoutLevelListScreen extends React.Component {
     this.refreshEvent = Events.subscribe('RefreshPayoutLevelList', () => this._refresh())
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.currentUserQuery) {
+  //     this.setState({user: nextProps.currentUserQuery.user || null})
+  //   }
+  // }
 
   componentWillUnmount () {
     this.refreshEvent.remove()

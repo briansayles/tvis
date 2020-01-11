@@ -31,11 +31,11 @@ class ContactListScreen extends React.Component {
     this.refreshEvent = Events.subscribe('RefreshContactList', () => this._refresh())
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.currentUserQuery) {
+  //     this.setState({user: nextProps.currentUserQuery.user || null})
+  //   }
+  // }
 
   componentWillMount() {
     this._getDeviceContacts()

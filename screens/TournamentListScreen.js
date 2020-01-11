@@ -27,14 +27,14 @@ class TournamentListScreen extends React.Component {
     this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refresh())
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.currentUserQuery) {
-      if (nextProps.currentUserQuery.user !== this.state.user) {
-        Events.publish("RefreshTournamentList")
-      }
-      this.setState({user: nextProps.currentUserQuery.user || null})
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.currentUserQuery) {
+  //     if (nextProps.currentUserQuery.user !== this.state.user) {
+  //       Events.publish("RefreshTournamentList")
+  //     }
+  //     this.setState({user: nextProps.currentUserQuery.user || null})
+  //   }
+  // }
 
   componentWillUnmount () {
     this.refreshEvent.remove()
@@ -116,7 +116,7 @@ class TournamentListScreen extends React.Component {
         <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
           <ListHeader 
             title="Tournaments" 
-            showAddButton={this.state.user} 
+            showAddButton={true} 
             loading={this.state.loading} 
             onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
             // onSearch={this._search}

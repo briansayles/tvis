@@ -22,7 +22,7 @@ class TournamentTimerScreen extends React.Component {
 
   constructor(props) {
     super(props)
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     this.state = {
       orientation: this._isPortrait() ? 'portrait' : 'landscape',
       user: null,
