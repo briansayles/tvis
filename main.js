@@ -74,10 +74,6 @@ class AppContainer extends React.Component {
     appIsReady: false,
   }
 
-  componentWillMount() {
-    // this._loadAssetsAsync()
-  }
-
   componentDidMount() {
     AdMobRewarded.addEventListener('rewardedVideoDidOpen', () => {
       console.log('rewarded video opened')

@@ -25,6 +25,7 @@ class ContactListScreen extends React.Component {
       filtering: false,
       query: "",
     }
+    this._getDeviceContacts()
   }
 
   componentDidMount() {
@@ -37,9 +38,8 @@ class ContactListScreen extends React.Component {
   //   }
   // }
 
-  componentWillMount() {
-    this._getDeviceContacts()
-  }
+  // componentWillMount() {
+  // }
 
   componentWillUnmount () {
     this.refreshEvent.remove()

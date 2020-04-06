@@ -4,7 +4,6 @@
     "description": "TourneyVision",
     "slug": "tvis",
     "privacy": "unlisted",
-    "sdkVersion": "36.0.0",
     "version": "1.0.0",
     "orientation": "default",
     "primaryColor": "#cccccc",
@@ -27,6 +26,7 @@
         "ttf"
       ]
     },
+    "scheme": "tvis",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tourneyvision.tourneyvision",

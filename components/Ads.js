@@ -36,7 +36,7 @@ export class BannerAd extends React.Component {
 					style={{flex: -1, backgroundColor: 'transparent'}}
 		    	bannerSize={this.state.orientation == 'landscape' ? 'smartBannerLandscape' : 'smartBannerPortrait'}
 		    	adUnitID={dict.BANNER_ID} // banner1
-		    	testDeviceID='EMULATOR'
+		    	// testDeviceID='EMULATOR'
 		    	didFailToReceiveAdWithError={this.bannerError}
 		  	/>
 			</View>
