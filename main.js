@@ -7,17 +7,27 @@ import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, To
 import { ThemeProvider, } from 'react-native-elements'
 import { theme } from './components/FormComponents'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@expo/vector-icons'
+
+
 import { createHttpLink, HttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
 import { ApolloClient } from 'apollo-client'
 import { ApolloProvider, } from 'react-apollo'
-
 import { getOperationAST } from 'graphql'
 import { ApolloLink, concat, split } from 'apollo-link'
 import { WebSocketLink } from 'apollo-link-ws'
-
 import { SubscriptionClient } from 'subscriptions-transport-ws'
+
+// Apollo Client v3 (beta)
+// import { ApolloProvider, } from '@apollo/client'
+
+
+
+
+
+
+
 import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
 import Navigation from './navigation/ReactNavRouter'
 
@@ -66,6 +76,19 @@ export const client = new ApolloClient({
   link: concat(middlewareLink, link),
   cache: cache,
 })
+
+// Apollo Client v3 (beta)
+// const client = new ApolloClient({
+//   cache,
+//   uri: 'http://localhost:4000/graphql',
+//   headers: {
+//     authorization: localStorage.getItem('token') || '',
+//     'client-name': 'Space Explorer [web]',
+//     'client-version': '1.0.0',
+//   },
+//   ...
+// });
+
 
 
 class AppContainer extends React.Component {
