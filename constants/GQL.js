@@ -1,4 +1,5 @@
-import gql from 'graphql-tag'
+import gql from 'graphql-tag' //To be removed with v3 upgrade
+// import gql from '@apollo/client'
 
 export const getServerTimeMutation = gql`
   mutation updateTime ($id: ID! $lastRequestedAt: DateTime!) {

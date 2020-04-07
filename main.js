@@ -9,20 +9,21 @@ import { theme } from './components/FormComponents'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@expo/vector-icons'
 
 
-import { createHttpLink, HttpLink } from 'apollo-link-http'
-import { InMemoryCache } from 'apollo-cache-inmemory'
+import { createHttpLink, HttpLink } from 'apollo-link-http' //To be removed with v3 upgrade
+import { InMemoryCache } from 'apollo-cache-inmemory' //To be removed with v3 upgrade
 import { setContext } from 'apollo-link-context'
 import { ApolloClient } from 'apollo-client'
-import { ApolloProvider, } from 'react-apollo'
+import { ApolloProvider, } from 'react-apollo' //To be removed with v3 upgrade
 import { getOperationAST } from 'graphql'
-import { ApolloLink, concat, split } from 'apollo-link'
-import { WebSocketLink } from 'apollo-link-ws'
+import { ApolloLink, concat, split } from 'apollo-link' //To be removed with v3 upgrade
+import { WebSocketLink } from 'apollo-link-ws' //To be removed with v3 upgrade
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 
 // Apollo Client v3 (beta)
-// import { ApolloProvider, } from '@apollo/client'
-
-
+// import { ApolloProvider, ApolloLink, HttpLink, InMemoryCache, from, split, execute, useQuery, useApolloClient, gql} from '@apollo/client'
+// import { Query, Mutation, Subscription } from '@apollo/react-components'
+// import { graphQl } from '@apollo/react-hoc'
+// import { WebSocketLink } from '@apollo/link-ws'
 
 
 

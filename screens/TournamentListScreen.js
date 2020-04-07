@@ -1,4 +1,5 @@
-import { graphql, compose, withApollo } from 'react-apollo'
+import { graphql, compose, withApollo } from 'react-apollo' // To be removed with v3 upgrade
+// import { useQuery, } from '@apollo/client'
 import React from 'react'
 import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
 import { ListItem, Button } from 'react-native-elements'
@@ -102,7 +103,8 @@ class TournamentListScreen extends React.Component {
   }
 
   render() {
-    const { getData: { loading: loadingData, error: errorData, user } } = this.props
+    const { getData: { loading: loadingData, error: errorData, user } } = this.props //To be removed with v3 upgrade
+    // const { getData: { loading: loadingData, error: errorData, user } } = useQuery(currentUserTournamentsQuery)
     if (loadingData) {
       return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
     } else if (errorData) {
@@ -183,6 +185,7 @@ class TournamentListScreen extends React.Component {
   }
 }
 
+// To be removed with v3 upgrade
 export default compose(
   graphql(createTournamentMutation, { name: 'createItemMutation'}),
   graphql(deleteTournamentMutation, { name: 'deleteItemMutation' }),

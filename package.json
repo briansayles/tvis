@@ -17,6 +17,9 @@
   },
   "dependencies": {
     "@apollo/client": "^3.0.0-beta.41",
+    "@apollo/link-ws": "^2.0.0-beta.3",
+    "@apollo/react-components": "latest",
+    "@apollo/react-hoc": "latest",
     "@expo/vector-icons": "^10.0.0",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.8",
@@ -51,7 +54,8 @@
     "react-navigation": "^4.0.6",
     "react-navigation-stack": "^1.5.4",
     "react-navigation-tabs": "^2.4.1",
-    "subscriptions-transport-ws": "^0.9.16"
+    "subscriptions-transport-ws": "^0.9.16",
+    "@apollo/react-hooks": "latest"
   },
   "devDependencies": {
     "jest-expo": "^37.0.0"
