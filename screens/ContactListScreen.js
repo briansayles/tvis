@@ -70,12 +70,7 @@ class ContactListScreen extends React.Component {
     } else {
       this.setState({filtering: true})
       const filteredValues = this.state.deviceContacts.filter((currentValue) => {
-        try {
-          return (currentValue.name || "").toLowerCase().includes(searchString.toLowerCase(), 0)
-        }
-        catch (error) {
-          console.log(currentValue)
-        }
+        return (currentValue.name || "").toLowerCase().includes(searchString.toLowerCase(), 0)
       }).sort((a,b) => a.name.localeCompare(b.name))
       this.setState({filteredDeviceContacts: filteredValues, filtering: false})
     }
