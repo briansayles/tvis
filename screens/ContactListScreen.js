@@ -25,21 +25,12 @@ class ContactListScreen extends React.Component {
       filtering: false,
       query: "",
     }
-    this._getDeviceContacts()
   }
 
   componentDidMount() {
+    this._getDeviceContacts()
     this.refreshEvent = Events.subscribe('RefreshContactList', () => this._refresh())
   }
-
-  // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.currentUserQuery) {
-  //     this.setState({user: nextProps.currentUserQuery.user || null})
-  //   }
-  // }
-
-  // componentWillMount() {
-  // }
 
   componentWillUnmount () {
     this.refreshEvent.remove()
@@ -79,7 +70,12 @@ class ContactListScreen extends React.Component {
     } else {
       this.setState({filtering: true})
       const filteredValues = this.state.deviceContacts.filter((currentValue) => {
-        return currentValue.name.toLowerCase().includes(searchString.toLowerCase(), 0)
+        try {
+          return (currentValue.name || "").toLowerCase().includes(searchString.toLowerCase(), 0)
+        }
+        catch (error) {
+          console.log(currentValue)
+        }
       }).sort((a,b) => a.name.localeCompare(b.name))
       this.setState({filteredDeviceContacts: filteredValues, filtering: false})
     }
