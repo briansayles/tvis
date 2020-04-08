@@ -3,7 +3,7 @@ import { Audio } from 'expo-av'
 import { AdMobRewarded, AdMobInterstitial } from 'expo-ads-admob'
 
 import React from 'react'
-import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
+import { YellowBox, Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { ThemeProvider, } from 'react-native-elements'
 import { theme } from './components/FormComponents'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@expo/vector-icons'
@@ -11,16 +11,16 @@ import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@ex
 
 import { createHttpLink, HttpLink } from 'apollo-link-http' //To be removed with v3 upgrade
 import { InMemoryCache } from 'apollo-cache-inmemory' //To be removed with v3 upgrade
-import { setContext } from 'apollo-link-context'
-import { ApolloClient } from 'apollo-client'
+import { setContext } from 'apollo-link-context' //To be removed with v3 upgrade (???)
+import { ApolloClient } from 'apollo-client' //To be removed with v3 upgrade (???)
 import { ApolloProvider, } from 'react-apollo' //To be removed with v3 upgrade
-import { getOperationAST } from 'graphql'
+import { getOperationAST } from 'graphql' //To be removed with v3 upgrade
 import { ApolloLink, concat, split } from 'apollo-link' //To be removed with v3 upgrade
 import { WebSocketLink } from 'apollo-link-ws' //To be removed with v3 upgrade
-import { SubscriptionClient } from 'subscriptions-transport-ws'
+import { SubscriptionClient } from 'subscriptions-transport-ws' //To be removed with v3 upgrade (???)
 
 // Apollo Client v3 (beta)
-// import { ApolloProvider, ApolloLink, HttpLink, InMemoryCache, from, split, execute, useQuery, useApolloClient, gql} from '@apollo/client'
+// import { ApolloClient, ApolloProvider, ApolloLink, HttpLink, InMemoryCache, from, split, execute, useQuery, useApolloClient, gql} from '@apollo/client'
 // import { Query, Mutation, Subscription } from '@apollo/react-components'
 // import { graphQl } from '@apollo/react-hoc'
 // import { WebSocketLink } from '@apollo/link-ws'
@@ -37,23 +37,23 @@ import Auth from './components/Auth'
 
 import { GraphCoolConfig } from './config'
 export const graphQL_endpoint = GraphCoolConfig.endpoint
-export const graphQL_subscription_endpoint = GraphCoolConfig.wsClient
-export const graphQL_subscription_options = GraphCoolConfig.wsClientOptions
+export const graphQL_subscription_endpoint = GraphCoolConfig.wsClient //To be removed with v3 upgrade
+export const graphQL_subscription_options = GraphCoolConfig.wsClientOptions //To be removed with v3 upgrade
 
 
-const httpLink = new HttpLink({ 
+const httpLink = new HttpLink({  //To be removed with v3 upgrade
   uri: graphQL_endpoint,
   // credentials: 'same-origin',
 });
 
-const wsLink = new WebSocketLink(
+const wsLink = new WebSocketLink(  //To be removed with v3 upgrade
   {
     uri: graphQL_subscription_endpoint,
     options: graphQL_subscription_options
   }
 )
 
-const link = ApolloLink.split(
+const link = ApolloLink.split( //To be removed with v3 upgrade
   operation => {
     const operationAST = getOperationAST(operation.query, operation.operationName);
     return !!operationAST && operationAST.operation === 'subscription';
@@ -62,7 +62,7 @@ const link = ApolloLink.split(
   httpLink
 );
 
-const middlewareLink = setContext(async (req, { headers }) => {
+const middlewareLink = setContext(async (req, { headers }) => { //To be removed with v3 upgrade (???)
   return {
     ...headers,
     headers: {
@@ -71,21 +71,23 @@ const middlewareLink = setContext(async (req, { headers }) => {
   }
 })
 
-const cache = new InMemoryCache()
+const cache = new InMemoryCache() //To be removed with v3 upgrade
 
-export const client = new ApolloClient({
+export const client = new ApolloClient({ //To be removed with v3 upgrade
   link: concat(middlewareLink, link),
   cache: cache,
 })
 
 // Apollo Client v3 (beta)
+// Not sure if middleware is going to be required with v3
+
 // const client = new ApolloClient({
-//   cache,
-//   uri: 'http://localhost:4000/graphql',
+//   cache: new InMemoryCache(),
+//   uri: graphQL_endpoint,
 //   headers: {
-//     authorization: localStorage.getItem('token') || '',
-//     'client-name': 'Space Explorer [web]',
-//     'client-version': '1.0.0',
+//     authorization: `Bearer ${await AsyncStorage.getItem('token')}` || '',
+//     'client-name': 'TourneyVision',
+//     'client-version': '0.1.0',
 //   },
 //   ...
 // });
@@ -99,6 +101,10 @@ class AppContainer extends React.Component {
   }
 
   componentDidMount() {
+    YellowBox.ignoreWarnings([
+      "Warning: componentWillReceiveProps has been renamed",
+      "Warning: componentWillMount has been renamed",
+    ])
     AdMobRewarded.addEventListener('rewardedVideoDidOpen', () => {
       console.log('rewarded video opened')
     })

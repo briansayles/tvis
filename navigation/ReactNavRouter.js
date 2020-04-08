@@ -26,79 +26,79 @@ import TimerEditScreen from '../screens/TimerEditScreen'
 const TournamentsStack = createStackNavigator({
 	TournamentList: {
 		screen: TournamentListScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	Details: {
 		screen: TournamentTimerScreen,
-		defaultNavigationOptions: {
-
+		navigationOptions: {
+			title: 'Details'
 		}
 	},
 	Edit: {
 		screen: TournamentEditScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Tourney Dashboard',
 		}
 	},
 	TimerEdit: {
 		screen: TimerEditScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Timer Editor'
 		}
 	},
 	SegmentList: {
 		screen: SegmentListScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	SegmentEdit: {
 		screen: SegmentEditScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Segment Editor',
 		}
 	},
 	ChipList: {
 		screen: ChipListScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	ChipEdit: {
 		screen: ChipEditScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Chip Editor',
 		}
 	},
 	GeneralInfoEdit: {
 		screen: GeneralInfoEditScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'General Info',
 		}
 	},
 	CostList: {
 		screen: CostListScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'TourneyVision'
 		}
 	},
 	CostEdit: {
 		screen: CostEditScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Entry Fee Editor',
 		}
 	},
 	BuyList: {
 		screen: BuyListScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Buyins'
 		}
 	},
 	PayoutSetup: {
 		screen: PayoutLevelListScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Payout Setup'
 		}
 	},
@@ -106,14 +106,14 @@ const TournamentsStack = createStackNavigator({
 {
   	mode: 'modal',
   	headerMode: 'screen',
-  	defaultNavigationOptions: {
+  	navigationOptions: {
 	}
 })
 
 const ProfileStack = createStackNavigator({
 	Profile: {
 		screen: ProfileScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Profile'
 		}
 	}
@@ -122,7 +122,7 @@ const ProfileStack = createStackNavigator({
 const ContactsStack = createStackNavigator({
 	Contacts: {
 		screen: ContactListScreen,
-		defaultNavigationOptions: {
+		navigationOptions: {
 			title: 'Contacts'
 		}
 	}

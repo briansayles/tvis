@@ -2,7 +2,7 @@ import { graphql, compose } from 'react-apollo'
 import React from 'react'
 import { Dimensions, Easing, Animated, ActivityIndicator, Text, View, ScrollView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
 import { Button, Avatar, Icon } from 'react-native-elements'
-import { ScreenOrientation } from 'expo';
+import * as ScreenOrientation from 'expo-screen-orientation'
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AdMobInterstitial } from 'expo-ads-admob';

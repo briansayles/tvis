@@ -55,7 +55,9 @@
     "react-navigation-stack": "^1.5.4",
     "react-navigation-tabs": "^2.4.1",
     "subscriptions-transport-ws": "^0.9.16",
-    "@apollo/react-hooks": "latest"
+    "@apollo/react-hooks": "latest",
+    "expo-auth-session": "~1.0.0",
+    "expo-screen-orientation": "~1.0.0"
   },
   "devDependencies": {
     "jest-expo": "^37.0.0"

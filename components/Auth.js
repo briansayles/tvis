@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { graphql, gql, compose, withApollo } from 'react-apollo'
 import { ActivityIndicator, Text, View, StyleSheet, Linking, AsyncStorage } from 'react-native'
 import { Button } from 'react-native-elements'
-import {AuthSession, } from 'expo'
+import * as AuthSession from 'expo-auth-session'
 import Constants from 'expo-constants'
 import jwtDecoder from 'jwt-decode'
 
@@ -37,7 +37,7 @@ class Auth extends Component {
 
   loginWithAuth0 = async () => {
     this.setState({loading: true})
-    const redirectUrl = AuthSession.getRedirectUrl();
+    const redirectUrl = AuthSession.getRedirectUrl()
     const result = await AuthSession.startAsync({
       authUrl: authorize_url + toQueryString({
         client_id: auth0_client_id,
@@ -45,21 +45,21 @@ class Auth extends Component {
         scope: 'openid name',
         redirect_uri: redirectUrl,
       }),
-    });
+    })
     if (result.type === 'success') {
-      this.handleParams(result.params);
+      this.handleParams(result.params)
     }
   }
 
   handleParams = (responseObj) => {
     if (responseObj.error) {
       Alert.alert('Error', responseObj.error_description
-        || 'something went wrong while logging in');
-      return;
+        || 'something went wrong while logging in')
+      return
     }
-    const encodedToken = responseObj.id_token;
-    const decodedToken = jwtDecoder(encodedToken);
-    const username = decodedToken.name;
+    const encodedToken = responseObj.id_token
+    const decodedToken = jwtDecoder(encodedToken)
+    const username = decodedToken.name
     AsyncStorage.setItem('token', encodedToken)
       .then(() => {
         this.props.fetchCurrentUser.refetch()

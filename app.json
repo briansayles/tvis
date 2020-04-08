@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "tvis",
+    "scheme": "tvis",
     "description": "TourneyVision",
     "slug": "tvis",
     "privacy": "unlisted",
@@ -26,7 +27,6 @@
         "ttf"
       ]
     },
-    "scheme": "tvis",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.tourneyvision.tourneyvision",
