@@ -1,42 +1,38 @@
-import React, { Component } from 'react'
-import { graphql, gql, compose, withApollo } from 'react-apollo'
-import { ActivityIndicator, Text, View, StyleSheet, Linking, AsyncStorage } from 'react-native'
+import React, { useState } from 'react'
+import { ActivityIndicator, Text, View, StyleSheet, AsyncStorage } from 'react-native'
 import { Button } from 'react-native-elements'
 import * as AuthSession from 'expo-auth-session'
-import Constants from 'expo-constants'
 import jwtDecoder from 'jwt-decode'
-
-import { Auth0Config, ExpoConfig } from '../config'
-
+import { Auth0Config } from '../config'
 import {currentUserQuery, createUserMutation} from '../constants/GQL'
-import Events from '../api/events'
+import { useQuery, useMutation} from '@apollo/client'
 
 const auth0_client_id = Auth0Config.clientId
 const authorize_url = Auth0Config.authorizeURI
-const redirect_uri = Constants.manifest.xde
-  ? ExpoConfig.redirectURI
-  : `${Constants.linkingUri}/redirect`
-
 const toQueryString = params => {
-  return '?' + Object.entries(params)
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
-    .join('&')
+	return '?' + Object.entries(params)
+		.map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+		.join('&')
 }
 
-class Auth extends Component {
-  
-  constructor(props) {
-    super(props)
-    this.state = {
-      loading: false,
-    }
-  }
+export default ((props) => {
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState(null)
+	
+	const [ createUser ] = useMutation(createUserMutation, {
+		onError: (error) => {
+			console.log(`createUserMutation ERROR = \n${error}`)
+			setError(error.graphQLErrors[0].message)
+		},
+		update: (store, response) => {
+			// console.log(`createUserMutation RESPONSE = \n${response}`)
+		}
+	})
+	
+	const { loading: userLoading, data: userData, error: userError, refetch, client } = useQuery(currentUserQuery)
 
-  componentDidMount() {
-  }
-
-  loginWithAuth0 = async () => {
-    this.setState({loading: true})
+	const loginWithAuth0 = async () => {
+		setLoading(true)
     const redirectUrl = AuthSession.getRedirectUrl()
     const result = await AuthSession.startAsync({
       authUrl: authorize_url + toQueryString({
@@ -47,67 +43,54 @@ class Auth extends Component {
       }),
     })
     if (result.type === 'success') {
-      this.handleParams(result.params)
-    }
+      handleParams(result.params)
+		}
+		setLoading(false)
   }
 
-  handleParams = (responseObj) => {
+  const handleParams = (responseObj) => {
+	if (!responseObj.id_token) {return}
     if (responseObj.error) {
       Alert.alert('Error', responseObj.error_description
-        || 'something went wrong while logging in')
+        || 'We\'re verry sorry, but something went wrong while logging in. It\'s probably our fault, not your\'s')
       return
     }
     const encodedToken = responseObj.id_token
     const decodedToken = jwtDecoder(encodedToken)
-    const username = decodedToken.name
-    AsyncStorage.setItem('token', encodedToken)
-      .then(() => {
-        this.props.fetchCurrentUser.refetch()
-          .then(result => {
-            if (!result.data.user) {
-              this.props.createUser({ variables: { encodedToken, username } })
-                .catch(error => {
-                  console.log('ERROR: could not create user: ', error)
-                })
-            }
-            this.setState({loading: false})
-          })
-          .catch(error => {
-            alert('error logging in')
-            console.error('ERROR: failed asking for current user: ', error)
-            this.setState({loading: false})
-          })
+		const username = decodedToken.name
+		AsyncStorage.setItem('token', encodedToken)
+      .then(async () => {
+				const onResetStoreCBUnsubscribe = client.onResetStore( async () => {
+					setLoading(true)
+					const { data: refetchResults } = await refetch()
+					if(refetchResults && !refetchResults.user) {
+						newUser = await createUser({variables: {encodedToken, username}})
+					}
+					setLoading(false)				
+					onResetStoreCBUnsubscribe()
+				})
+				client.resetStore()
       })
-      .catch(error => {
-        console.error('ERROR: could not store token in AsyncStorage')
-        this.setState({loading: false})
-      }
-    )
-  }
+      .catch((error) => {
+        console.error('ERROR processing token.')
+			})
+	}
 
-  render() {
-    const loading = this.state && this.state.loading 
-    if (loading) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else {
-      return (
-        <View style={[{flex: 1}, styles.container]}>
-          <Button
-            backgroundColor='green'
-            onPress={this.loginWithAuth0}
-            title={"SIGN IN or SIGN UP (FREE!)"}
-          />
-        </View>
-      )
-    }
-  }
-}
-
-export default compose(
-  graphql(createUserMutation, { name: 'createUser' }),
-  graphql(currentUserQuery, { name: 'fetchCurrentUser' }),
-  withApollo,
-)(Auth)
+	if (loading) {
+		return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+	} else {
+		return (
+			<View style={[{flex: 1}, styles.container]}>
+				<Button
+					backgroundColor='green'
+					onPress={loginWithAuth0}
+					title="SIGN IN or SIGN UP (FREE!)"
+				/>
+				{error? <Text>error.message</Text>: null}
+			</View>
+		)         
+	}
+})
 
 const styles = StyleSheet.create({
   container: {
@@ -115,4 +98,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   }
-})
+})	

@@ -1,10 +1,8 @@
-import { graphql, compose, withApollo } from 'react-apollo' // To be removed with v3 upgrade
-// import { useQuery, } from '@apollo/client'
+import { useApolloClient, useQuery, useMutation} from '@apollo/client'
 import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
+import { ActivityIndicator, Alert, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
 import { ListItem, Button } from 'react-native-elements'
 import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
-import Auth from '../components/Auth'
 import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
@@ -12,188 +10,137 @@ import { ListHeader, } from '../components/FormComponents'
 import { AdMobRewarded, } from 'expo-ads-admob'
 import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 import { Ionicons } from '@expo/vector-icons'
+import {useState} from 'react'
 
-class TournamentListScreen extends React.Component {
-  
-  constructor(props) {
-    super(props)
-    this.state = {
-      user: null,
-      refreshing: false,
-      loading: false,
-    }
+export default ((props) => {
+	const [refreshingState, setRefreshingState] = useState(false)
+	const [loadingState, setLoadingState] = useState(false)
+	const {loading, data, error, client, refetch} = useQuery(currentUserTournamentsQuery)
+	const [ deleteTournament ] = useMutation(deleteTournamentMutation, {})
+	const [ createTournament ] = useMutation(createTournamentMutation, {})
+
+  addButtonPressed = async () => {
+		setLoadingState(true)
+		createTournament({variables: {"userId": data.user.id, "duration": undefined, title: undefined}}).then(()=>refetch())
+		setLoadingState(false)
   }
 
-  componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refresh())
+  editButtonPressed = (id) => {
+		// alert('passing id=' + id)
+    props.navigation.navigate('Edit', {id: id})
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.currentUserQuery) {
-  //     if (nextProps.currentUserQuery.user !== this.state.user) {
-  //       Events.publish("RefreshTournamentList")
-  //     }
-  //     this.setState({user: nextProps.currentUserQuery.user || null})
-  //   }
-  // }
-
-  componentWillUnmount () {
-    this.refreshEvent.remove()
+	deleteButtonPressed = (id) => {
+    setLoadingState(true)
+    Alert.alert(
+      "Confirm Delete",
+      "Delete item with id = " + id + " ?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => deleteTournament({variables: {id: id} }).then(()=> refetch())}
+      ],
+      { cancelable: false }
+		)
+		setLoadingState(false)
   }
 
-  _refresh() {
-    this.props.getData.refetch().then(() => this.setState({loading: false}))
-  }
+  copyButtonPressed = (id) => {
+    // this.setState({loading: true})
+    // const client = useApolloClient() //   const {client} = this.props
+    // client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
+    //   const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
+    //   const userId = user.id
+    //   const newTitle = "Copy of " + title
+    //   const costsInput = costs.map((i, index) => {
+    //     return convertItemToInputType (i, ["tournamentId", "buys", "_buysMeta"])
+    //   })
+    //   const chipsInput = chips.map((i, index) => {
+    //     return convertItemToInputType (i, ["tournamentId"])
+    //   })
+    //   const segmentsInput = segments.map((i, index) => {
+    //     return convertItemToInputType (i, ["tournamentId"])
+    //   })
+	
+//       client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
+//         userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
+//       }}).then((result) => {
+//         Events.publish('RefreshTournamentList')
+//         this._editButtonPressed(result.data.createTournament.id)
+//       }).catch((error) => {
+//         console.log(error.message)
+//         this.setState({loading: false})
+//       })
+//     }).catch((error) => {
+//       this.setState({loading: false})
+//     })
+   }
 
-  _addButtonPressed = async (parentId) => {
-    this.setState({loading: true})
-    this.props.createItemMutation(
-      {
-        variables: { "userId": parentId, "duration": undefined, title: undefined } // note: undefined is passed to allow the defaults in the GQL to be used.
-      }
-    ).then((result) => {
-      Events.publish('RefreshTournamentList')
-      this._editButtonPressed(result.data.createTournament.id)
-    })
-  }
 
-  _editButtonPressed(id) {
-    this.props.navigation.navigate('Edit', {id: id})
-  }
-
-  _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    this.props.deleteItemMutation({variables: {id: id} }).then(
-      () => Events.publish('RefreshTournamentList')
-    )
-  }
-
-  _copyButtonPressed(id) {
-    this.setState({loading: true})
-    const {client} = this.props
-    client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
-      const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
-      const userId = user.id
-      const newTitle = "Copy of " + title
-      const costsInput = costs.map((i, index) => {
-        return convertItemToInputType (i, ["tournamentId", "buys", "_buysMeta"])
-      })
-      const chipsInput = chips.map((i, index) => {
-        return convertItemToInputType (i, ["tournamentId"])
-      })
-      const segmentsInput = segments.map((i, index) => {
-        return convertItemToInputType (i, ["tournamentId"])
-      })
-
-      client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
-        userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
-      }}).then((result) => {
-        Events.publish('RefreshTournamentList')
-        this._editButtonPressed(result.data.createTournament.id)
-      }).catch((error) => {
-        console.log(error.message)
-        this.setState({loading: false})
-      })
-    }).catch((error) => {
-      this.setState({loading: false})
-    })
-  }
-
-  _search(searchText) {
-  }
-
-  render() {
-    const { getData: { loading: loadingData, error: errorData, user } } = this.props //To be removed with v3 upgrade
-    // const { getData: { loading: loadingData, error: errorData, user } } = useQuery(currentUserTournamentsQuery)
-    if (loadingData) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (errorData) {
-      return <Text>Error!</Text>
-    } else if (!user) {
-      return (<Auth/>)
-    } else {
-      const parent = user
-      const list = parent.tournaments
-      return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-          <ListHeader 
-            title="Tournaments" 
-            showAddButton={true} 
-            loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
-            // onSearch={this._search}
-          />
-          <ScrollView 
-            style={{flex: 1, paddingLeft: 5, paddingRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
-              />
-            }
-          >
-            <View>
-              {
-                list && list.map((item, i) => (
-                  <Swipeout
-                    key={i}
-                    style={{ flex: 1 }}
-                    autoClose={true}
-                    right={[
-                      {
-                        text: 'Copy',
-                        onPress: this._copyButtonPressed.bind(this, item.id),
-                        type: 'default'
-                      },
-                      {
-                        text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item.id),
-                        type: 'primary',
-                      },
-                      {
-                        text: 'DELETE',
-                        onPress: this._deleteButtonPressed.bind(this, item.id),
-                        backgroundColor: '#ff0000',
-                        type: 'delete',
-                      },
-                    ]}
-                  >
-                    <ListItem
-                      title={item.title}
-                      titleStyle={[ styles.listItemTitle, item.timer.active ? styles.active : {}]}
-                      subtitle={item.subtitle}
-                      subtitleStyle={[ styles.listItemSubtitle, item.timer.active ? styles.active : {}]}
-                      onPress={this._editButtonPressed.bind(this, item.id)}
-                      chevron
-                      bottomDivider
-                      rightIcon={item.timer.active && <Ionicons name="ios-timer"/>}
-                    />
-                  </Swipeout>
-                  )
-                )
-              }
-            </View>
-          </ScrollView>
-          <BannerAd />
-        </View>
-      )
-    }
-  }
-
-  _endRef = (element) => {
-    this.endRef = element
-  }
-}
-
-// To be removed with v3 upgrade
-export default compose(
-  graphql(createTournamentMutation, { name: 'createItemMutation'}),
-  graphql(deleteTournamentMutation, { name: 'deleteItemMutation' }),
-  graphql(currentUserTournamentsQuery, { name: 'getData' }),
-  graphql(currentUserQuery, { name: 'currentUserQuery' }),
-  withApollo,
-)(TournamentListScreen)
-
+	return (
+		<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
+			<ListHeader 
+				title="Tournaments" 
+				showAddButton={!loading && !error && !!data.user} 
+				loading={loadingState} 
+				onAddButtonPress={addButtonPressed}
+				// onSearch={this._search}
+			/>
+			<ScrollView 
+				style={{flex: 1, paddingLeft: 5, paddingRight: 5}}
+				refreshControl={
+					<RefreshControl
+						refreshing={refreshingState}
+						onRefresh={()=>refetch()}
+					/>
+				}
+			>
+				{loading && <ActivityIndicator/>}
+				{!loading && data && data.user && data.user.tournaments.map((item, i) => (
+					<Swipeout
+						key={i}
+						style={{ flex: 1 }}
+						autoClose={true}
+						right={[
+							{
+								text: 'Copy',
+								onPress: copyButtonPressed,
+								type: 'default'
+							},
+							{
+								text: 'Edit',
+								onPress: () => editButtonPressed(item.id),
+								type: 'primary',
+							},
+							{
+								text: 'DELETE',
+								onPress: () => deleteButtonPressed(item.id),
+								backgroundColor: '#ff0000',
+								type: 'delete',
+							},
+						]}
+					>
+						<ListItem
+							title={item.title}
+							titleStyle={[ styles.listItemTitle, item.timer.active ? styles.active : {}]}
+							subtitle={item.id}
+							subtitleStyle={[ styles.listItemSubtitle, item.timer.active ? styles.active : {}]}
+							onPress={() => {editButtonPressed(item.id)}}
+							chevron
+							bottomDivider
+							rightIcon={item.timer.active && <Ionicons name="ios-timer"/>}
+						/>
+					</Swipeout>
+					)
+				)}
+			</ScrollView>
+			<BannerAd />
+		</View>
+	)
+})
 
 const styles = StyleSheet.create({
   active: {

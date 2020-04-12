@@ -8,91 +8,45 @@ import { ThemeProvider, } from 'react-native-elements'
 import { theme } from './components/FormComponents'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@expo/vector-icons'
 
+import { setContext } from 'apollo-link-context'
 
-import { createHttpLink, HttpLink } from 'apollo-link-http' //To be removed with v3 upgrade
-import { InMemoryCache } from 'apollo-cache-inmemory' //To be removed with v3 upgrade
-import { setContext } from 'apollo-link-context' //To be removed with v3 upgrade (???)
-import { ApolloClient } from 'apollo-client' //To be removed with v3 upgrade (???)
-import { ApolloProvider, } from 'react-apollo' //To be removed with v3 upgrade
-import { getOperationAST } from 'graphql' //To be removed with v3 upgrade
-import { ApolloLink, concat, split } from 'apollo-link' //To be removed with v3 upgrade
-import { WebSocketLink } from 'apollo-link-ws' //To be removed with v3 upgrade
-import { SubscriptionClient } from 'subscriptions-transport-ws' //To be removed with v3 upgrade (???)
 
 // Apollo Client v3 (beta)
-// import { ApolloClient, ApolloProvider, ApolloLink, HttpLink, InMemoryCache, from, split, execute, useQuery, useApolloClient, gql} from '@apollo/client'
-// import { Query, Mutation, Subscription } from '@apollo/react-components'
-// import { graphQl } from '@apollo/react-hoc'
-// import { WebSocketLink } from '@apollo/link-ws'
-
-
-
-
+import { ApolloClient, ApolloProvider, createHttpLink, ApolloLink, HttpLink, InMemoryCache, from, split, execute, useQuery, useApolloClient, gql} from '@apollo/client'
 
 import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
 import Navigation from './navigation/ReactNavRouter'
 
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
-import Auth from './components/Auth'
 
 import { GraphCoolConfig } from './config'
 export const graphQL_endpoint = GraphCoolConfig.endpoint
-export const graphQL_subscription_endpoint = GraphCoolConfig.wsClient //To be removed with v3 upgrade
-export const graphQL_subscription_options = GraphCoolConfig.wsClientOptions //To be removed with v3 upgrade
 
-
-const httpLink = new HttpLink({  //To be removed with v3 upgrade
+const httpLink = createHttpLink({
   uri: graphQL_endpoint,
-  // credentials: 'same-origin',
 });
 
-const wsLink = new WebSocketLink(  //To be removed with v3 upgrade
-  {
-    uri: graphQL_subscription_endpoint,
-    options: graphQL_subscription_options
-  }
-)
+const authLink = setContext(async (_, { headers }) => {
+  // console.log('<<<<<<<<<<<<<<<<<<<<<<<<<authLink being created or updated>>>>>>>>>>>>>>>>>>>>>>>>>>')
+  // console.log('\nHeaders passed in:\n\n' + headers + '\n')
 
-const link = ApolloLink.split( //To be removed with v3 upgrade
-  operation => {
-    const operationAST = getOperationAST(operation.query, operation.operationName);
-    return !!operationAST && operationAST.operation === 'subscription';
-  },
-  wsLink,
-  httpLink
-);
-
-const middlewareLink = setContext(async (req, { headers }) => { //To be removed with v3 upgrade (???)
+  // get the authentication token from async storage if it exists
+  const token = await AsyncStorage.getItem('token');
+  // return the headers to the context so httpLink can read them
+  // if(token) {console.log('\nToken from AsyncStorage to be sent with this request:\n\n' + token + '\n')}
+  // else {console.log('\nNo token for this request!\n')}
   return {
-    ...headers,
     headers: {
-      authorization: `Bearer ${await AsyncStorage.getItem('token')}`,
-    },
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    }
   }
+});
+
+export const client = new ApolloClient({
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache()
 })
-
-const cache = new InMemoryCache() //To be removed with v3 upgrade
-
-export const client = new ApolloClient({ //To be removed with v3 upgrade
-  link: concat(middlewareLink, link),
-  cache: cache,
-})
-
-// Apollo Client v3 (beta)
-// Not sure if middleware is going to be required with v3
-
-// const client = new ApolloClient({
-//   cache: new InMemoryCache(),
-//   uri: graphQL_endpoint,
-//   headers: {
-//     authorization: `Bearer ${await AsyncStorage.getItem('token')}` || '',
-//     'client-name': 'TourneyVision',
-//     'client-version': '0.1.0',
-//   },
-//   ...
-// });
-
-
 
 class AppContainer extends React.Component {
 

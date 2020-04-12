@@ -1,39 +1,33 @@
 import React from 'react'
-import { graphql, compose, withApollo } from 'react-apollo'
 import { ActivityIndicator, StyleSheet, Text, View, Button, AsyncStorage} from 'react-native'
+import { useQuery, } from '@apollo/client'
 
 import Auth from '../components/Auth'
 import {currentUserQuery} from '../constants/GQL'
 
-class ProfileScreen extends React.Component {
-  
-  constructor(props) {
-    super(props)
-  }
+export default ((props) => {
+  const {data, loading, error, refetch, client} = useQuery(currentUserQuery)
 
-  _logout = async () => {
+	const logout = async () => {
     await AsyncStorage.removeItem('token')
-    const { client } = this.props
-    client.resetStore()
-  }
-  
-  render() {
-    const {fetchCurrentUser: { loading, user }} = this.props
-    if (loading) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    }
-    return (
-      <View style={styles.container}>
-        {user && <Text>Logged in as { user.name }</Text>}
-        {user && <Text>You have { user.credits ? user.credits.toString() : '0' } credits.</Text>}
-        {user && <Button onPress={this._logout} title='Logout' />}
-        
-        {!user && <Auth/>}
-      </View>
-    )
-  }
-}
+		client.resetStore()
+	}
 
+  return(
+    <View style={styles.container}>
+      { loading? <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+        : error? <Text>`Error! ${error.message}`</Text>
+          : !data.user? <Auth/>
+            : <View style={styles.container}>
+                <Text>Logged in as { data.user.name }</Text>
+                <Text>You have { data.user.credits ? data.user.credits.toString() : '0' } credits.</Text>
+                <Button onPress={logout} title={`Logout ${data.user.name}`}/>
+              </View>
+      }
+    </View>
+  )
+})
+  
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -42,8 +36,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   }
 })
-
-export default compose (
-  graphql(currentUserQuery, { name: 'fetchCurrentUser' }),
-  withApollo,
-)(ProfileScreen)

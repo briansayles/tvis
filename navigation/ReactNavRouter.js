@@ -3,25 +3,27 @@ import { createAppContainer } from 'react-navigation'
 import { createBottomTabNavigator } from 'react-navigation-tabs'
 import { createStackNavigator } from 'react-navigation-stack'
 import { Ionicons } from '@expo/vector-icons'
-import Auth from '../components/Auth'
+import Auth from '../components/Auth_old'
 import { responsiveFontSize } from '../utilities/functions'
 
+// import HomeScreen from '../screens/HomeScreen'
 import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
-import TournamentTimerScreen from '../screens/TournamentTimerScreen'
+// import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
-import SegmentListScreen from '../screens/SegmentListScreen'
-import SegmentEditScreen from '../screens/SegmentEditScreen'
-import ChipListScreen from '../screens/ChipListScreen'
-import ChipEditScreen from '../screens/ChipEditScreen'
-import ContactListScreen from '../screens/ContactListScreen'
-import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
-import CostListScreen from '../screens/CostListScreen'
-import CostEditScreen from '../screens/CostEditScreen'
-import BuyListScreen from '../screens/BuyListScreen'
+// import SegmentListScreen from '../screens/SegmentListScreen'
+// import SegmentEditScreen from '../screens/SegmentEditScreen'
+// import ChipListScreen from '../screens/ChipListScreen'
+// import ChipEditScreen from '../screens/ChipEditScreen'
+// import ContactListScreen from '../screens/ContactListScreen'
+// import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
+// import CostListScreen from '../screens/CostListScreen'
+// import CostEditScreen from '../screens/CostEditScreen'
+// import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
-import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
-import TimerEditScreen from '../screens/TimerEditScreen'
+
+// import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
+// import TimerEditScreen from '../screens/TimerEditScreen'
 
 const TournamentsStack = createStackNavigator({
 	TournamentList: {
@@ -30,78 +32,78 @@ const TournamentsStack = createStackNavigator({
 			title: 'TourneyVision'
 		}
 	},
-	Details: {
-		screen: TournamentTimerScreen,
-		navigationOptions: {
-			title: 'Details'
-		}
-	},
+// 	Details: {
+// 		screen: TournamentTimerScreen,
+// 		navigationOptions: {
+// 			title: 'Details'
+// 		}
+// 	},
 	Edit: {
 		screen: TournamentEditScreen,
 		navigationOptions: {
 			title: 'Tourney Dashboard',
 		}
 	},
-	TimerEdit: {
-		screen: TimerEditScreen,
-		navigationOptions: {
-			title: 'Timer Editor'
-		}
-	},
-	SegmentList: {
-		screen: SegmentListScreen,
-		navigationOptions: {
-			title: 'TourneyVision'
-		}
-	},
-	SegmentEdit: {
-		screen: SegmentEditScreen,
-		navigationOptions: {
-			title: 'Segment Editor',
-		}
-	},
-	ChipList: {
-		screen: ChipListScreen,
-		navigationOptions: {
-			title: 'TourneyVision'
-		}
-	},
-	ChipEdit: {
-		screen: ChipEditScreen,
-		navigationOptions: {
-			title: 'Chip Editor',
-		}
-	},
-	GeneralInfoEdit: {
-		screen: GeneralInfoEditScreen,
-		navigationOptions: {
-			title: 'General Info',
-		}
-	},
-	CostList: {
-		screen: CostListScreen,
-		navigationOptions: {
-			title: 'TourneyVision'
-		}
-	},
-	CostEdit: {
-		screen: CostEditScreen,
-		navigationOptions: {
-			title: 'Entry Fee Editor',
-		}
-	},
-	BuyList: {
-		screen: BuyListScreen,
-		navigationOptions: {
-			title: 'Buyins'
-		}
-	},
-	PayoutSetup: {
-		screen: PayoutLevelListScreen,
-		navigationOptions: {
-			title: 'Payout Setup'
-		}
-	},
+// 	TimerEdit: {
+// 		screen: TimerEditScreen,
+// 		navigationOptions: {
+// 			title: 'Timer Editor'
+// 		}
+// 	},
+// 	SegmentList: {
+// 		screen: SegmentListScreen,
+// 		navigationOptions: {
+// 			title: 'TourneyVision'
+// 		}
+// 	},
+// 	SegmentEdit: {
+// 		screen: SegmentEditScreen,
+// 		navigationOptions: {
+// 			title: 'Segment Editor',
+// 		}
+// 	},
+// 	ChipList: {
+// 		screen: ChipListScreen,
+// 		navigationOptions: {
+// 			title: 'TourneyVision'
+// 		}
+// 	},
+// 	ChipEdit: {
+// 		screen: ChipEditScreen,
+// 		navigationOptions: {
+// 			title: 'Chip Editor',
+// 		}
+// 	},
+// 	GeneralInfoEdit: {
+// 		screen: GeneralInfoEditScreen,
+// 		navigationOptions: {
+// 			title: 'General Info',
+// 		}
+// 	},
+// 	CostList: {
+// 		screen: CostListScreen,
+// 		navigationOptions: {
+// 			title: 'TourneyVision'
+// 		}
+// 	},
+// 	CostEdit: {
+// 		screen: CostEditScreen,
+// 		navigationOptions: {
+// 			title: 'Entry Fee Editor',
+// 		}
+// 	},
+// 	BuyList: {
+// 		screen: BuyListScreen,
+// 		navigationOptions: {
+// 			title: 'Buyins'
+// 		}
+// 	},
+// 	PayoutSetup: {
+// 		screen: PayoutLevelListScreen,
+// 		navigationOptions: {
+// 			title: 'Payout Setup'
+// 		}
+// 	},
 }, 
 {
   	mode: 'modal',
@@ -119,14 +121,14 @@ const ProfileStack = createStackNavigator({
 	}
 })
 
-const ContactsStack = createStackNavigator({
-	Contacts: {
-		screen: ContactListScreen,
-		navigationOptions: {
-			title: 'Contacts'
-		}
-	}
-})
+// const ContactsStack = createStackNavigator({
+// 	Contacts: {
+// 		screen: ContactListScreen,
+// 		navigationOptions: {
+// 			title: 'Contacts'
+// 		}
+// 	}
+// })
 
 const TabNavigator = createBottomTabNavigator({
 	Home: {
@@ -144,13 +146,13 @@ const TabNavigator = createBottomTabNavigator({
 			tabBarIcon: ({tintColor}) => <Ionicons name="ios-list" size={responsiveFontSize(2.5)} color={tintColor}/>,
 		}
 	},
-	Contacts: {
-		screen: ContactsStack,
-		navigationOptions: {
-			tabBarLabel: 'Contacts',
-			tabBarIcon: ({tintColor}) => <Ionicons name="ios-contacts" size={responsiveFontSize(2.5)} color={tintColor}/>,
-		}
-	},
+	// Contacts: {
+	// 	screen: ContactsStack,
+	// 	navigationOptions: {
+	// 		tabBarLabel: 'Contacts',
+	// 		tabBarIcon: ({tintColor}) => <Ionicons name="ios-contacts" size={responsiveFontSize(2.5)} color={tintColor}/>,
+	// 	}
+	// },
 	Profile: {
 		screen: ProfileStack,
 		navigationOptions: {
@@ -160,7 +162,7 @@ const TabNavigator = createBottomTabNavigator({
 	}
 },
 {
-	initialRouteName: 'Home',
+	initialRouteName: 'Tournaments',
 }
 )
 

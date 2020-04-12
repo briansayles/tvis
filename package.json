@@ -2,7 +2,7 @@
   "name": "tvis",
   "version": "0.0.0",
   "description": "TourneyVision",
-  "author": null,
+  "author": "Brian Sayles",
   "main": "main.js",
   "repository": {
     "type": "git",
