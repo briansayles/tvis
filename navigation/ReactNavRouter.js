@@ -11,7 +11,7 @@ import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
 // import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
-// import SegmentListScreen from '../screens/SegmentListScreen'
+import SegmentListScreen from '../screens/SegmentListScreen'
 // import SegmentEditScreen from '../screens/SegmentEditScreen'
 // import ChipListScreen from '../screens/ChipListScreen'
 // import ChipEditScreen from '../screens/ChipEditScreen'
@@ -50,12 +50,12 @@ const TournamentsStack = createStackNavigator({
 			title: 'Timer Editor'
 		}
 	},
-// 	SegmentList: {
-// 		screen: SegmentListScreen,
-// 		navigationOptions: {
-// 			title: 'TourneyVision'
-// 		}
-// 	},
+	SegmentList: {
+		screen: SegmentListScreen,
+		navigationOptions: {
+			title: 'TourneyVision'
+		}
+	},
 // 	SegmentEdit: {
 // 		screen: SegmentEditScreen,
 // 		navigationOptions: {

@@ -1,53 +1,25 @@
-import {graphql, compose} from 'react-apollo'
-import React from 'react'
+import React, { useState } from 'react'
 import { ActivityIndicator, Text, View, ScrollView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { ListItem, Button, } from 'react-native-elements';
+import { ListItem, } from 'react-native-elements'
 import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
-import { sortSegments, sortChips } from '../utilities/functions'
-import Events from '../api/events'
+import { sortSegments,  } from '../utilities/functions'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
-import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
+import { responsiveFontSize } from '../utilities/functions'
+import { useQuery, useMutation } from '@apollo/client'
 
-class SegmentListScreen extends React.Component {
+export default (props) => {
+  const [refreshingState, setRefreshingState] = useState(false)
+  const [loadingState, setLoadingState] = useState(false) 
+	const {loading, data, error, client, refetch} = useQuery(getTournamentSegmentsQuery, { variables: { id: props.navigation.getParam('id') } })
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
+  const [createTournamentSegment] = useMutation(createTournamentSegmentMutation, {})
+  const [deleteTournamentSegment] = useMutation(deleteSegmentMutation, {})
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      // user: null,
-      refreshing: false,
-      loading: false,
-    }
-  }
-
-  static navigationOptions = {
-  };
-
-  componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshSegmentList', () => this._refresh())
-  }
-
-  // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.currentUserQuery) {
-  //     this.setState({user: nextProps.currentUserQuery.user || null})
-  //   }
-  // }
-  
-  componentDidUpdate(prevProps) {
-  }
-
-  componentWillUnmount () {
-    this.refreshEvent.remove()
-  }
-
-  _refresh() {
-    this.props.getData.refetch().then(() => this.setState({loading: false}))
-  }
-
-  _addButtonPressed(parentId, duration) {
-    this.setState({loading: true})
-    this.props.createItem(
+  _addButtonPressed = (parentId, duration) => {
+    // setLoadingState(true)
+    createTournamentSegment(
       {
         variables:
         {
@@ -57,104 +29,86 @@ class SegmentListScreen extends React.Component {
           "duration": duration,
         }
       }
-    ).then((result) => {
-      Events.publish('RefreshSegmentList')
-      this._editButtonPressed(result.data.createSegment)
-    }
+    ).then(() => refetch())
+  }
+
+	_editButtonPressed = (segment) => {
+    props.navigation.navigate('SegmentEdit', {segment: segment})
+  }
+
+  _deleteButtonPressed = (id) => {
+    // setLoadingState(true)
+    deleteTournamentSegment({variables: {id: id} }).then(
+      () => refetch()
     )
   }
 
-	_editButtonPressed(segment) {
-    this.props.navigation.navigate('SegmentEdit', {segment: segment})
-  }
-
-  _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    this.props.deleteItem({variables: {id: id} }).then(
-      () => Events.publish('RefreshSegmentList')
-    )
-  }
-
-  _search(searchText) {
-  }
-
-  render() {
-    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
-    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
-    if (loadingData || loadingUser) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (errorData || errorUser) {
-      return <Text>Error!</Text>
-    } else {
-      const userIsOwner = user.id === Tournament.user.id
-      const parent = Tournament
-      const list = sortSegments(parent.segments)
-      return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-          <ListHeader 
-            title="Blinds" 
-            showAddButton={userIsOwner} 
-            loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
-            // onSearch={this._search}
-          />
-          <ScrollView 
-            style={{flex: 1, marginLeft: 5, marginRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
-              />
+  if (loading || loadingUser) {
+    return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+  } else if (error || errorUser) {
+  return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
+  } else {
+    const { Tournament } = data
+    const { user } = dataUser
+    const userIsOwner = user.id === Tournament.user.id
+    const { segments } = Tournament
+    const list = sortSegments(segments)
+    return (
+      <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
+        <ListHeader 
+          title="Blinds" 
+          showAddButton={userIsOwner} 
+          loading={loadingState} 
+          onAddButtonPress={()=>_addButtonPressed(Tournament.id)}
+        />
+        <ScrollView 
+          style={{flex: 1, marginLeft: 5, marginRight: 5}}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshingState}
+  						onRefresh={()=>refetch()}
+            />
+          }
+        >
+          <View>
+            {
+              list && list.map((item, i) => (
+                <Swipeout
+                  key={i}
+                  autoClose={true}
+                  right={[
+                    {
+                      text: 'Edit',
+                      onPress: ()=> editButtonPressed(item),
+                      type: 'primary',
+                    },
+                    {
+                      text: 'DELETE',
+                      onPress: () => _deleteButtonPressed(item.id),
+                      backgroundColor: '#ff0000',
+                      type: 'delete',
+                    },
+                  ]}
+                >
+                <ListItem
+                  title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
+                  subtitle={item.duration + " minutes"}
+                  onPress={()=> editButtonPressed(item)}
+                  titleStyle={[ styles.listItemTitle, ]}
+                  subtitleStyle={[ styles.listItemSubtitle, ]}
+                  bottomDivider
+                  chevron
+                />
+                </Swipeout>
+              ))
             }
-          >
-            <View>
-              {
-                list && list.map((item, i) => (
-                  <Swipeout
-                    key={i}
-                    autoClose={true}
-                    right={[
-                      {
-                        text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item),
-                        type: 'primary',
-                      },
-                      {
-                        text: 'DELETE',
-                        onPress: this._deleteButtonPressed.bind(this, item.id),
-                        backgroundColor: '#ff0000',
-                        type: 'delete',
-                      },
-                    ]}
-                  >
-                  <ListItem
-                    title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
-                    subtitle={item.duration + " minutes"}
-                    onPress={this._editButtonPressed.bind(this, item)}
-                    titleStyle={[ styles.listItemTitle, ]}
-                    subtitleStyle={[ styles.listItemSubtitle, ]}
-                    bottomDivider
-                    chevron
-                  />
-                  </Swipeout>
-                ))
-              }
-            </View>
-          </ScrollView>
-          <BannerAd/>
-        </View>
-      )
-    }
+          </View>
+        </ScrollView>
+        <BannerAd/>
+      </View>
+    )
   }
 }
-
-export default compose(
-  graphql(createTournamentSegmentMutation, {name: 'createItem'}),
-  graphql(deleteSegmentMutation, {name: 'deleteItem'}),
-  graphql(getTournamentSegmentsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(currentUserQuery, { name: 'currentUserQuery', }),
-)(SegmentListScreen)
-
 
 const styles = StyleSheet.create({
   active: {
