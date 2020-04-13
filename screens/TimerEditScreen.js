@@ -1,73 +1,60 @@
-import { graphql, compose } from 'react-apollo'
-import React from 'react'
-import {Text, View, ScrollView, } from 'react-native'
-import { ActivityIndicator, PricingCard, Button, Icon, Input } from 'react-native-elements'
-import { updateTournamentTimerMutation,  } from '../constants/GQL'
-import { dictionaryLookup } from '../utilities/functions'
+// import { graphql, compose } from 'react-apollo'
+import React, { useState, } from 'react'
+import { ActivityIndicator, Text, View, ScrollView, } from 'react-native'
+import { PricingCard, Button, Icon, Input } from 'react-native-elements'
+import { updateTournamentTimerMutation, getTournamentQuery, currentUserQuery } from '../constants/GQL'
 import Events from '../api/events'
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+import { useQuery, useMutation, useApollo} from '@apollo/client'
 
-class TimerEditScreen extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      formValues: {},
+export default ((props) => {
+  const [formValuesState, setFormValuesState] = useState({})
+  const {data, loading: loadingData, error: errorData, client, refetch} = useQuery(getTournamentQuery, 
+    {
+      variables: {id: props.navigation.getParam('id')}, 
+      onCompleted: (data) => {setFormValuesState({...data.Tournament.timer})}
     }
-  }
+  )
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
+	const [ updateTournamentTimer ] = useMutation(updateTournamentTimerMutation, {})
 
-  async componentDidMount() {
-    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor, elapsed, active} = this.props.navigation.getParam('timer')
-    this.setState({formValues: {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor, elapsed, active}})
-    this.submitButtonPressedEvent = Events.subscribe("TimerEditSubmitted", () => this.props.navigation.goBack())
-  }
-
-  componentWillUnmount () {
-    this.submitButtonPressedEvent.remove()
-  }
-
-  handleInputChange (fieldName, value) {
-    this.setState(({formValues}) => ({formValues: {
-      ...formValues,
-      [fieldName]: value,
-    }}))
-  }
-
-  _isDirty() {
-    const {oneMinuteRemainingSpeech: p1, endOfRoundSpeech: p2} = this.props.navigation.getParam('timer')
-    const {oneMinuteRemainingSpeech: f1, endOfRoundSpeech: f2} = this.state.formValues
+  const _isDirty = (timer) => {
+    const {oneMinuteRemainingSpeech: p1, endOfRoundSpeech: p2} = timer
+    const {oneMinuteRemainingSpeech: f1, endOfRoundSpeech: f2} = formValuesState
     return p1 != f1 || p2 != f2
   }
 
-  render() {
+  if (loadingData || loadingUser) {
+    return(<View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>)
+  }
+  if (errorData || errorUser) {
+    return(<View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><Text>Error...</Text></View>)
+  }
+  if (data && dataUser) {
+    const { Tournament: {timer}} = data
+
     return (
       <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
         <MyInput
           title="One Minute Remaining Speech"
-          value={this.state.formValues.oneMinuteRemainingSpeech || ""}
+          value={formValuesState.oneMinuteRemainingSpeech || ""}
           placeholder="Enter speech here for one minute remaining..."
-          onChangeText={(text) => this.handleInputChange('oneMinuteRemainingSpeech', text)}
+          onChangeText={(text) => setFormValuesState({...formValuesState, 'oneMinuteRemainingSpeech': text})}
         />
-        
         <MyInput
           title="End of Round Speech"
-          value={this.state.formValues.endOfRoundSpeech || ""}
+          value={formValuesState.endOfRoundSpeech || ""}
           placeholder="Enter speech here for the end of round..."
-          onChangeText={(text) => this.handleInputChange('endOfRoundSpeech', text)}
+          onChangeText={(text) => setFormValuesState({...formValuesState, 'endOfRoundSpeech': text})}
         />
-
         <SubmitButton 
-          mutation={this.props.updateTournamentTimerMutation}
-          id={this.props.navigation.getParam('timer').id}
-          variables={this.state.formValues}
-          events={["RefreshEditor", "TimerEditSubmitted"]}
-          disabled={!this._isDirty()}
+          mutation={updateTournamentTimer}
+          // id={timer.id}
+          variables={{...formValuesState}}
+          // events={["RefreshEditor", "TimerEditSubmitted"]}
+          disabled={!_isDirty(timer)}
         />
       </FormView>
-    )
+    )    
   }
-}
-
-export default compose(
-  graphql(updateTournamentTimerMutation, { name: 'updateTournamentTimerMutation'}),
-)(TimerEditScreen)
+})

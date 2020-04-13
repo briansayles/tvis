@@ -1,14 +1,12 @@
-import { useApolloClient, useQuery, useMutation} from '@apollo/client'
+import { useQuery, useMutation} from '@apollo/client'
 import React from 'react'
-import { ActivityIndicator, Alert, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
-import { ListItem, Button } from 'react-native-elements'
+import { ActivityIndicator, Alert, View, ScrollView, RefreshControl, StyleSheet, } from 'react-native'
+import { ListItem,  } from 'react-native-elements'
 import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
-import Events from '../api/events'
 import Swipeout from 'react-native-swipeout'
 import { BannerAd } from '../components/Ads'
 import { ListHeader, } from '../components/FormComponents'
-import { AdMobRewarded, } from 'expo-ads-admob'
-import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
+import { responsiveFontSize } from '../utilities/functions'
 import { Ionicons } from '@expo/vector-icons'
 import {useState} from 'react'
 
@@ -26,7 +24,6 @@ export default ((props) => {
   }
 
   editButtonPressed = (id) => {
-		// alert('passing id=' + id)
     props.navigation.navigate('Edit', {id: id})
   }
 

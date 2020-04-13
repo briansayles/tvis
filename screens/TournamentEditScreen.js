@@ -18,7 +18,11 @@ export default ( (props) => {
     props.navigation.navigate('Details', {id: id})
   }
 
-  const _navigateToSegmentList = (id) => {
+  const _navigateToTimerEditorButtonPressed = (id) => {
+    props.navigation.navigate('TimerEdit', {id: id})
+  }
+
+   const _navigateToSegmentList = (id) => {
     props.navigation.navigate('SegmentList', {id: id})
   }
 
@@ -84,7 +88,8 @@ export default ( (props) => {
               {userIsOwner && <Text style={{flex: 1}}></Text> }
               <Text style={[styles.cardTitle, {flex: 10}]}>Tournament Timer</Text>
               {userIsOwner && 
-                <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={()=> _navigateToTimerEditorButtonPressed(Tournament.timer)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
+                // <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={()=> _navigateToTimerEditorButtonPressed(Tournament.timer)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
+                <Icon containerStyle={{flex: 1}} name='edit' type='font-awesome' onPress={()=> _navigateToTimerEditorButtonPressed(Tournament.id)} color={editButtonColor} reverse size={responsiveFontSize(1.25)}/>
               }
             </View> }
           >
@@ -98,7 +103,7 @@ export default ( (props) => {
                 buttonStyle={{ flex: 1, borderRadius: 10, backgroundColor: '#080', paddingLeft: 10}}
                 title='Timer'
                 titleStyle={{fontSize: 24}}
-                onPress={()=> navigateToTimerButtonPressed(Tournament.id)}
+                onPress={()=> _navigateToTimerButtonPressed(Tournament.id)}
               />
             </View>
           </Card>

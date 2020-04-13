@@ -166,7 +166,7 @@ export class SubmitButton extends Component {
   			}
   		}
   	).then(() => {
-			this.props.events.forEach(function(event) {
+			this.props.event && this.props.events.forEach(function(event) {
 			  Events.publish(event)
 			})
   	}).then(() => {
