@@ -18,27 +18,106 @@ export default ((props) => {
 	const [ createTournament ] = useMutation(createTournamentMutation, {})
 
   addButtonPressed = async () => {
-		setLoadingState(true)
-		createTournament({variables: {"userId": data.user.id, "duration": undefined, title: undefined}}).then(()=>refetch())
-		setLoadingState(false)
-  }
+		createTournament(
+			{
+				variables: {"userId": data.user.id, "duration": undefined, "title": "My Tournament #" + (data.user.tournaments.length + 1)},
+
+				optimisticResponse: {
+					createTournament: {
+						__typename: "Tournament",
+						id: "tbd",
+						title: "Creating your tournament...",
+						subtitle: "Server is working on it. Just a sec.",
+						updatedAt: new Date(),
+						childrenUpdatedAt: null,
+						timer: {
+							id: "tbd",
+							__typename: "Timer",
+							active: false,
+						}
+					}
+				},
+
+				update: (cache, mutationResponse) => {
+					try {
+
+						// console.log('Mutation response = \n\n' + JSON.stringify(mutationResponse))
+						const { data: { createTournament }} = mutationResponse
+						// Read the data from our cache for this query.
+						const cacheData = cache.readQuery({ query: currentUserTournamentsQuery });
+						cache.writeQuery({
+							query: currentUserTournamentsQuery,
+							data: {
+								user: {
+									...cacheData.user,
+									tournaments: [
+										...cacheData.user.tournaments,
+										createTournament
+									]
+								}
+							}
+						})
+					} catch (error) {
+						console.log('error: ' + error.mesage)
+					}
+				}
+			}
+		)
+	}
 
   editButtonPressed = (id) => {
-    props.navigation.navigate('Edit', {id: id})
+		if (id==="tbd") {return}
+		props.navigation.navigate('Edit', {id: id})
   }
 
-	deleteButtonPressed = (id) => {
+	deleteButtonPressed = (id, title) => {
+		if (id==="tbd") {return}
     setLoadingState(true)
     Alert.alert(
       "Confirm Delete",
-      "Delete item with id = " + id + " ?",
+      "Delete: \n" + title + " ?",
       [
         {
           text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
+          onPress: () => {},
           style: "cancel"
         },
-        { text: "OK", onPress: () => deleteTournament({variables: {id: id} }).then(()=> refetch())}
+				{ text: "OK", onPress: () => 
+				
+					deleteTournament(
+						{
+							variables: {id: id},
+							optimisticResponse: {
+								deleteTournament: {
+									__typename: "Tournament",
+									id: id,
+								}
+							},
+							update: (cache, mutationResponse) => {
+								try {
+									// console.log('Mutation response = \n\n' + JSON.stringify(mutationResponse))
+									const { data: { deleteTournament }} = mutationResponse
+									// Read the data from our cache for this query.
+									const cacheData = cache.readQuery({ query: currentUserTournamentsQuery })
+									const existingTournaments = cacheData.user.tournaments
+									const newTournaments = existingTournaments.filter(t => (t.id !== id))
+									cache.writeQuery({
+										query: currentUserTournamentsQuery,
+										data: {
+											user: {
+												...cacheData.user,
+												tournaments: 
+													newTournaments
+											}
+										}
+									})
+								} catch (error) {
+									console.log('error: ' + error.mesage)
+								}
+							}
+						}
+					)
+				}
       ],
       { cancelable: false }
 		)
@@ -46,6 +125,7 @@ export default ((props) => {
   }
 
   copyButtonPressed = (id) => {
+		if (id==="tbd") {return}
     // this.setState({loading: true})
     // const client = useApolloClient() //   const {client} = this.props
     // client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
@@ -114,7 +194,7 @@ export default ((props) => {
 							},
 							{
 								text: 'DELETE',
-								onPress: () => deleteButtonPressed(item.id),
+								onPress: () => deleteButtonPressed(item.id, item.title),
 								backgroundColor: '#ff0000',
 								type: 'delete',
 							},
@@ -123,7 +203,7 @@ export default ((props) => {
 						<ListItem
 							title={item.title}
 							titleStyle={[ styles.listItemTitle, item.timer.active ? styles.active : {}]}
-							subtitle={item.id}
+							subtitle={item.subtitle || ""}
 							subtitleStyle={[ styles.listItemSubtitle, item.timer.active ? styles.active : {}]}
 							onPress={() => {editButtonPressed(item.id)}}
 							chevron

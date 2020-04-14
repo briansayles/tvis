@@ -32,6 +32,7 @@ const authLink = setContext(async (_, { headers }) => {
 
   // get the authentication token from async storage if it exists
   const token = await AsyncStorage.getItem('token');
+  // console.log(token)
   // return the headers to the context so httpLink can read them
   // if(token) {console.log('\nToken from AsyncStorage to be sent with this request:\n\n' + token + '\n')}
   // else {console.log('\nNo token for this request!\n')}

@@ -212,10 +212,11 @@ export const createTournamentFromExistingTournamentMutation = gql`
   }
 `
 export const createTournamentMutation = gql`
-  mutation createTournament( $userId: ID!, $title: String="Default Tournament Title", $duration: Int=20) {
+  mutation createTournament( $userId: ID!, $title: String="Default Tournament", $duration: Int=20) {
     createTournament (
       userId: $userId
       title: $title
+      subtitle: "No limit hold'em Tournament"
       game: NLHE
       costs: [
         {
@@ -360,12 +361,14 @@ export const createTournamentMutation = gql`
     )
     {
       id
-      title
-      game
-      user {
-        name
-        id
-      }
+        title
+        subtitle
+        updatedAt
+        childrenUpdatedAt
+        timer {
+          id
+          active
+        }
     }
   }
 `
