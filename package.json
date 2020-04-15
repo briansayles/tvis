@@ -20,6 +20,7 @@
     "@apollo/link-ws": "^2.0.0-beta.3",
     "@apollo/react-components": "latest",
     "@apollo/react-hoc": "latest",
+    "@apollo/react-hooks": "latest",
     "@expo/vector-icons": "^10.0.0",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.8",
@@ -31,6 +32,7 @@
     "expo": "^37.0.0",
     "expo-ads-admob": "~8.1.0",
     "expo-asset": "~8.1.3",
+    "expo-auth-session": "~1.0.0",
     "expo-av": "~8.1.0",
     "expo-constants": "~9.0.0",
     "expo-contacts": "~8.1.0",
@@ -38,6 +40,7 @@
     "expo-keep-awake": "~8.1.0",
     "expo-linear-gradient": "~8.1.0",
     "expo-permissions": "~8.1.0",
+    "expo-screen-orientation": "~1.0.0",
     "expo-speech": "~8.1.0",
     "graphql": "^0.11.7",
     "graphql-tag": "^2.10.1",
@@ -50,14 +53,12 @@
     "react-native-keyboard-aware-scroll-view": "^0.8.0",
     "react-native-reanimated": "~1.7.0",
     "react-native-screens": "^2.4.0",
+    "react-native-swipe-list-view": "^2.5.0",
     "react-native-swipeout": "^2.3.3",
     "react-navigation": "^4.0.6",
     "react-navigation-stack": "^1.5.4",
     "react-navigation-tabs": "^2.4.1",
-    "subscriptions-transport-ws": "^0.9.16",
-    "@apollo/react-hooks": "latest",
-    "expo-auth-session": "~1.0.0",
-    "expo-screen-orientation": "~1.0.0"
+    "subscriptions-transport-ws": "^0.9.16"
   },
   "devDependencies": {
     "jest-expo": "^37.0.0"

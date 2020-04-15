@@ -418,19 +418,22 @@ export const updateTournamentChildren = gql`
 `
 
 export const createTournamentSegmentMutation = gql`
-  mutation createTournamentSegment( $tournamentId: ID!, $sBlind: Int=1, $bBlind: Int=2, $duration: Int=20) {
+  mutation createTournamentSegment( $tournamentId: ID!, $sBlind: Int=1, $bBlind: Int=2, $duration: Int=20, $ante: Int=0, $game: Game=NLHE) {
     createSegment (
       tournamentId: $tournamentId
+      duration: $duration
       sBlind: $sBlind 
       bBlind: $bBlind
-      duration: $duration
+      ante: $ante
+      game: $game
     )
     {
       id
-      tournament { id }
+      duration
       sBlind
       bBlind
-      duration
+      ante
+      game
     }
   }
 `
