@@ -1,24 +1,17 @@
 import { Notifications, AppLoading, registerRootComponent} from 'expo'
 import { Audio } from 'expo-av'
 import { AdMobRewarded, AdMobInterstitial } from 'expo-ads-admob'
-
 import React from 'react'
 import { YellowBox, Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { ThemeProvider, } from 'react-native-elements'
 import { theme } from './components/FormComponents'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@expo/vector-icons'
-
 import { setContext } from 'apollo-link-context'
-
-
 // Apollo Client v3 (beta)
 import { ApolloClient, ApolloProvider, createHttpLink, ApolloLink, HttpLink, InMemoryCache, from, split, execute, useQuery, useApolloClient, gql} from '@apollo/client'
-
 import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
 import Navigation from './navigation/ReactNavRouter'
-
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
-
 import { GraphCoolConfig } from './config'
 export const graphQL_endpoint = GraphCoolConfig.endpoint
 
@@ -27,15 +20,7 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext(async (_, { headers }) => {
-  // console.log('<<<<<<<<<<<<<<<<<<<<<<<<<authLink being created or updated>>>>>>>>>>>>>>>>>>>>>>>>>>')
-  // console.log('\nHeaders passed in:\n\n' + headers + '\n')
-
-  // get the authentication token from async storage if it exists
   const token = await AsyncStorage.getItem('token');
-  // console.log(token)
-  // return the headers to the context so httpLink can read them
-  // if(token) {console.log('\nToken from AsyncStorage to be sent with this request:\n\n' + token + '\n')}
-  // else {console.log('\nNo token for this request!\n')}
   return {
     headers: {
       ...headers,
@@ -50,11 +35,9 @@ export const client = new ApolloClient({
 })
 
 class AppContainer extends React.Component {
-
   state = {
     appIsReady: false,
   }
-
   componentDidMount() {
     YellowBox.ignoreWarnings([
       "Warning: componentWillReceiveProps has been renamed",

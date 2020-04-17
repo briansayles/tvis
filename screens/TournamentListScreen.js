@@ -174,11 +174,11 @@ export default ((props) => {
 								setRefreshingState(false)
 							)
 						}}
-						data={data.user.tournaments}
+						data={!!data.user && data.user.tournaments}
 						ListHeaderComponent={
 							<ListHeader 
 							title="Tournaments" 
-							showAddButton={!loading && !error && !!data.user} 
+							showAddButton={!!data.user} 
 							loading={loadingState} 
 							onAddButtonPress={addButtonPressed}
 							/>

@@ -9,7 +9,7 @@ import { responsiveFontSize } from '../utilities/functions'
 // import HomeScreen from '../screens/HomeScreen'
 import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
-// import TournamentTimerScreen from '../screens/TournamentTimerScreen'
+import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
 import SegmentListScreen from '../screens/SegmentListScreen'
 // import SegmentEditScreen from '../screens/SegmentEditScreen'
@@ -32,12 +32,12 @@ const TournamentsStack = createStackNavigator({
 			title: 'TourneyVision'
 		}
 	},
-// 	Details: {
-// 		screen: TournamentTimerScreen,
-// 		navigationOptions: {
-// 			title: 'Details'
-// 		}
-// 	},
+	Details: {
+		screen: TournamentTimerScreen,
+		navigationOptions: {
+			title: 'Timer'
+		}
+	},
 	Edit: {
 		screen: TournamentEditScreen,
 		navigationOptions: {

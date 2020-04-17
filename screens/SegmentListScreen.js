@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
-import { ActivityIndicator, Alert, Text, View, ScrollView, StyleSheet, RefreshControl, Modal, TouchableHighlight, TouchableOpacity, Linking, AsyncStorage} from 'react-native'
-import { ListItem, } from 'react-native-elements'
+import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
 import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
 import { sortSegments,  } from '../utilities/functions'
-// import Swipeout from 'react-native-swipeout'
 import { SwipeListView } from 'react-native-swipe-list-view'
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
@@ -13,7 +11,7 @@ import { useQuery, useMutation } from '@apollo/client'
 export default (props) => {
   const [refreshingState, setRefreshingState] = useState(false)
   const [loadingState, setLoadingState] = useState(false) 
-	const {loading, data, error, client, refetch} = useQuery(getTournamentSegmentsQuery, { variables: { id: props.navigation.getParam('id') } })
+	const {loading, data, error, refetch} = useQuery(getTournamentSegmentsQuery, { variables: { id: props.navigation.getParam('id') } })
   const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
   const [createTournamentSegment] = useMutation(createTournamentSegmentMutation, {})
   const [deleteTournamentSegment] = useMutation(deleteSegmentMutation, {})
@@ -207,75 +205,6 @@ export default (props) => {
 		)
 	}
 }
-
-
-
-  // if (loading || loadingUser) {
-  //   return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-  // } else if (error || errorUser) {
-  // return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
-  // } else {
-  //   // const { Tournament } = data
-  //   const { user } = dataUser
-  //   const userIsOwner = user.id === data.Tournament.user.id
-  //   const { Tournament: {segments} } = data
-  //   // const list = sortSegments(segments)
-  //   return (
-  //     <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-  //       <ListHeader 
-  //         title="Blinds" 
-  //         showAddButton={userIsOwner} 
-  //         loading={loadingState} 
-  //         onAddButtonPress={()=>_addButtonPressed(data.Tournament.id)}
-  //       />
-  //       <ScrollView 
-  //         style={{flex: 1, marginLeft: 5, marginRight: 5}}
-  //         refreshControl={
-  //           <RefreshControl
-  //             refreshing={refreshingState}
-  // 						onRefresh={()=>refetch()}
-  //           />
-  //         }
-  //       >
-  //         <View>
-  //           {
-  //             segments && sortSegments(segments).map((item, i) => (
-  //               <Swipeout
-  //                 key={i}
-  //                 autoClose={true}
-  //                 right={[
-  //                   {
-  //                     text: 'Edit',
-  //                     onPress: ()=> editButtonPressed(item.id),
-  //                     type: 'primary',
-  //                   },
-  //                   {
-  //                     text: 'DELETE',
-  //                     onPress: () => _deleteButtonPressed({...item}),
-  //                     backgroundColor: '#ff0000',
-  //                     type: 'delete',
-  //                   },
-  //                 ]}
-  //               >
-  //               <ListItem
-  //                 title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
-  //                 subtitle={item.duration + " minutes"}
-  //                 onPress={()=> editButtonPressed(item.id)}
-  //                 titleStyle={[ styles.listItemTitle, ]}
-  //                 subtitleStyle={[ styles.listItemSubtitle, ]}
-  //                 bottomDivider
-  //                 chevron
-  //               />
-  //               </Swipeout>
-  //             ))
-  //           }
-  //         </View>
-  //       </ScrollView>
-  //       <BannerAd/>
-  //     </View>
-  //   )
-  // }
-// }
 
 const styles = StyleSheet.create({
   active: {

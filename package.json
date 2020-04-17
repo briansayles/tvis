@@ -22,6 +22,7 @@
     "@apollo/react-hoc": "latest",
     "@apollo/react-hooks": "latest",
     "@expo/vector-icons": "^10.0.0",
+    "@rnhooks/dimensions": "0.0.3",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.8",
     "apollo-link": "^1.2.12",

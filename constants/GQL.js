@@ -388,6 +388,38 @@ export const deleteTournamentMutation = gql`
     }
   }
 `
+export const toggleTournamentTimerMutation = gql`
+  mutation updateTournamentTimer($id: ID!, $active: Boolean!, $elapsed: Int!) {
+    updateTimer(id: $id, active: $active, elapsed: $elapsed) {
+      id
+      active
+      updatedAt
+      elapsed
+    }
+  }
+`
+
+export const jumpTournamentSegmentMutation = gql`
+  mutation updateTournamentTimer($id: ID!, $elapsed: Int!) {
+    updateTimer(id: $id, elapsed: $elapsed) {
+      id
+      active
+      updatedAt
+      elapsed
+    }
+  }
+`
+
+export const resetTournamentTimerMutation = gql`
+  mutation updateTournamentTimer($id: ID!) {
+    updateTimer(id: $id, active: false, elapsed: 0) {
+      id
+      active
+      updatedAt
+      elapsed
+    }
+  }
+`
 
 export const updateTournamentTimerMutation = gql`
   mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int, $oneMinuteRemainingSpeech: String, $playOneMinuteRemainingSound: Boolean, $endOfRoundSpeech: String, $playEndOfRoundSound: Boolean, $backgroundColor: String) {
