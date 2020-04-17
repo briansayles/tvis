@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
+import { Icon, } from 'react-native-elements';
 import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
 import { sortSegments,  } from '../utilities/functions'
 import { SwipeListView } from 'react-native-swipe-list-view'
@@ -10,19 +11,19 @@ import { useQuery, useMutation } from '@apollo/client'
 
 export default (props) => {
   const [refreshingState, setRefreshingState] = useState(false)
-  const [loadingState, setLoadingState] = useState(false) 
+  // const [loadingState, setLoadingState] = useState(false) 
 	const {loading, data, error, refetch} = useQuery(getTournamentSegmentsQuery, { variables: { id: props.navigation.getParam('id') } })
   const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
   const [createTournamentSegment] = useMutation(createTournamentSegmentMutation, {})
   const [deleteTournamentSegment] = useMutation(deleteSegmentMutation, {})
 
-  addButtonPressed = (parentId, duration) => {
+  addButtonPressed = () => {
     createTournamentSegment(
       {
         variables:
         {
           "tournamentId": props.navigation.getParam('id'),
-          "duration": duration,
+          "duration": 0,
           "sBlind": 0,
           "bBlind": 0,
           "ante": 0,
@@ -142,7 +143,7 @@ export default (props) => {
             <ListHeader 
             title="Blinds Schedule" 
             showAddButton={userIsOwner} 
-            loading={loadingState} 
+            // loading={loadingState} 
             onAddButtonPress={addButtonPressed}
             />
           }
@@ -164,15 +165,21 @@ export default (props) => {
               <View style={{flex: 1, flexDirection: 'row'}}>
                 <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
                   <Text style={[styles.listItemTitle, ]}>
-                    {(data.item.sBlind || 0) + "/" + (data.item.bBlind || 0)}</Text>
+                    {(data.item.sBlind || 0) + "/" + (data.item.bBlind || 0)}
+                  </Text>
                   <Text style={[styles.listItemSubtitle, ]}>
-                    {(data.item.ante ? " + " + data.item.ante + " ante" : "No Ante")}</Text>
+                    {(data.item.ante ? " + " + data.item.ante + " ante" : "No Ante")}
+                  </Text>
                 </View>
                 <View style={{flex: 0.40, justifyContent: 'center', alignItems: 'flex-end'}}>
                   <Text style={[styles.listItemTitle, ]}>{data.item.duration} Minutes</Text>
                 </View>
                 <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
-                  <Text>></Text>
+                  <Icon
+										name='ios-arrow-forward'
+										color='black'
+										type='ionicon'
+									/>
                 </View>
               </View>
             </TouchableHighlight>
@@ -189,13 +196,21 @@ export default (props) => {
                   style={[styles.backRightBtn, styles.backRightBtnCenter]}
                   onPress={() => editButtonPressed(data.item.id)}
               >
-                  <Text style={styles.backTextWhite}>E</Text>
+                <Icon
+                  name='edit'
+                  color='white'
+                  type='font-awesome'
+                />
               </TouchableOpacity>
               <TouchableOpacity
                   style={[styles.backRightBtn, styles.backRightBtnRight]}
                   onPress={() => deleteButtonPressed(data.item)}
               >
-                  <Text style={styles.backTextWhite}>DEL</Text>
+                <Icon
+                  name='ios-trash'
+                  color='white'
+                  type='ionicon'
+                />
               </TouchableOpacity>
             </View>
           )}
@@ -223,8 +238,8 @@ const styles = StyleSheet.create({
 	},
 	rowFront: {
 		alignItems: 'flex-start',
-		backgroundColor: '#CCC',
-		borderBottomColor: 'black',
+		backgroundColor: '#DDD',
+		borderBottomColor: 'white',
 		borderBottomWidth: 1,
 		justifyContent: 'center',
 		height: 50,
@@ -257,5 +272,5 @@ const styles = StyleSheet.create({
 	backRightBtnRight: {
 			backgroundColor: 'red',
 			right: 0,
-  },
+	},
 });

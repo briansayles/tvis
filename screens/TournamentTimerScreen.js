@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Animated, ActivityIndicator, Text, View, StyleSheet, } from 'react-native'
 import { Button, Avatar, Icon } from 'react-native-elements'
-import * as ScreenOrientation from 'expo-screen-orientation'
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
@@ -20,22 +19,14 @@ export default ((props) => {
   const [ jumpTournamentSegment ] = useMutation(jumpTournamentSegmentMutation, {})
   const [ resetTournamentTimer ] = useMutation(resetTournamentTimerMutation, {})
   const [ getServerTime] = useMutation(getServerTimeMutation, {})
-  // const [ time, setTime ] = useState(new Date())
   const [ ms, setMs] = useState(0)
   const [ display, setDisplay] = useState ({
     timer: "--:--",
-    currentBlinds: "Loading",
+    currentBlinds: "--/--",
     currentAnte: "",
   })
-  // const [ segment, setSegment ] = useState({
-  //   sBlind: 0,
-  //   bBlind: 0, 
-  //   duration: 0, 
-  //   ante: 0 
-  // })
-  const [ nextSegment, setNextSegment ] = useState(null)
+  const [ nextSegment, setNextSegment ] = useState({sBlind: "", bBlind: "", ante: ""})
   const [ csi, setCsi ] = useState(null)
-  // const [ totalDuration, setTotalDuration ] = useState(0)
   const [ noticeStatus, setNoticeStatus ] = useState(false)
   const [ offsetFromServerTime, setOffsetFromServerTime ] = useState(null)
   const [ timerActive, setTimerActive ] = useState(false)
@@ -80,15 +71,10 @@ export default ((props) => {
       cumulativeMS += segments[i].duration * msPerMinute
     }
     if(currentSegmentIndex==null) {
-      // setTime(time)
       setMs(0)
       setDisplay({timer: "", currentBlinds: "", currentAnte: ""})
-      // setSegment(segments[segments.length-1])
       setNextSegment(null)
       setCsi(segments.length-1)
-      // setCurrentDuration(segments[segments.length-1].duration)
-      // setTotalDuration(cumulativeMS)
-      // setPercentage(0)
       setNoticeStatus(false)
       setTimerActive(false)
       return
@@ -107,12 +93,8 @@ export default ((props) => {
     } else if (ms < noticeMilliseconds && ms >= noticeMilliseconds && timerActive && ms > noticeMilliseconds - 1000) {
       noticeFunction(timer.oneMinuteRemainingSpeech || "One minute remaining in this round.")
     }
-    // setSegment(segments[currentSegmentIndex])
     setNextSegment(currentSegmentIndex < segments.length -1 ? segments[currentSegmentIndex + 1] : null)
     setCsi(currentSegmentIndex)
-    // setCurrentDuration(segments[currentSegmentIndex].duration)
-    // setTotalDuration(duration)
-    // setPercentage(ms/(segments[currentSegmentIndex].duration * msPerMinute))
     setNoticeStatus(ms < noticeMilliseconds)
     setTimerActive(timer.active)
   }
@@ -129,8 +111,6 @@ export default ((props) => {
           shouldCorrectPitch: false,
         },
         (playbackStatus) => {
-          // if (playbackStatus.isPlaying && playbackStatus.positionMillis > playbackStatus.durationMillis - playbackStatus.progressUpdateIntervalMillis && playbackStatus.positionMillis != playbackStatus.durationMillis) {
-            // console.log(playbackStatus)
           if (playbackStatus.didJustFinish) {
             Speech.speak(
               (customSpeech + "The blinds are now " + (display.currentBlinds + display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "),
@@ -212,8 +192,8 @@ export default ((props) => {
         Animated.timing(
           chipFadeAnimation,
           {
-            toValue: 0.2,
-            duration: 2000,
+            toValue: 0.3,
+            duration: 2500,
             useNativeDriver: true,
             isInteraction: false,
           }
@@ -221,8 +201,8 @@ export default ((props) => {
         Animated.timing(
           chipFadeAnimation,
             {
-              toValue: 0.80,
-              duration: 2000, 
+              toValue: 0.7,
+              duration: 2500, 
               useNativeDriver: true,
               isInteraction: false,
             }
@@ -370,8 +350,8 @@ export default ((props) => {
     const orientation = height > width ? 'portrait' : 'landscape'
     return (
       <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', }}>
-        <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+          <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
         </View>
         <LinearGradient
           colors={[ '#257a2f', '#194a2f', '#226a2f' ]}
@@ -414,19 +394,8 @@ export default ((props) => {
                 <Text
                   style={[styles.nextBlindsText, noticeStatus && styles.nextBlindsNoticeText]}
                 >
-                  Next Blinds: {nextSegment && (nextSegment.sBlind.toLocaleString() + '/' + nextSegment.bBlind.toLocaleString())}
-                  {!nextSegment && ("No more levels scheduled.")}
-                </Text>
-                {/* <Text
-                  style={[styles.nextBlindsText, noticeStatus && styles.nextBlindsNoticeText]}
-                >
-                  {nextSegment && (nextSegment.sBlind.toLocaleString() + '/' + nextSegment.bBlind.toLocaleString())}
-                  {!nextSegment && ("No more levels scheduled.")}
-                </Text> */}
-                <Text 
-                  style={[styles.nextBlindsText, noticeStatus && styles.nextBlindsNoticeText]}
-                >
-                  {nextSegment && nextSegment.ante && ("Ante: " + nextSegment.ante.toLocaleString())}
+                  {nextSegment && ('Next Blinds: ' + nextSegment.sBlind.toLocaleString() + '/' + nextSegment.bBlind.toLocaleString() + (nextSegment.ante ? "Ante: " + nextSegment.ante.toLocaleString() : ""))}
+                  {!nextSegment && ("End")}
                 </Text>
               </View>
               { orientation == 'portrait' && userIsOwner &&
@@ -481,7 +450,7 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   nextBlindsText: {
-    color: 'rgba(30,30,30,0.85)',
+    color: 'rgba(150,150,150,1)',
     fontSize: Math.min(responsiveHeight(5), responsiveWidth(5)),
     textAlign: 'center',
   },

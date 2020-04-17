@@ -532,7 +532,6 @@ export const createTournamentChipMutation = gql`
     )
     {
       id
-      tournament { id }
       denom
       color
       textColor
@@ -567,9 +566,6 @@ export const getChipQuery = gql`
       color
       textColor
       rimColor
-      tournament {
-        id
-      }
     }
   }
 `

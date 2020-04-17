@@ -1,24 +1,27 @@
 import { useQuery, useMutation} from '@apollo/client'
 import React from 'react'
 import { ActivityIndicator, Alert, View, ScrollView, RefreshControl, StyleSheet, Text, TouchableOpacity, TouchableHighlight} from 'react-native'
-import { ListItem,  } from 'react-native-elements'
+import { Icon, } from 'react-native-elements'
 import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
-import Swipeout from 'react-native-swipeout'
 import {SwipeListView} from 'react-native-swipe-list-view'
 import { BannerAd } from '../components/Ads'
 import { ListHeader, } from '../components/FormComponents'
 import { responsiveFontSize } from '../utilities/functions'
-import { Ionicons } from '@expo/vector-icons'
 import {useState} from 'react'
 
 export default ((props) => {
 	const [refreshingState, setRefreshingState] = useState(false)
-	const [loadingState, setLoadingState] = useState(false)
-	const {loading, data, error, client, refetch} = useQuery(currentUserTournamentsQuery)
+	const {loading, data, error, refetch} = useQuery(currentUserTournamentsQuery)
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
 	const [ deleteTournament ] = useMutation(deleteTournamentMutation, {})
 	const [ createTournament ] = useMutation(createTournamentMutation, {})
 
-  addButtonPressed = async () => {
+
+  navigateToTimerButtonPressed = (id) => {
+    props.navigation.navigate('Details', {id: id})
+  }
+
+	addButtonPressed = async () => {
 		createTournament(
 			{
 				variables: {"userId": data.user.id, "duration": undefined, "title": "My Tournament #" + (data.user.tournaments.length + 1)},
@@ -74,7 +77,6 @@ export default ((props) => {
 
 	deleteButtonPressed = (id, title) => {
 		if (id==="tbd") {return}
-    // setLoadingState(true)
     Alert.alert(
       "Confirm Delete",
       "Delete: \n" + title + " ?",
@@ -124,7 +126,6 @@ export default ((props) => {
       ],
       { cancelable: false }
 		)
-		// setLoadingState(false)
   }
 
   copyButtonPressed = (id) => {
@@ -159,105 +160,112 @@ export default ((props) => {
 //     })
    }
 
-	if (loading) {
+	if (loading || loadingUser) {
     return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-  } else if (error) {
-  	return <Text>Error! {error && error.message}</Text>
+  } else if (error || errorUser) {
+  return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
   } else {
 		return (
 			<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-					<SwipeListView
-						refreshing={refreshingState}
-						onRefresh={()=>{
-							setRefreshingState(true)
-							refetch().then(()=> 
-								setRefreshingState(false)
-							)
-						}}
-						data={!!data.user && data.user.tournaments}
-						ListHeaderComponent={
-							<ListHeader 
-							title="Tournaments" 
-							showAddButton={!!data.user} 
-							loading={loadingState} 
-							onAddButtonPress={addButtonPressed}
-							/>
-						}
-						rightOpenValue={-120}
-						stickyHeaderIndices={[0]}
-						disableRightSwipe = {true}
-						swipeToOpenPercent = {10}
-						swipeToClosePercent = {10}
-						closeOnRowBeginSwipe = {true}
-						closeOnRowOpen = {true}
-						closeOnRowPress = {true}
-						closeOnScroll = {true}
-						renderItem={ (data, rowMap) => (
-							<TouchableHighlight
-								onPress={() => editButtonPressed(data.item.id)}
-								style={[styles.rowFront,]}
-								underlayColor={'#AAA'}
-							>
-								<View style={{flex: 1, flexDirection: 'row'}}>
-									<View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
-										<Text style={[styles.listItemTitle, data.item.timer.active ? styles.active : {}]}>{data.item.title}</Text>
-										<Text style={[styles.listItemSubtitle, data.item.timer.active ? styles.active : {}]}>{data.item.subtitle}</Text>
-									</View>
-									<View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
-										<Text>></Text>
-									</View>
+				<SwipeListView
+					refreshing={refreshingState}
+					onRefresh={()=>{
+						setRefreshingState(true)
+						refetch().then(()=> 
+							setRefreshingState(false)
+						)
+					}}
+					data={!!data.user && data.user.tournaments}
+					ListHeaderComponent={
+						<ListHeader 
+						title="Tournaments" 
+						showAddButton={!!data.user} 
+						onAddButtonPress={addButtonPressed}
+						/>
+					}
+					rightOpenValue={-120}
+					stickyHeaderIndices={[0]}
+					disableRightSwipe = {true}
+					swipeToOpenPercent = {10}
+					swipeToClosePercent = {10}
+					closeOnRowBeginSwipe = {true}
+					closeOnRowOpen = {true}
+					closeOnRowPress = {true}
+					closeOnScroll = {true}
+
+					renderItem={ (data, rowMap) => (
+						<TouchableHighlight
+							onPress={() => {
+								// rowMap[data.item.key].closeRow()	
+								editButtonPressed(data.item.id)
+							}}
+							style={[styles.rowFront,]}
+							underlayColor={'#AAA'}
+						>
+							<View style={{flex: 1, flexDirection: 'row'}}>
+								<View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
+									<Text style={[styles.listItemTitle, data.item.timer.active ? styles.active : {}]}>{data.item.title}</Text>
+									<Text style={[styles.listItemSubtitle, data.item.timer.active ? styles.active : {}]}>{data.item.subtitle}</Text>
 								</View>
-							</TouchableHighlight>
-						)}
-						renderHiddenItem={ (data, rowMap) => (
-							<View style={styles.rowBack}>
-								<TouchableOpacity
-										style={[styles.backRightBtn, styles.backRightBtnLeft]}
-										onPress={() => copyButtonPressed(data.item.id)}
-								>
-										<Text style={styles.backTextWhite}>C</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-										style={[styles.backRightBtn, styles.backRightBtnCenter]}
-										onPress={() => editButtonPressed(data.item.id)}
-								>
-										<Text style={styles.backTextWhite}>E</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-										style={[styles.backRightBtn, styles.backRightBtnRight]}
-										onPress={() => deleteButtonPressed(data.item.id, data.item.title)}
-								>
-										<Text style={styles.backTextWhite}>D</Text>
-								</TouchableOpacity>
+								<View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
+									<Icon
+										name='ios-arrow-forward'
+										color='black'
+										type='ionicon'
+									/>
+								</View>
 							</View>
-						)}
-					/>
-				{/* </ScrollView> */}
+						</TouchableHighlight>
+					)}
+					renderHiddenItem={ (data, rowMap) => (
+						<View style={styles.rowBack}>
+							<TouchableOpacity
+								style={[styles.backRightBtn, styles.backRightBtnLeft]}
+								onPress={() => {
+									// rowMap[data.item.key].closeRow()	
+									navigateToTimerButtonPressed(data.item.id)
+								}}
+							>
+								<Icon
+									name='ios-timer'
+									color='white'
+									type='ionicon'
+								/>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.backRightBtn, styles.backRightBtnCenter]}
+								onPress={() => {
+									// rowMap[data.item.key].closeRow()	
+									editButtonPressed(data.item.id)
+								}}
+							>
+								<Icon
+									name='edit'
+									color='white'
+									type='font-awesome'
+								/>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.backRightBtn, styles.backRightBtnRight]}
+								onPress={() => {
+									// rowMap[data.item.key].closeRow()	
+									deleteButtonPressed(data.item.id, data.item.title)
+								}}
+							>
+								<Icon
+									name='ios-trash'
+									color='white'
+									type='ionicon'
+								/>
+							</TouchableOpacity>
+						</View>
+					)}
+				/>
 				<BannerAd />
 			</View>
 		)
 	}
 })
-	// return (
-
-// 						<ListItem
-// 							title={item.title}
-// 							titleStyle={[ styles.listItemTitle, item.timer.active ? styles.active : {}]}
-// 							subtitle={item.subtitle || ""}
-// 							subtitleStyle={[ styles.listItemSubtitle, item.timer.active ? styles.active : {}]}
-// 							onPress={() => {editButtonPressed(item.id)}}
-// 							chevron
-// 							bottomDivider
-// 							rightIcon={item.timer.active && <Ionicons name="ios-timer"/>}
-// 						/>
-// 					</Swipeout>
-// 					)
-// 				)}
-// 			</ScrollView>
-// 			<BannerAd />
-// 		</View>
-// 	)
-// })
 
 const styles = StyleSheet.create({
   active: {
@@ -276,8 +284,8 @@ const styles = StyleSheet.create({
 	},
 	rowFront: {
 		alignItems: 'flex-start',
-		backgroundColor: '#CCC',
-		borderBottomColor: 'black',
+		backgroundColor: '#DDD',
+		borderBottomColor: 'white',
 		borderBottomWidth: 1,
 		justifyContent: 'center',
 		height: 50,

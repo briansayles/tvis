@@ -46,14 +46,18 @@ export function smallestChipArray (sortedChips, sortedSegments) {
 }
 
 export function dictionaryLookup(value, section, returnType) {
-	if (!section) {return Dictionary[value]}
-	const resultObject = Dictionary[section].find((definition) => {
-		return value == definition.shortName || value == definition.longName
-	})
-	if (returnType == "long" || returnType == "longName") {
-		return resultObject.longName || null
-	} else {
-		return resultObject.shortName || null
+	try {
+		if (!section) {return Dictionary[value]}
+		const resultObject = Dictionary[section].find((definition) => {
+			return value == definition.shortName || value == definition.longName
+		})
+		if (returnType == "long" || returnType == "longName") {
+			return resultObject.longName || null
+		} else {
+			return resultObject.shortName || null
+		}
+	}	catch (error) {
+		return value
 	}
 }
 

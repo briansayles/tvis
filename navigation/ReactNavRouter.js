@@ -3,7 +3,7 @@ import { createAppContainer } from 'react-navigation'
 import { createBottomTabNavigator } from 'react-navigation-tabs'
 import { createStackNavigator } from 'react-navigation-stack'
 import { Ionicons } from '@expo/vector-icons'
-import Auth from '../components/Auth_old'
+// import Auth from '../components/Auth'
 import { responsiveFontSize } from '../utilities/functions'
 
 // import HomeScreen from '../screens/HomeScreen'
@@ -13,7 +13,7 @@ import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
 import SegmentListScreen from '../screens/SegmentListScreen'
 // import SegmentEditScreen from '../screens/SegmentEditScreen'
-// import ChipListScreen from '../screens/ChipListScreen'
+import ChipListScreen from '../screens/ChipListScreen'
 // import ChipEditScreen from '../screens/ChipEditScreen'
 // import ContactListScreen from '../screens/ContactListScreen'
 // import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
@@ -62,12 +62,12 @@ const TournamentsStack = createStackNavigator({
 // 			title: 'Segment Editor',
 // 		}
 // 	},
-// 	ChipList: {
-// 		screen: ChipListScreen,
-// 		navigationOptions: {
-// 			title: 'TourneyVision'
-// 		}
-// 	},
+	ChipList: {
+		screen: ChipListScreen,
+		navigationOptions: {
+			title: 'TourneyVision'
+		}
+	},
 // 	ChipEdit: {
 // 		screen: ChipEditScreen,
 // 		navigationOptions: {
