@@ -121,7 +121,7 @@ export default ( (props) => {
               {chips.map((u,i) => {
                 return (
                   <View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center'}}>
-                    <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
+                    <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(6)}/>
                     <Text style={styles.chipText}>{numberToSuffixedString(u.denom)}</Text>
                   </View>
                 )

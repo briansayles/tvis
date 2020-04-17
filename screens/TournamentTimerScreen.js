@@ -364,7 +364,7 @@ export default ((props) => {
                   return (
                     <Animated.View key={i} style={{flexDirection: 'row', alignItems: 'center', opacity: (csi + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }}>{/* chipFadeAnimation}}> TODO: Re-enable chipFadeAnimation*/}
                       <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}  </Text>
-                      <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(5)}/>
+                      <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(5)}/>
                     </Animated.View>
                   )
                 }
@@ -422,7 +422,7 @@ export default ((props) => {
                 if (csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
                   return (
                     <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', opacity: (csi + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }}>{/* chipFadeAnimation}}> TODO: Re-enable chipFadeAnimation*/}
-                      <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
+                      <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(6)}/>
                       <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
                     </Animated.View>
                   )
