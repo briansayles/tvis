@@ -17,7 +17,7 @@ import ChipListScreen from '../screens/ChipListScreen'
 // import ChipEditScreen from '../screens/ChipEditScreen'
 // import ContactListScreen from '../screens/ContactListScreen'
 // import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
-// import CostListScreen from '../screens/CostListScreen'
+import CostListScreen from '../screens/CostListScreen'
 // import CostEditScreen from '../screens/CostEditScreen'
 // import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
@@ -80,12 +80,12 @@ const TournamentsStack = createStackNavigator({
 // 			title: 'General Info',
 // 		}
 // 	},
-// 	CostList: {
-// 		screen: CostListScreen,
-// 		navigationOptions: {
-// 			title: 'TourneyVision'
-// 		}
-// 	},
+	CostList: {
+		screen: CostListScreen,
+		navigationOptions: {
+			title: 'TourneyVision'
+		}
+	},
 // 	CostEdit: {
 // 		screen: CostEditScreen,
 // 		navigationOptions: {

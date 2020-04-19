@@ -1,13 +1,12 @@
 import { useQuery, useMutation} from '@apollo/client'
-import React from 'react'
-import { ActivityIndicator, Alert, View, ScrollView, RefreshControl, StyleSheet, Text, TouchableOpacity, TouchableHighlight} from 'react-native'
+import React, { useState } from 'react'
+import { ActivityIndicator, Alert, View, StyleSheet, Text, TouchableOpacity, TouchableHighlight} from 'react-native'
 import { Icon, } from 'react-native-elements'
-import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
-import {SwipeListView} from 'react-native-swipe-list-view'
+import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
+import { SwipeListView } from 'react-native-swipe-list-view'
 import { BannerAd } from '../components/Ads'
 import { ListHeader, } from '../components/FormComponents'
 import { responsiveFontSize } from '../utilities/functions'
-import {useState} from 'react'
 
 export default ((props) => {
 	const [refreshingState, setRefreshingState] = useState(false)

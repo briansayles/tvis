@@ -598,6 +598,9 @@ export const createTournamentCostMutation = gql`
         price
         chipStack
         costType
+        _buysMeta {
+          count
+        }
     }
   }
 `

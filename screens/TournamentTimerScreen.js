@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Animated, ActivityIndicator, Text, View, StyleSheet, } from 'react-native'
-import { Button, Avatar, Icon } from 'react-native-elements'
+import { Button, Icon } from 'react-native-elements'
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import { activateKeepAwake, deactivateKeepAwake, useKeepAwake} from 'expo-keep-awake';
 import { smallestChipArray, msToTime, numberToSuffixedString, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
-import { currentUserQuery, getTournamentQuery, toggleTournamentTimerMutation, jumpTournamentSegmentMutation, resetTournamentTimerMutation, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription, updateTournamentChildren} from '../constants/GQL'
+import { currentUserQuery, getTournamentQuery, toggleTournamentTimerMutation, jumpTournamentSegmentMutation, resetTournamentTimerMutation, getServerTimeMutation, } from '../constants/GQL'
 import { GraphCoolConfig } from '../config'
 import { BannerAd } from '../components/Ads'
 import { useQuery, useMutation, } from '@apollo/client'
@@ -20,11 +20,7 @@ export default ((props) => {
   const [ resetTournamentTimer ] = useMutation(resetTournamentTimerMutation, {})
   const [ getServerTime] = useMutation(getServerTimeMutation, {})
   const [ ms, setMs] = useState(0)
-  const [ display, setDisplay] = useState ({
-    timer: "--:--",
-    currentBlinds: "--/--",
-    currentAnte: "",
-  })
+  const [ display, setDisplay] = useState ({timer: "--:--", currentBlinds: "--/--", currentAnte: "", })
   const [ nextSegment, setNextSegment ] = useState({sBlind: "", bBlind: "", ante: ""})
   const [ csi, setCsi ] = useState(null)
   const [ noticeStatus, setNoticeStatus ] = useState(false)
