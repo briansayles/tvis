@@ -439,7 +439,13 @@ export const updateTournamentTimerMutation = gql`
     }
   }
 `
-
+export const deleteTimerMutation = gql`
+  mutation deleteTimer($id: ID!) {
+    deleteTimer(id: $id) {
+      id
+    }
+  }
+`
 export const updateTournamentChildren = gql`
   mutation updateTournamentChildren ($id: ID!, $now: DateTime) {
     updateTournament(id: $id, childrenUpdatedAt: $now) {
@@ -688,11 +694,7 @@ export const createCostBuyMutation = gql`
     )
     {
       id
-      cost {
-        costType
-        chipStack
-        price
-      }
+      player { id }
     }
   }
 `
@@ -855,6 +857,49 @@ export const updatePayoutLevelMutation = gql`
 export const deletePayoutLevelMutation = gql`
   mutation deletePayoutLevel($id: ID!) {
     deletePayoutLevel(id: $id) {
+      id
+    }
+  }
+`
+
+export const orphanedSegmentsQuery = gql`
+  query orphanedSegments {
+    allSegments (filter: {tournament: null}) {
+      id
+    }
+  }
+`
+export const orphanedChipsQuery = gql`
+  query orphanedChips {
+    allChips (filter: {tournament: null}) {
+      id
+    }
+  }
+`
+export const orphanedCostsQuery = gql`
+  query orphanedCosts {
+    allCosts (filter: {tournament: null}) {
+      id
+    }
+  }
+`
+export const orphanedTimersQuery = gql`
+  query orphanedTimers {
+    allTimers (filter: {tournament: null}) {
+      id
+    }
+  }
+`
+export const orphanedBuysQuery = gql`
+  query orphanedBuys {
+    allBuys (filter: {cost: null}) {
+      id
+    }
+  }
+`
+export const orphanedPayoutLevelsQuery = gql`
+  query orphanedPayoutLevels {
+    allPayoutLevels (filter: {tournament: null}) {
       id
     }
   }

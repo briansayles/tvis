@@ -19,7 +19,7 @@ import ChipListScreen from '../screens/ChipListScreen'
 // import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
 import CostListScreen from '../screens/CostListScreen'
 // import CostEditScreen from '../screens/CostEditScreen'
-// import BuyListScreen from '../screens/BuyListScreen'
+import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 
 // import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
@@ -92,12 +92,12 @@ const TournamentsStack = createStackNavigator({
 // 			title: 'Entry Fee Editor',
 // 		}
 // 	},
-// 	BuyList: {
-// 		screen: BuyListScreen,
-// 		navigationOptions: {
-// 			title: 'Buyins'
-// 		}
-// 	},
+	BuyList: {
+		screen: BuyListScreen,
+		navigationOptions: {
+			title: 'Buyins'
+		}
+	},
 // 	PayoutSetup: {
 // 		screen: PayoutLevelListScreen,
 // 		navigationOptions: {

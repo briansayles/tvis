@@ -91,7 +91,7 @@ export default (props) => {
                   let cacheData = cache.readQuery({
                     query: getTournamentCostsQuery, 
                     variables: {id: props.navigation.getParam('id')},
-                   })
+                  })
                   cacheData = {
                     Tournament: {
                       ...cacheData.Tournament,
