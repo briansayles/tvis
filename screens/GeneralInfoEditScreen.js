@@ -1,12 +1,8 @@
-import { graphql, compose } from 'react-apollo'
-import React, { useState, useEffect } from 'react'
-import {Text, View, ScrollView, } from 'react-native'
-import { ActivityIndicator, PricingCard, Button, Icon, Input } from 'react-native-elements'
-import { currentUserQuery, updateTournamentMutation, getTournamentQuery } from '../constants/GQL'
+import React, { useState, } from 'react'
+import { updateTournamentMutation, getTournamentQuery } from '../constants/GQL'
 import { dictionaryLookup } from '../utilities/functions'
-import Events from '../api/events'
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
-import { useQuery, useMutation } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 
 export default (props) => {
   const [formValues, setFormValues] = useState({title, subtitle, comments, game} = props.navigation.getParam('tourney'))
