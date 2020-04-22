@@ -163,10 +163,10 @@ export class SubmitButton extends Component {
   			variables: {
   				id: this.props.id,
   				...this.props.variables
-  			}
+        },
   		}
   	).then(() => {
-			this.props.event && this.props.events.forEach(function(event) {
+			this.props.events && this.props.events.forEach(function(event) {
 			  Events.publish(event)
 			})
   	}).then(() => {

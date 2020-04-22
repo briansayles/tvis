@@ -16,7 +16,7 @@ import SegmentListScreen from '../screens/SegmentListScreen'
 import ChipListScreen from '../screens/ChipListScreen'
 // import ChipEditScreen from '../screens/ChipEditScreen'
 // import ContactListScreen from '../screens/ContactListScreen'
-// import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
+import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
 import CostListScreen from '../screens/CostListScreen'
 // import CostEditScreen from '../screens/CostEditScreen'
 import BuyListScreen from '../screens/BuyListScreen'
@@ -74,12 +74,12 @@ const TournamentsStack = createStackNavigator({
 // 			title: 'Chip Editor',
 // 		}
 // 	},
-// 	GeneralInfoEdit: {
-// 		screen: GeneralInfoEditScreen,
-// 		navigationOptions: {
-// 			title: 'General Info',
-// 		}
-// 	},
+	GeneralInfoEdit: {
+		screen: GeneralInfoEditScreen,
+		navigationOptions: {
+			title: 'General Info',
+		}
+	},
 	CostList: {
 		screen: CostListScreen,
 		navigationOptions: {

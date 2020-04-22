@@ -377,6 +377,10 @@ export const updateTournamentMutation = gql`
   mutation updateTournament ($id: ID!, $title: String, $subtitle: String, $comments: String, $game: Game) {
     updateTournament(id: $id, title: $title, subtitle: $subtitle, comments: $comments, game: $game) {
       id
+      title
+      subtitle
+      comments
+      game
     }
   }
 `
