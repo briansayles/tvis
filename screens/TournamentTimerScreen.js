@@ -77,7 +77,6 @@ export default ((props) => {
     }
     const duration = cumulativeMS + segments[currentSegmentIndex].duration * msPerMinute
     const ms = duration - totalElapsedMS
-    // setTime(time)
     setMs(ms)
     setDisplay({
       timer: timer.active ? msToTime(ms + 999) : msToTime(ms),

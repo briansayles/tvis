@@ -12,7 +12,7 @@ import TournamentListScreen from '../screens/TournamentListScreen'
 import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentEditScreen from '../screens/TournamentEditScreen'
 import SegmentListScreen from '../screens/SegmentListScreen'
-// import SegmentEditScreen from '../screens/SegmentEditScreen'
+import SegmentEditScreen from '../screens/SegmentEditScreen'
 import ChipListScreen from '../screens/ChipListScreen'
 // import ChipEditScreen from '../screens/ChipEditScreen'
 // import ContactListScreen from '../screens/ContactListScreen'
@@ -56,12 +56,12 @@ const TournamentsStack = createStackNavigator({
 			title: 'TourneyVision'
 		}
 	},
-// 	SegmentEdit: {
-// 		screen: SegmentEditScreen,
-// 		navigationOptions: {
-// 			title: 'Segment Editor',
-// 		}
-// 	},
+	SegmentEdit: {
+		screen: SegmentEditScreen,
+		navigationOptions: {
+			title: 'Segment Editor',
+		}
+	},
 	ChipList: {
 		screen: ChipListScreen,
 		navigationOptions: {

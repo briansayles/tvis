@@ -519,6 +519,11 @@ export const updateSegmentMutation = gql`
   mutation updateSegment($id: ID!, $duration: Int, $sBlind: Int, $bBlind: Int, $ante: Int, $game: Game) {
     updateSegment(id: $id, duration: $duration, sBlind: $sBlind, bBlind: $bBlind, ante: $ante, game: $game) {
       id
+      duration
+      sBlind
+      bBlind
+      ante
+      game
     }
   }
 `

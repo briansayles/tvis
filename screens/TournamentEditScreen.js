@@ -1,12 +1,10 @@
-import {graphql, compose} from 'react-apollo'
 import React, {useState} from 'react'
 import { ActivityIndicator, View, ScrollView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { Text, ListItem, Card, Button, Avatar, Icon, Divider} from 'react-native-elements';
+import { Text, Card, Button, Icon, } from 'react-native-elements';
 import { currentUserQuery, getTournamentQuery, } from '../constants/GQL'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
-import Events from '../api/events'
 import { BannerAd } from '../components/Ads'
-import { useQuery, useMutation, useApollo} from '@apollo/client'
+import { useQuery, } from '@apollo/client'
 
 export default ( (props) => {
   const [refreshingState, setRefreshingState] = useState(false)

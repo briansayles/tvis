@@ -11,7 +11,6 @@ import { useQuery, useMutation } from '@apollo/client'
 
 export default (props) => {
   const [refreshingState, setRefreshingState] = useState(false)
-  // const [loadingState, setLoadingState] = useState(false) 
 	const {loading, data, error, refetch} = useQuery(getTournamentSegmentsQuery, { variables: { id: props.navigation.getParam('id') } })
   const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
   const [createTournamentSegment] = useMutation(createTournamentSegmentMutation, {})
@@ -65,8 +64,8 @@ export default (props) => {
     )
   }
 
-  editButtonPressed = (id) => {
-    props.navigation.navigate('SegmentEdit', id)
+  editButtonPressed = (segment) => {
+    props.navigation.navigate('SegmentEdit', {segment, 'tID': props.navigation.getParam('id')})
   }
 
   deleteButtonPressed = (args) => {
@@ -143,7 +142,6 @@ export default (props) => {
             <ListHeader 
             title="Blinds Schedule" 
             showAddButton={userIsOwner} 
-            // loading={loadingState} 
             onAddButtonPress={addButtonPressed}
             />
           }
@@ -158,7 +156,7 @@ export default (props) => {
           closeOnScroll = {true}
           renderItem={ (data, rowMap) => (
             <TouchableHighlight
-              onPress={() => editButtonPressed(data.item.id)}
+              onPress={() => editButtonPressed(data.item)}
               style={[styles.rowFront,]}
               underlayColor={'#AAA'}
             >
@@ -186,15 +184,9 @@ export default (props) => {
           )}
           renderHiddenItem={ (data, rowMap) => (
             <View style={styles.rowBack}>
-              {/* <TouchableOpacity
-                  style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                  onPress={() => copyButtonPressed(data.item.id)}
-              >
-                  <Text style={styles.backTextWhite}>C</Text>
-              </TouchableOpacity> */}
               <TouchableOpacity
                   style={[styles.backRightBtn, styles.backRightBtnCenter]}
-                  onPress={() => editButtonPressed(data.item.id)}
+                  onPress={() => editButtonPressed(data.item)}
               >
                 <Icon
                   name='edit'
