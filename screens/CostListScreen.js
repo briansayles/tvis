@@ -60,8 +60,8 @@ export default (props) => {
     )
   }
 
-  editButtonPressed = (id) => {
-    props.navigation.navigate('CostEdit', id)
+  editButtonPressed = (cost) => {
+    props.navigation.navigate('CostEdit', {cost, 'tID': props.navigation.getParam('id')})
   }
 
   deleteButtonPressed = (args) => {
@@ -152,7 +152,7 @@ export default (props) => {
           closeOnScroll = {true}
           renderItem={ (data, rowMap) => (
             <TouchableHighlight
-              onPress={() => editButtonPressed(data.item.id)}
+              onPress={() => editButtonPressed(data.item)}
               style={[styles.rowFront,]}
               underlayColor={'#AAA'}
             >
@@ -188,7 +188,7 @@ export default (props) => {
               </TouchableOpacity> */}
               <TouchableOpacity
                   style={[styles.backRightBtn, styles.backRightBtnCenter]}
-                  onPress={() => editButtonPressed(data.item.id)}
+                  onPress={() => editButtonPressed(data.item)}
               >
                 <Icon
                   name='edit'

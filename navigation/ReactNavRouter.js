@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons'
 // import Auth from '../components/Auth'
 import { responsiveFontSize } from '../utilities/functions'
 
-// import HomeScreen from '../screens/HomeScreen'
 import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
 import TournamentTimerScreen from '../screens/TournamentTimerScreen'
@@ -14,11 +13,11 @@ import TournamentEditScreen from '../screens/TournamentEditScreen'
 import SegmentListScreen from '../screens/SegmentListScreen'
 import SegmentEditScreen from '../screens/SegmentEditScreen'
 import ChipListScreen from '../screens/ChipListScreen'
-// import ChipEditScreen from '../screens/ChipEditScreen'
+import ChipEditScreen from '../screens/ChipEditScreen'
 // import ContactListScreen from '../screens/ContactListScreen'
 import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
 import CostListScreen from '../screens/CostListScreen'
-// import CostEditScreen from '../screens/CostEditScreen'
+import CostEditScreen from '../screens/CostEditScreen'
 import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 
@@ -68,12 +67,12 @@ const TournamentsStack = createStackNavigator({
 			title: 'TourneyVision'
 		}
 	},
-// 	ChipEdit: {
-// 		screen: ChipEditScreen,
-// 		navigationOptions: {
-// 			title: 'Chip Editor',
-// 		}
-// 	},
+	ChipEdit: {
+		screen: ChipEditScreen,
+		navigationOptions: {
+			title: 'Chip Editor',
+		}
+	},
 	GeneralInfoEdit: {
 		screen: GeneralInfoEditScreen,
 		navigationOptions: {
@@ -86,12 +85,12 @@ const TournamentsStack = createStackNavigator({
 			title: 'TourneyVision'
 		}
 	},
-// 	CostEdit: {
-// 		screen: CostEditScreen,
-// 		navigationOptions: {
-// 			title: 'Entry Fee Editor',
-// 		}
-// 	},
+	CostEdit: {
+		screen: CostEditScreen,
+		navigationOptions: {
+			title: 'Entry Fee Editor',
+		}
+	},
 	BuyList: {
 		screen: BuyListScreen,
 		navigationOptions: {

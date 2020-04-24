@@ -161,7 +161,7 @@ export class SubmitButton extends Component {
   	this.props.mutation(
   		{
   			variables: {
-  				id: this.props.id,
+  				// id: this.props.id ? this.props.id : null,
   				...this.props.variables
         },
   		}

@@ -549,8 +549,9 @@ export const createTournamentChipMutation = gql`
       id
       denom
       color
-      textColor
       rimColor
+      textColor
+      qtyAvailable
     }
   }
 `
@@ -567,6 +568,7 @@ export const getTournamentChipsQuery = gql`
         color
         rimColor
         textColor
+        qtyAvailable
       }
     }
   }
@@ -581,6 +583,7 @@ export const getChipQuery = gql`
       color
       textColor
       rimColor
+      qtyAvailable
     }
   }
 `
@@ -589,6 +592,11 @@ export const updateChipMutation = gql`
   mutation updateChip($id: ID!, $denom: Int, $color: String, $textColor: String, $rimColor: String, ) {
     updateChip(id: $id, denom: $denom, color: $color, textColor: $textColor, rimColor: $rimColor) {
       id
+      denom
+      color
+      textColor
+      rimColor
+      qtyAvailable
     }
   }
 `
@@ -684,6 +692,12 @@ export const updateCostMutation = gql`
   mutation updateCost ($id: ID!, $price: Int, $chipStack: Int, $costType: CostType, ) {
     updateCost(id: $id, price: $price, chipStack: $chipStack, costType: $costType) {
       id
+      price
+      chipStack
+      costType
+      _buysMeta {
+        count
+      }
     }
   }
 `

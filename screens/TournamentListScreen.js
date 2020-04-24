@@ -20,7 +20,7 @@ export default ((props) => {
     props.navigation.navigate('Details', {id: id})
   }
 
-	addButtonPressed = async () => {
+	addTournamentButtonPressed = async () => {
 		createTournament(
 			{
 				variables: {"userId": data.user.id, "duration": undefined, "title": "My Tournament #" + (data.user.tournaments.length + 1)},
@@ -69,12 +69,12 @@ export default ((props) => {
 		)
 	}
 
-  editButtonPressed = (id) => {
+  editTournamentButtonPressed = (id) => {
 		if (id==="tbd") {return}
 		props.navigation.navigate('Edit', {id: id})
   }
 
-	deleteButtonPressed = (id, title) => {
+	deleteTournamentButtonPressed = (id, title) => {
 		if (id==="tbd") {return}
     Alert.alert(
       "Confirm Delete",
@@ -127,7 +127,7 @@ export default ((props) => {
 		)
   }
 
-  copyButtonPressed = (id) => {
+  copyTournamentButtonPressed = (id) => {
 		if (id==="tbd") {return}
     // this.setState({loading: true})
     // const client = useApolloClient() //   const {client} = this.props
@@ -179,7 +179,7 @@ export default ((props) => {
 						<ListHeader 
 						title="Tournaments" 
 						showAddButton={!!data.user} 
-						onAddButtonPress={addButtonPressed}
+						onAddButtonPress={addTournamentButtonPressed}
 						/>
 					}
 					rightOpenValue={-120}
@@ -196,7 +196,7 @@ export default ((props) => {
 						<TouchableHighlight
 							onPress={() => {
 								// rowMap[data.item.key].closeRow()	
-								editButtonPressed(data.item.id)
+								editTournamentButtonPressed(data.item.id)
 							}}
 							style={[styles.rowFront,]}
 							underlayColor={'#AAA'}
@@ -235,7 +235,7 @@ export default ((props) => {
 								style={[styles.backRightBtn, styles.backRightBtnCenter]}
 								onPress={() => {
 									// rowMap[data.item.key].closeRow()	
-									editButtonPressed(data.item.id)
+									editTournamentButtonPressed(data.item.id)
 								}}
 							>
 								<Icon
@@ -248,7 +248,7 @@ export default ((props) => {
 								style={[styles.backRightBtn, styles.backRightBtnRight]}
 								onPress={() => {
 									// rowMap[data.item.key].closeRow()	
-									deleteButtonPressed(data.item.id, data.item.title)
+									deleteTournamentButtonPressed(data.item.id, data.item.title)
 								}}
 							>
 								<Icon

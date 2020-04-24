@@ -5,13 +5,14 @@ import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComp
 import { useMutation } from '@apollo/client'
 
 export default (props) => {
-  const [formValues, setFormValues] = useState({title, subtitle, comments, game} = props.navigation.getParam('tourney'))
+  const initialValues = {} = props.navigation.getParam('tourney')
+  const [formValues, setFormValues] = useState(initialValues)
   const [updateTournament] = useMutation(updateTournamentMutation, {
     variables: {...formValues},
     optimisticResponse: {
       updateTournament: {
         __typename: "Tournament",
-        id: props.navigation.getParam('tourney').id,
+        id: initialValues.id,
         ...formValues,
       }      
     },
@@ -20,7 +21,7 @@ export default (props) => {
         const { data: { updateTournament }} = mutationResponse
         let cacheData = cache.readQuery({ 
           query: getTournamentQuery,
-          variables: {id: props.navigation.getParam('tourney').id},
+          variables: {id: initialValues.id},
         })
         cacheData = {
           Tournament: {
@@ -30,7 +31,7 @@ export default (props) => {
         }
         cache.writeQuery({
           query: getTournamentQuery,
-          variables: {id: props.navigation.getParam('tourney').id},
+          variables: {id: initialValues.id},
           data: cacheData,
         })
       } catch (error) {
@@ -38,14 +39,17 @@ export default (props) => {
       }      
     }
   })
+
   const handleInputChange = (fieldName, value) => {
     setFormValues({...formValues, [fieldName]:value})
   }
+
   const isDirty = () => {
-    const {title: p1, subtitle: p2, comments: p3, game: p4} = props.navigation.getParam('tourney')
-    const {title: f1, subtitle: f2, comments: f3, game: f4} = formValues
-    return p1 != f1 || p2 != f2 || p3 != f3 || p4 != f4
+    let result = false
+    Object.keys(formValues).forEach((key, index) => { if (formValues[key] !== initialValues[key]) result = true })
+    return result
   }
+
   return (
     <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
       <MyInput
@@ -83,7 +87,7 @@ export default (props) => {
       </Picker>
       <SubmitButton 
         mutation={updateTournament}
-        id = {props.navigation.getParam('tourney').id}
+        id = {initialValues.id}
         disabled={!isDirty()}
       />
     </FormView>

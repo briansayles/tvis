@@ -5,7 +5,8 @@ import { dictionaryLookup } from '../utilities/functions'
 import { useMutation } from '@apollo/client'
 
 export default (props) => {
-  const [formValues, setFormValues] = useState({sBlind, bBlind, ante, duration, game, id} = props.navigation.getParam('segment'))
+  const initialValues = {} = props.navigation.getParam('segment')
+  const [formValues, setFormValues] = useState(initialValues)
   const [updateSegment] = useMutation(updateSegmentMutation, {
     variables: {
       ...formValues,
@@ -17,9 +18,9 @@ export default (props) => {
   }
 
   const isDirty = () => {
-    const {sBlind: p1, bBlind: p2, ante: p3, duration: p4, game: p5} = props.navigation.getParam('segment')
-    const {sBlind: f1, bBlind: f2, ante: f3, duration: f4, game: f5} = formValues
-    return p1 != f1 || p2 != f2 || p3 != f3 || p4 != f4 || p5 != f5
+    let result = false
+    Object.keys(formValues).forEach((key, index) => { if (formValues[key] !== initialValues[key]) result = true })
+    return result
   }
 
   return (
@@ -31,7 +32,6 @@ export default (props) => {
         onChangeText={(text) => handleInputChange('sBlind', parseInt(text))}
         keyboardType="numeric"
       />
-
       <MyInput
         title="Big Blind"
         value={(formValues.bBlind || "").toString()}
@@ -42,7 +42,6 @@ export default (props) => {
           setFormValues({...formValues, bBlind: formValues.bBlind || parseInt(formValues.sBlind) * 2})
         }}
       />
-
       <MyInput
         title="Ante"
         value={(formValues.ante || "").toString()}
@@ -50,11 +49,10 @@ export default (props) => {
         onChangeText={(text) => handleInputChange('ante', parseInt(text))}
         keyboardType="numeric"
       />
-
       <Picker
         prompt="Choose your duration"
         title="Duration (in minutes)"
-        initialValue={formValues.duration || "Pick duration..."}
+        initialValue={initialValues.duration || "Pick duration..."}
         selectedValue={formValues.duration}
         onValueChange={(itemValue, itemIndex) => handleInputChange('duration', parseInt(itemValue))}
       >
@@ -63,10 +61,9 @@ export default (props) => {
         ))
         }
       </Picker>
-
       <SubmitButton 
         mutation={updateSegment}
-        id={formValues.id}
+        id={initialValues.id}
         disabled={!isDirty()}
       />
      </FormView>
