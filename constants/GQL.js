@@ -872,7 +872,13 @@ export const getPayoutLevelQuery = gql`
 export const updatePayoutLevelMutation = gql`
   mutation updatePayoutLevelMutation ($id: ID!, $levelNumber: Int, $payCount: Int, $playerCount: Int ) {
     updatePayoutLevel(id: $id, levelNumber: $levelNumber, payCount: $payCount, playerCount: $playerCount) {
+      _payoutLevelsMeta {
+        count
+      }
       id
+      levelNumber
+      payCount
+      playerCount
     }
   }
 `

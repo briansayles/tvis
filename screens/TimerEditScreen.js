@@ -1,7 +1,9 @@
-import React, { useState, } from 'react'
-import { updateTournamentTimerMutation, } from '../constants/GQL'
-import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
 import { useMutation, } from '@apollo/client'
+import React, { useState, } from 'react'
+
+import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
+
+import { updateTournamentTimerMutation, } from '../constants/GQL'
 
 export default ((props) => {
   const initialValues = {} = props.navigation.getParam('timer')
@@ -23,7 +25,7 @@ export default ((props) => {
   }
 
   return (
-    <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+    <FormView>
       <MyInput
         title="One Minute Remaining Speech"
         value={formValues.oneMinuteRemainingSpeech || ""}

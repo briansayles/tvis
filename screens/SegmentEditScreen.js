@@ -1,8 +1,10 @@
-import React, { useState, } from 'react'
-import { updateSegmentMutation} from '../constants/GQL'
-import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
-import { dictionaryLookup } from '../utilities/functions'
 import { useMutation } from '@apollo/client'
+import React, { useState, } from 'react'
+
+import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+
+import { dictionaryLookup, } from '../utilities/functions'
+import { updateSegmentMutation} from '../constants/GQL'
 
 export default (props) => {
   const initialValues = {} = props.navigation.getParam('segment')
@@ -24,7 +26,7 @@ export default (props) => {
   }
 
   return (
-    <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+    <FormView>
       <MyInput
         title="Small Blind"
         value={(formValues.sBlind || "").toString()}
@@ -63,7 +65,6 @@ export default (props) => {
       </Picker>
       <SubmitButton 
         mutation={updateSegment}
-        id={initialValues.id}
         disabled={!isDirty()}
       />
      </FormView>

@@ -1,63 +1,63 @@
+import { useQuery, useMutation } from '@apollo/client'
 import React, { useState } from 'react'
 import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
 import { Icon, } from 'react-native-elements';
-import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
-import { sortChips, numberToSuffixedString, dictionaryLookup } from '../utilities/functions'
 import { SwipeListView } from 'react-native-swipe-list-view'
+
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
-import { responsiveFontSize } from '../utilities/functions'
-import { useQuery, useMutation } from '@apollo/client'
+
+import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
+import { sortChips, dictionaryLookup, responsiveFontSize } from '../utilities/functions'
 
 export default (props) => {
   const [refreshingState, setRefreshingState] = useState(false)
 	const {loading, data, error, refetch} = useQuery(getTournamentChipsQuery, { variables: { id: props.navigation.getParam('id') } })
   const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
-  const [createTournamentChip] = useMutation(createTournamentChipMutation, {})
+  const [createTournamentChip] = useMutation(createTournamentChipMutation, {
+    variables:
+    {
+      "tournamentId": props.navigation.getParam('id'),
+      "denom": 1,
+      "color": "#fff",
+    },
+    optimisticResponse: {
+      createChip: {
+        __typename: "Chip",
+        id: "tbd",
+        denom: 1,
+        color: "#fff",
+        textColor: "#000",
+        rimColor: "#fff",
+      }
+    },
+    update: (cache, {data: { createChip }}) => {
+      try {
+        let cacheData = cache.readQuery({ 
+          query: getTournamentChipsQuery, 
+          variables: {id: props.navigation.getParam('id')}, 
+        })
+        cacheData = {
+          Tournament: {
+            ...cacheData.Tournament,
+            chips: [...cacheData.Tournament.chips, createChip]
+          }
+        }
+        cache.writeQuery({ 
+          query: getTournamentChipsQuery, 
+          variables: {id: props.navigation.getParam('id')},
+          data: cacheData,
+        })
+      } catch (error) {
+        console.log('error: ' + error.message)
+      }
+    },
+  })
+  
   const [deleteTournamentChip] = useMutation(deleteChipMutation, {})
 
   addButtonPressed = () => {
-    createTournamentChip(
-      {
-        variables:
-        {
-          "tournamentId": props.navigation.getParam('id'),
-          "denom": 1,
-          "color": "#fff",
-        },
-        optimisticResponse: {
-          createChip: {
-            __typename: "Chip",
-            id: "tbd",
-            denom: 1,
-            color: "#fff",
-            textColor: "#000",
-            rimColor: "#fff",
-          }
-        },
-        update: (cache, {data: { createChip }}) => {
-					try {
-            let cacheData = cache.readQuery({ 
-              query: getTournamentChipsQuery, 
-              variables: {id: props.navigation.getParam('id')}, 
-            })
-            cacheData = {
-              Tournament: {
-                ...cacheData.Tournament,
-                chips: [...cacheData.Tournament.chips, createChip]
-              }
-            }
-            cache.writeQuery({ 
-              query: getTournamentChipsQuery, 
-              variables: {id: props.navigation.getParam('id')},
-              data: cacheData,
-            })
-					} catch (error) {
-						console.log('error: ' + error.message)
-					}
-        },
-      }
-    )
+    createTournamentChip()
   }
 
   editButtonPressed = (chip) => {

@@ -1,3 +1,4 @@
+import { useQuery, useMutation, } from '@apollo/client'
 import React, { useState, useEffect } from 'react'
 import { Animated, ActivityIndicator, Text, View, StyleSheet, } from 'react-native'
 import { Button, Icon } from 'react-native-elements'
@@ -5,12 +6,13 @@ import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import { activateKeepAwake, deactivateKeepAwake, useKeepAwake} from 'expo-keep-awake';
+import useDimensions from '@rnhooks/dimensions'
+
+import { BannerAd } from '../components/Ads'
+
+import { GraphCoolConfig } from '../config'
 import { smallestChipArray, msToTime, numberToSuffixedString, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import { currentUserQuery, getTournamentQuery, toggleTournamentTimerMutation, jumpTournamentSegmentMutation, resetTournamentTimerMutation, getServerTimeMutation, } from '../constants/GQL'
-import { GraphCoolConfig } from '../config'
-import { BannerAd } from '../components/Ads'
-import { useQuery, useMutation, } from '@apollo/client'
-import useDimensions from '@rnhooks/dimensions'
 
 export default ((props) => {
   const { data, loading, error, } = useQuery(getTournamentQuery, { variables: { id: props.navigation.getParam('id')}})

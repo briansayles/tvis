@@ -1,12 +1,14 @@
+import { useQuery, useMutation } from '@apollo/client'
 import React, { useState } from 'react'
-import { currentUserQuery, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation, } from '../constants/GQL'
-import { dictionaryLookup, sortEntryFees, responsiveFontSize} from '../utilities/functions'
 import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
 import { Icon, } from 'react-native-elements';
 import { SwipeListView } from 'react-native-swipe-list-view'
+
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
-import { useQuery, useMutation } from '@apollo/client'
+
+import { dictionaryLookup, sortEntryFees, responsiveFontSize} from '../utilities/functions'
+import { currentUserQuery, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation, } from '../constants/GQL'
 
 export default (props) => {
   const [refreshingState, setRefreshingState] = useState(false)

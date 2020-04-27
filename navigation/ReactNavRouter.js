@@ -9,7 +9,7 @@ import { responsiveFontSize } from '../utilities/functions'
 import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
 import TournamentTimerScreen from '../screens/TournamentTimerScreen'
-import TournamentEditScreen from '../screens/TournamentEditScreen'
+import TournamentDashboardScreen from '../screens/TournamentDashboardScreen'
 import SegmentListScreen from '../screens/SegmentListScreen'
 import SegmentEditScreen from '../screens/SegmentEditScreen'
 import ChipListScreen from '../screens/ChipListScreen'
@@ -21,7 +21,7 @@ import CostEditScreen from '../screens/CostEditScreen'
 import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
 
-// import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
+import PayoutLevelListScreen from '../screens/PayoutLevelListScreen'
 import TimerEditScreen from '../screens/TimerEditScreen'
 
 const TournamentsStack = createStackNavigator({
@@ -38,7 +38,7 @@ const TournamentsStack = createStackNavigator({
 		}
 	},
 	Edit: {
-		screen: TournamentEditScreen,
+		screen: TournamentDashboardScreen,
 		navigationOptions: {
 			title: 'Tourney Dashboard',
 		}
@@ -97,12 +97,12 @@ const TournamentsStack = createStackNavigator({
 			title: 'Buyins'
 		}
 	},
-// 	PayoutSetup: {
-// 		screen: PayoutLevelListScreen,
-// 		navigationOptions: {
-// 			title: 'Payout Setup'
-// 		}
-// 	},
+	PayoutSetup: {
+		screen: PayoutLevelListScreen,
+		navigationOptions: {
+			title: 'Payout Setup'
+		}
+	},
 }, 
 {
   	mode: 'modal',

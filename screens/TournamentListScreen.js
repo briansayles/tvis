@@ -15,7 +15,6 @@ export default ((props) => {
 	const [ deleteTournament ] = useMutation(deleteTournamentMutation, {})
 	const [ createTournament ] = useMutation(createTournamentMutation, {})
 
-
   navigateToTimerButtonPressed = (id) => {
     props.navigation.navigate('Details', {id: id})
   }

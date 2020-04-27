@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
-import { getTournamentCostsQuery, updateCostMutation} from '../constants/GQL'
-import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
-import { dictionaryLookup } from '../utilities/functions'
 import { useMutation } from '@apollo/client'
+import React, { useState } from 'react'
+
+import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+
+import { dictionaryLookup } from '../utilities/functions'
+import { getTournamentCostsQuery, updateCostMutation} from '../constants/GQL'
 
 export default (props) => {
   const initialValues = {} = props.navigation.getParam('cost')
@@ -51,7 +53,7 @@ export default (props) => {
   }
 
   return(
-    <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+    <FormView>
     <MyInput
       title="Price"
       value={(formValues.price || "").toString()}

@@ -1,8 +1,10 @@
-import React, { useState, } from 'react'
-import { updateTournamentMutation, getTournamentQuery } from '../constants/GQL'
-import { dictionaryLookup } from '../utilities/functions'
-import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 import { useMutation } from '@apollo/client'
+import React, { useState, } from 'react'
+
+import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+
+import { dictionaryLookup } from '../utilities/functions'
+import { updateTournamentMutation, getTournamentQuery } from '../constants/GQL'
 
 export default (props) => {
   const initialValues = {} = props.navigation.getParam('tourney')
@@ -11,8 +13,6 @@ export default (props) => {
     variables: {...formValues},
     optimisticResponse: {
       updateTournament: {
-        __typename: "Tournament",
-        id: initialValues.id,
         ...formValues,
       }      
     },
@@ -51,7 +51,7 @@ export default (props) => {
   }
 
   return (
-    <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
+    <FormView>
       <MyInput
         title="Title"
         value={formValues.title || ""}
@@ -87,7 +87,6 @@ export default (props) => {
       </Picker>
       <SubmitButton 
         mutation={updateTournament}
-        id = {initialValues.id}
         disabled={!isDirty()}
       />
     </FormView>

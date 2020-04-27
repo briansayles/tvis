@@ -1,67 +1,69 @@
+import { useQuery, useMutation } from '@apollo/client'
 import React, { useState } from 'react'
 import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
-import { Icon, } from 'react-native-elements';
-import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
-import { sortSegments,  } from '../utilities/functions'
+import { Icon, } from 'react-native-elements'
 import { SwipeListView } from 'react-native-swipe-list-view'
+
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
-import { responsiveFontSize } from '../utilities/functions'
-import { useQuery, useMutation } from '@apollo/client'
+
+import { sortSegments,  responsiveFontSize } from '../utilities/functions'
+import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
 
 export default (props) => {
   const [refreshingState, setRefreshingState] = useState(false)
 	const {loading, data, error, refetch} = useQuery(getTournamentSegmentsQuery, { variables: { id: props.navigation.getParam('id') } })
   const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
-  const [createTournamentSegment] = useMutation(createTournamentSegmentMutation, {})
+  const [createTournamentSegment] = useMutation(createTournamentSegmentMutation,
+    {
+      variables:
+      {
+        "tournamentId": props.navigation.getParam('id'),
+        "duration": 0,
+        "sBlind": 0,
+        "bBlind": 0,
+        "ante": 0,
+        "game": "NLHE",
+      },
+      optimisticResponse: {
+        createSegment: {
+          __typename: "Segment",
+          id: "tbd",
+          duration: 0,
+          sBlind: 0,
+          bBlind: 0,
+          ante: 0,
+          game: "NLHE",
+        }
+      },
+      update: (cache, {data: { createSegment }}) => {
+        try {
+          let cacheData = cache.readQuery({ 
+            query: getTournamentSegmentsQuery, 
+            variables: {id: props.navigation.getParam('id')}, 
+          })
+          cacheData = {
+            Tournament: {
+              ...cacheData.Tournament,
+              segments: [...cacheData.Tournament.segments, createSegment]
+            }
+          }
+          cache.writeQuery({ 
+            query: getTournamentSegmentsQuery, 
+            variables: {id: props.navigation.getParam('id')},
+            data: cacheData,
+          })
+        } catch (error) {
+          console.log('error: ' + error.message)
+        }
+      },
+    }
+  )
+  
   const [deleteTournamentSegment] = useMutation(deleteSegmentMutation, {})
 
   addButtonPressed = () => {
-    createTournamentSegment(
-      {
-        variables:
-        {
-          "tournamentId": props.navigation.getParam('id'),
-          "duration": 0,
-          "sBlind": 0,
-          "bBlind": 0,
-          "ante": 0,
-          "game": "NLHE",
-        },
-        optimisticResponse: {
-          createSegment: {
-            __typename: "Segment",
-            id: "tbd",
-            duration: 0,
-            sBlind: 0,
-            bBlind: 0,
-            ante: 0,
-            game: "NLHE",
-          }
-        },
-        update: (cache, {data: { createSegment }}) => {
-					try {
-            let cacheData = cache.readQuery({ 
-              query: getTournamentSegmentsQuery, 
-              variables: {id: props.navigation.getParam('id')}, 
-            })
-            cacheData = {
-              Tournament: {
-                ...cacheData.Tournament,
-                segments: [...cacheData.Tournament.segments, createSegment]
-              }
-            }
-            cache.writeQuery({ 
-              query: getTournamentSegmentsQuery, 
-              variables: {id: props.navigation.getParam('id')},
-              data: cacheData,
-            })
-					} catch (error) {
-						console.log('error: ' + error.message)
-					}
-        },
-      }
-    )
+    createTournamentSegment()
   }
 
   editButtonPressed = (segment) => {

@@ -1,10 +1,12 @@
-import React, {useState} from 'react'
-import { ActivityIndicator, View, ScrollView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { Text, Card, Button, Icon, } from 'react-native-elements';
-import { currentUserQuery, getTournamentQuery, } from '../constants/GQL'
-import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, responsiveWidth, responsiveHeight, dictionaryLookup } from '../utilities/functions'
-import { BannerAd } from '../components/Ads'
 import { useQuery, } from '@apollo/client'
+import React, {useState} from 'react'
+import { ActivityIndicator, View, ScrollView, StyleSheet, RefreshControl, } from 'react-native'
+import { Text, Card, Button, Icon, } from 'react-native-elements';
+
+import { BannerAd } from '../components/Ads'
+
+import { smallestChipArray, sortSegments, sortChips, sortEntryFees, numberToSuffixedString, responsiveFontSize, dictionaryLookup } from '../utilities/functions'
+import { currentUserQuery, getTournamentQuery, } from '../constants/GQL'
 
 export default ( (props) => {
   const [refreshingState, setRefreshingState] = useState(false)
