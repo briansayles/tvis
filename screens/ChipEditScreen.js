@@ -1,79 +1,82 @@
-import { graphql, compose } from 'react-apollo'
-import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, Button} from 'react-native'
-import { getChipQuery, updateChipMutation} from '../constants/GQL'
-import Events from '../api/events'
+import { useMutation, } from '@apollo/client'
+import React, { useState, } from 'react'
+
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+
 import { dictionaryLookup } from '../utilities/functions'
+import { getTournamentChipsQuery, updateChipMutation} from '../constants/GQL'
 
-class ChipEditScreen extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = {
-      formValues: {},
-    }
-  }
-
-  async componentDidMount() {
-    const {denom, color} = this.props.navigation.getParam('chip')
-    this.setState({formValues: {denom, color}})
-    this.submitButtonPressedEvent = Events.subscribe("ChipEditSubmitted", () => this.props.navigation.goBack())
-  }
-
-  componentWillUnmount () {
-    this.submitButtonPressedEvent.remove()
-  }
-
-  handleInputChange (fieldName, value) {
-    this.setState(({formValues}) => ({formValues: {
+export default (props) => {
+  const initialValues = {} = props.navigation.getParam('chip')
+  const [formValues, setFormValues] = useState(initialValues)
+  const [updateChip] = useMutation(updateChipMutation, {
+    variables: {
       ...formValues,
-      [fieldName]: value,
-    }}))
-  }
-
-  _isDirty() {
-    const {denom: p1, color: p2} = this.props.navigation.getParam('chip')
-    const {denom: f1, color: f2} = this.state.formValues
-    return p1 != f1 || p2 != f2
-  }
-
-  render() {
-   	return (
-      <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-        <MyInput
-          title="Denomination"
-          value={(this.state.formValues.denom || 0).toString()}
-          placeholder="Enter denomination here..."
-          onChangeText={(text) => this.handleInputChange('denom', parseInt(text))}
-          keyboardType="numeric"
-        />
-
-        <Picker
-          prompt="Choose a color"
-          title="Chip color"
-          initialValue={this.props.navigation.getParam('chip').color || "Pick color..."}
-          selectedValue={this.state.formValues.color || '#fff'}
-          onValueChange={(itemValue, itemIndex) => this.handleInputChange('color', itemValue)}
-        >
-          {dictionaryLookup("ChipColorOptions").map((item, i) => (
-            <Picker.Item key={i} label={item.longName} value={item.shortName}/>
-          ))
+    },
+    optimisticResponse: {
+      updateChip: {
+        ...formValues,
+      }      
+    },
+    update: (cache, mutationResponse) => {
+      try {
+        const {data: { updateChip }} = mutationResponse
+        let cacheData = cache.readQuery({ 
+          query: getTournamentChipsQuery, 
+          variables: {id: props.navigation.getParam('tID')}, 
+        })
+        cacheData = {
+          Tournament: {
+            ...cacheData.Tournament,
+            chips: [...cacheData.Tournament.chips.filter(i => i.id !== updateChip.id), updateChip]
           }
-        </Picker>
+        }
+        cache.writeQuery({ 
+          query: getTournamentChipsQuery, 
+          variables: {id: props.navigation.getParam('tID')},
+          data: cacheData,
+        })
+      } catch (error) {
+        console.log('error: ' + error.message)
+      }
+    }
+  })
 
-        <SubmitButton 
-          mutation={this.props.updateChipMutation}
-          id={this.props.navigation.getParam('chip').id}
-          variables={this.state.formValues}
-          events={["RefreshChipList", "ChipEditSubmitted"]}
-          disabled={!this._isDirty()}
-        />
-      </FormView>
-  	)
+  const handleInputChange = (fieldName, value) => {
+    setFormValues({...formValues, [fieldName]:value})
   }
-}
 
-export default compose(
-  graphql(updateChipMutation, { name: 'updateChipMutation'}),
-)(ChipEditScreen)
+  const isDirty = () => {
+    let result = false
+    Object.keys(formValues).forEach((key, index) => { if (formValues[key] !== initialValues[key]) result = true })
+    return result
+  }
+
+  return (
+    <FormView>
+      <MyInput
+        title="Denomination"
+        value={(formValues.denom || "").toString()}
+        placeholder="Enter denomination here..."
+        onChangeText={(text) => handleInputChange('denom', parseInt(text))}
+        keyboardType="numeric"
+      />
+      <Picker
+        prompt="Choose a color"
+        title="Chip color"
+        initialValue={initialValues.color || "Pick color..."}
+        selectedValue={formValues.color || '#fff'}
+        onValueChange={(itemValue, itemIndex) => handleInputChange('color', itemValue)}
+      >
+        {dictionaryLookup("ChipColorOptions").map((item, i) => (
+          <Picker.Item key={i} label={item.longName} value={item.shortName}/>
+        ))
+        }
+      </Picker>
+      <SubmitButton 
+        mutation={updateChip}
+        disabled={!isDirty()}
+      />
+    </FormView>
+  )
+}

@@ -1,428 +1,443 @@
-import { graphql, compose } from 'react-apollo'
-import React from 'react'
-import { Dimensions, Easing, Animated, ActivityIndicator, Text, View, ScrollView, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { Button, Avatar, Icon } from 'react-native-elements'
-import { ScreenOrientation } from 'expo';
+import { useQuery, useMutation, } from '@apollo/client'
+import React, { useState, useEffect } from 'react'
+import { Animated, ActivityIndicator, Text, View, StyleSheet, } from 'react-native'
+import { Button, Icon } from 'react-native-elements'
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AdMobInterstitial } from 'expo-ads-admob';
 import { Audio } from 'expo-av';
-import { activateKeepAwake, deactivateKeepAwake, } from 'expo-keep-awake';
-import { smallestChipArray, msToTime, numberToSuffixedString, tick, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
-import { currentUserQuery, getTournamentQuery, updateTournamentTimerMutation, getServerTimeMutation, tournamentSubscription, updateTournamentChildren} from '../constants/GQL'
-import { GraphCoolConfig } from '../config'
+import { activateKeepAwake, deactivateKeepAwake, useKeepAwake} from 'expo-keep-awake';
+import useDimensions from '@rnhooks/dimensions'
+
 import { BannerAd } from '../components/Ads'
-import Events from '../api/events'
 
-class TournamentTimerScreen extends React.Component {
+import { GraphCoolConfig } from '../config'
+import { smallestChipArray, msToTime, numberToSuffixedString, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
+import { currentUserQuery, getTournamentQuery, toggleTournamentTimerMutation, jumpTournamentSegmentMutation, resetTournamentTimerMutation, getServerTimeMutation, } from '../constants/GQL'
 
-  static navigationOptions = {
-    title: 'TourneyVision',
-  }
+export default ((props) => {
+  const { data, loading, error, } = useQuery(getTournamentQuery, { variables: { id: props.navigation.getParam('id')}})
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
+  const [ toggleTournamentTimer ] = useMutation(toggleTournamentTimerMutation, {})
+  const [ jumpTournamentSegment ] = useMutation(jumpTournamentSegmentMutation, {})
+  const [ resetTournamentTimer ] = useMutation(resetTournamentTimerMutation, {})
+  const [ getServerTime] = useMutation(getServerTimeMutation, {})
+  const [ ms, setMs] = useState(0)
+  const [ display, setDisplay] = useState ({timer: "--:--", currentBlinds: "--/--", currentAnte: "", })
+  const [ nextSegment, setNextSegment ] = useState({sBlind: "", bBlind: "", ante: ""})
+  const [ csi, setCsi ] = useState(null)
+  const [ noticeStatus, setNoticeStatus ] = useState(false)
+  const [ offsetFromServerTime, setOffsetFromServerTime ] = useState(null)
+  const [ timerActive, setTimerActive ] = useState(false)
+  const { fontScale, width, height, scale } = useDimensions('screen')
 
-  constructor(props) {
-    super(props)
-    // ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-    this.state = {
-      orientation: this._isPortrait() ? 'portrait' : 'landscape',
-      user: null,
-      modalVisible: false,
-      time: new Date(),
-      ms: 0,
-      display: 
-        {
-          timer: "00:00",
-          currentBlinds: "---- / ----",
-          currentAnte: "",
+  useKeepAwake('timer') // TODO: look at using deactivateKeepAwake('timer') if battery gets too low. What about the alarms in that scenario, though?
+
+  useEffect(() => {
+    const getServerTimeFunction = () => {
+      getServerTime({
+        variables: {
+          id: GraphCoolConfig.timeNodeId, 
+          lastRequestedAt: new Date(),
         },
-      segment: {sBlind: 0, bBlind: 0, duration: 0, ante: 0},
-      nextSegment: null,
-      csi: null,
-      currentDuration: 0,
-      totalDuration: 0,
-      percentage: 0,
-      noticeStatus: false,
-      offsetFromServerTime: null,
-      timerActive: false,
-      activity: null,
-      endOfRoundSoundObject: null,
-      timerCustomizations: {},
+        update: (cache, mutationResponse) => {
+          const { data: { updateTime: {updatedAt} }} = mutationResponse
+          setOffsetFromServerTime(new Date().valueOf() - new Date(updatedAt).valueOf())
+        },
+      })
     }
-    Dimensions.addEventListener('change', this._handleOrientationChange)
-  }
+    getServerTimeFunction()
+    const checkServerTimeInterval = setInterval(getServerTimeFunction, 60000)
+    return cleanup = () => clearInterval(checkServerTimeInterval)
+  }, [data])
 
-  _handleOrientationChange = () => {
-    this.setState({
-      orientation: this._isPortrait() ? 'portrait' : 'landscape'
-    })
-  }
-
-  _isPortrait = () => {
-    const dim = Dimensions.get('screen')
-    return dim.height >= dim.width
-  }
-
-
-  async componentDidMount() {
-    activateKeepAwake()
-    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
-    await this.setState({timerCustomizations: {
-      oneMinuteRemainingSpeech: oneMinuteRemainingSpeech || "", 
-      playOneMinuteRemainingSound: playOneMinuteRemainingSound || true, 
-      endOfRoundSpeech: endOfRoundSpeech || "", 
-      playEndOfRoundSound: playEndOfRoundSound || true, 
-      backgroundColor: backgroundColor || "#0f8",
-    }})
-    
-    this.setState({user: this.props.currentUserQuery.user})
-    this._loadSound()
-    this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
-      {
-        this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
+  tick = (noticeSeconds) => {
+    if (loading || error ) {return}
+    const msPerMinute = 60 * 1000
+    const noticeMilliseconds = noticeSeconds * 1000
+    const { Tournament } = data
+    let { segments, timer}  = Tournament
+    segments = sortSegments(segments)
+    const time = new Date()
+    const totalElapsedMS = Math.max(0,timer.active ? timer.elapsed + time.valueOf() - offsetFromServerTime - new Date(timer.updatedAt).valueOf() : timer.elapsed)
+    var cumulativeMS = 0
+    var currentSegmentIndex = null
+    for (var i = 0, len = segments.length; i < len; i++) {
+      if (totalElapsedMS >= cumulativeMS && totalElapsedMS < (cumulativeMS + segments[i].duration * msPerMinute)) {
+        currentSegmentIndex = i
+        break
       }
-    )
-    this.recheckServerTime = setTimeout(()=> {
-      this.props.getServerTimeMutation( {variables: {id: GraphCoolConfig.timeNodeId, lastRequestedAt: new Date(), }}).then( ({data}) =>
-        {
-          this.setState({offsetFromServerTime: new Date().valueOf() - new Date(data.updateTime.updatedAt).valueOf()})
-        }
-      )
-    }, 5000)
-    this.clockInterval = setInterval(()=> {
-      const tickfunction = tick.bind(this)
-      tickfunction(
-        endOfRoundFunction = async () => { 
-          try {
-            await this.state.endOfRoundSoundObject.setStatusAsync({
-              positionMillis: 0,
-              volume: 1,
-              rate: 0.5,
-              shouldPlay: true,
-              shouldCorrectPitch: false,
-            })
-            this.state.endOfRoundSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
-              if(playbackStatus.didJustFinish) {
-                Speech.speak(
-                  this.state.nextSegment && (this.state.timerCustomizations.endOfRoundSpeech + "The blinds are now " + (this.state.display.currentBlinds + this.state.display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "), //this.state.nextSegment.sBlind.toLocaleString() + ', and ' + this.state.nextSegment.bBlind.toLocaleString()),
-                  {
-                    rate: 1.00,
-                    pitch: 1,
-                  }
-                )
-              }
-            })
-          } catch (error) {
-            console.log(error)
-          }
-        },
-        noticeSeconds = 60,
-        noticeFunction = async () => { 
-          try {
-            await this.state.noticeSoundObject.setStatusAsync({
-              positionMillis: 0,
-              volume: 0.75,
-              rate: 3,
-              shouldPlay: true,
-              shouldCorrectPitch: false,
-            })
-            this.state.noticeSoundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
-              if(playbackStatus.didJustFinish) {
-                Speech.speak(
-                  this.state.nextSegment && (this.state.timerCustomizations.oneMinuteRemainingSpeech),
-                  {
-                    rate: 1,
-                    pitch: 1.00,
-                  }
-                )
-              }
-            })
-          } catch (error) {
-            console.log(error)
-          }
-        },
-      )
-    }, 100)
-    this._animate()
+      cumulativeMS += segments[i].duration * msPerMinute
+    }
+    if(currentSegmentIndex==null) {
+      setMs(0)
+      setDisplay({timer: "", currentBlinds: "", currentAnte: ""})
+      setNextSegment(null)
+      setCsi(segments.length-1)
+      setNoticeStatus(false)
+      setTimerActive(false)
+      return
+    }
+    const duration = cumulativeMS + segments[currentSegmentIndex].duration * msPerMinute
+    const ms = duration - totalElapsedMS
+    setMs(ms)
+    setDisplay({
+      timer: timer.active ? msToTime(ms + 999) : msToTime(ms),
+      currentBlinds: numberToSuffixedString(segments[currentSegmentIndex].sBlind) + '/' + numberToSuffixedString(segments[currentSegmentIndex].bBlind),
+      currentAnte: segments[currentSegmentIndex].ante != null && "Ante: " + numberToSuffixedString(segments[currentSegmentIndex].ante)
+    })
+    if (currentSegmentIndex > csi && currentSegmentIndex > 0 && csi != null && timerActive && ms > 30000) { // using ms>30000 (30 seconds) to avoid multiple calls
+      endOfRoundFunction(timer.endOfRoundSpeech || "")
+    } else if (ms < noticeMilliseconds && ms >= noticeMilliseconds && timerActive && ms > noticeMilliseconds - 1000) {
+      noticeFunction(timer.oneMinuteRemainingSpeech || "One minute remaining in this round.")
+    }
+    setNextSegment(currentSegmentIndex < segments.length -1 ? segments[currentSegmentIndex + 1] : null)
+    setCsi(currentSegmentIndex)
+    setNoticeStatus(ms < noticeMilliseconds)
+    setTimerActive(timer.active)
   }
-
-  async _loadSound() {
+  
+  endOfRoundFunction = async (customSpeech="") => { 
     try {
       const { sound: soundObject, status }  = await Audio.Sound.createAsync(
         require('../assets/sounds/3beeps.aiff'),
         {
           positionMillis: 0,
-          volume: 0.3,
-          rate: 2.5,
-          shouldPlay: false,
-          shouldCorrectPitch: false,        
+          volume: 0.7,
+          rate: 0.75,
+          shouldPlay: true,
+          shouldCorrectPitch: false,
+        },
+        (playbackStatus) => {
+          if (playbackStatus.didJustFinish) {
+            Speech.speak(
+              (customSpeech + "The blinds are now " + (display.currentBlinds + display.currentAnte).replace("/", " and ")).replace("false","").replace("Ante: ", "with an ante of "),
+              {
+                rate: 1.00,
+                pitch: 1,
+                onDone: async () => {
+                  const { sound: soundObject, status }  = await Audio.Sound.createAsync(
+                    require('../assets/sounds/500msSilence.mp3'),
+                    {
+                      rate: 4,
+                      positionMillis: 0,
+                      volume: 1,
+                      shouldPlay: true,
+                    },
+                  )                 
+                }
+              }
+            )
+          }
         }
       )
-      this.setState({endOfRoundSoundObject: soundObject})
-      this.setState({noticeSoundObject: soundObject})
     } catch (error) {
       console.log(error)
     }
   }
 
-
-  componentWillUnmount () {
-    deactivateKeepAwake()
-    Dimensions.removeEventListener('change', this._handleOrientationChange)
-    clearTimeout(this.recheckServerTime)
-    clearInterval(this.clockInterval)
+  noticeFunction = async (customSpeech="") => { 
+    try {
+      const { sound: soundObject, status }  = await Audio.Sound.createAsync(
+        require('../assets/sounds/3beeps.aiff'),
+        {
+          positionMillis: 0,
+          volume: 0.7,
+          rate: 3,
+          shouldPlay: true,
+          shouldCorrectPitch: false,        
+        }
+      )
+      soundObject.setOnPlaybackStatusUpdate((playbackStatus) => {
+        if (playbackStatus.isPlaying && playbackStatus.positionMillis >= playbackStatus.durationMillis - playbackStatus.progressUpdateIntervalMillis) {
+          Speech.speak(
+            (customSpeech),
+            {
+              rate: 1.00,
+              pitch: 1,
+              onDone: async () => {
+                const { sound: soundObject, status }  = await Audio.Sound.createAsync(
+                  require('../assets/sounds/500msSilence.mp3'),
+                  {
+                    positionMillis: 0,
+                    volume: 1,
+                    shouldPlay: true,
+                  },
+                )                 
+              }
+            }
+          )
+        }
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
+  
+  useEffect(() => {
+    clockInterval = setInterval(()=> {
+      tick(
+        noticeSeconds = 60,
+      )
+    }, 1000)
+    return cleanup = () => clearInterval(clockInterval)
+  }, [])
 
-  _animate() {
-    this.chipFadeAnimation = new Animated.Value(1)
+  animate = () => {
+    chipFadeAnimation = new Animated.Value(1)
     Animated.loop(
       Animated.sequence([    
         Animated.timing(
-          this.chipFadeAnimation,
+          chipFadeAnimation,
           {
-            toValue: 0.2,
-            duration: 2000,
+            toValue: 0.3,
+            duration: 2500,
             useNativeDriver: true,
             isInteraction: false,
           }
         ),
         Animated.timing(
-          this.chipFadeAnimation,
+          chipFadeAnimation,
             {
-              toValue: 1,
-              duration: 2000, 
+              toValue: 0.7,
+              duration: 2500, 
               useNativeDriver: true,
               isInteraction: false,
             }
         ),
-
       ])
     ).start()    
   }
 
-  async _toggleTimerButtonPressed(tourney) {
-    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
-    this.setState({activity: 'toggling'})
-    try {
-      await this.props.updateTournamentTimerMutation({ variables: {
+  useEffect(() => {animate()},[data])
+
+  toggleTimerButtonPressed = async (tourney) => {
+    toggleTournamentTimer({
+      variables: {
+        id: tourney.timer.id,
+        active: !(tourney.timer.active),
+        elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
+      },
+      optimisticResponse: {
+        updateTimer: {
+          '__typename': 'Timer',
           id: tourney.timer.id,
-          active: !(tourney.timer.active),
-          elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
-          oneMinuteRemainingSpeech,
-          playOneMinuteRemainingSound,
-          endOfRoundSpeech,
-          playEndOfRoundSound,
-          backgroundColor,
-          } 
+          active: (!tourney.timer.active),
+          updatedAt: new Date(),
+          elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
         }
-      )
-      await this.props.updateTournamentChildrenMutation({variables: {
-          now: new Date(),
-          id: tourney.id
-          }
-        }
-      )
-    } catch (error) {
-      console.log(error)
-    } finally {
-      this.setState({activity: null})
-      Events.publish("RefreshTournamentList")
-      this._animate()
-    }
-  }
-
-  async _fwdButtonPressed(tourney) {
-    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
-    this.setState({activity: 'advancing'})
-    try {
-      await this.props.updateTournamentTimerMutation({ variables: {
-        id: tourney.timer.id,
-        active: tourney.timer.active,
-        elapsed: this.state.ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - this.state.offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
-        oneMinuteRemainingSpeech,
-        playOneMinuteRemainingSound,
-        endOfRoundSpeech,
-        playEndOfRoundSound,
-        backgroundColor,
-      }})
-      await this.props.updateTournamentChildrenMutation({variables: {
-        now: new Date(),
-        id: tourney.id
-      }})
-    } catch (error) {
-      console.log(error)
-    } finally {
-      this.setState({activity: null})
-      this._animate()
-    }
-  }
-
-
-
-  async _resetTimerButtonPressed(tourney) {
-    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor} = await this.props.getTournamentQuery.Tournament.timer
-    this.setState({activity: 'resetting'})
-    try {
-      await this.props.updateTournamentTimerMutation({ variables: {
-        id: tourney.timer.id,
-        active: false,
-        elapsed: 0,
-        oneMinuteRemainingSpeech,
-        playOneMinuteRemainingSound,
-        endOfRoundSpeech,
-        playEndOfRoundSound,
-        backgroundColor,
-        } 
-      })
-      await this.props.updateTournamentChildrenMutation({variables: {
-        now: new Date(),
-        id: tourney.id
-        }
-      })
-    } catch (error) {
-      console.log(error)
-    } finally {
-      this.setState({activity: null})
-      this._animate()
-    }
-  }
-
-  render() {
-    const { getTournamentQuery: { loading, error, Tournament }, navigation } = this.props
-    if (loading) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (error) {
-      return <Text>Error!  {error.message}</Text>
-    } else {
-      const userIsOwner = this.state.user && this.state.user.id === Tournament.user.id
-      const chips = sortChips(Tournament.chips)
-      const segments = sortSegments(Tournament.segments)
-      const smallestChipReq = smallestChipArray(chips, segments)
-      const segment = this.state.segment && this.state.segment
-      const nextSegment = this.state.nextSegment && this.state.nextSegment
-
-      return (
-        <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
-          <View style={{flex: 1, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center', }}>
-            <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
-          </View>
-          <LinearGradient
-            colors={['#194a2f', '#257a25', '#194a2f']}
-            style={{ flex: 11, margin: responsiveFontSize(1), padding: responsiveFontSize(1), borderRadius: responsiveFontSize(3) }}
-          >
-            <View style={{flex: 8, flexDirection:'row', }}>
-              <View style={{flex: this.state.orientation == 'portrait' ? 2 : 1, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'flex-end', paddingLeft: 5}}>
-                {this.state.orientation == 'landscape' && chips.map((u,i) => {
-                  if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
-                    return (
-                      <Animated.View key={i} style={{flexDirection: 'row', alignItems: 'center', opacity: (this.state.csi + 1 <= smallestChipReq[i].segment) ? 1 : this.chipFadeAnimation}}>
-                        <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}  </Text>
-                        <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(5)}/>
-                      </Animated.View>
-                    )
-                  }
-                })}
-              </View>
-              <View style={{flex: 4, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center',}}>
-                <View style={{flex: 5, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', }}>
-                  <Text
-                    style={[styles.blindsText, this.state.noticeStatus && styles.blindsNoticeText]}
-                  >
-                    {this.state.display.currentBlinds}
-                  </Text>
-                  {this.state.display.currentAnte != null && 
-                    <Text
-                     style={[styles.anteText, this.state.noticeStatus && styles.blindsNoticeText]}
-                    >
-                      {this.state.display.currentAnte}
-                    </Text>
-                  }
-                  <Text 
-                    style={[styles.timerText, this.state.noticeStatus && styles.timerNoticeText]}
-                  >
-                    {this.state.display.timer}
-                  </Text>
-                </View>
-                <View style={{flex: 4, flexDirection: 'column',  justifyContent: 'space-evenly', alignItems: 'center', }}>
-                  <Text
-                    style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                  >
-                    Next Blinds:
-                  </Text>
-                  <Text
-                    style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                  >
-                    {this.state.nextSegment && (this.state.nextSegment.sBlind.toLocaleString() + '/' + this.state.nextSegment.bBlind.toLocaleString())}
-                    {!this.state.nextSegment && ("No more levels scheduled.")}
-                  </Text>
-                  <Text 
-                    style={[styles.nextBlindsText, this.state.noticeStatus && styles.nextBlindsNoticeText]}
-                  >
-                    {this.state.nextSegment && this.state.nextSegment.ante && ("Ante: " + this.state.nextSegment.ante.toLocaleString())}
-                  </Text>
-                </View>
-                { !this.state.activity && this.state.orientation == 'portrait' &&
-                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                    {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this, Tournament)}></Button>}
-                    {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this, Tournament)}></Button>}
-                    {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this, Tournament)}></Button>}
-                  </View>
-                }
-                { this.state.activity && this.state.orientation == 'portrait' &&
-                  <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <ActivityIndicator/>
-                  </View>
-                }
-              </View>
-              <View style={{flex: this.state.orientation == 'portrait' ? 2 : 1, flexDirection: 'column', paddingRight: 5}}>
-                { !this.state.activity && this.state.orientation == 'landscape' &&
-                  <View style={{flex: 2, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center'}}>
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={this._resetTimerButtonPressed.bind(this, Tournament)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={this.state.timerActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={this._toggleTimerButtonPressed.bind(this, Tournament)}></Button>}
-                    {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={this._fwdButtonPressed.bind(this, Tournament)}></Button>}
-                  </View>
-                }
-                { this.state.activity && this.state.orientation == 'landscape' &&
-                  <View style={{flex: 2, flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center'}}>
-                    <ActivityIndicator/>
-                  </View>
-                }
-              </View>
-            </View>
-            {this.state.orientation == 'portrait' && 
-              <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
-                {chips.map((u,i) => {
-                 if (this.state.csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
-                    return (
-                      <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', opacity: (this.state.csi + 1 <= smallestChipReq[i].segment) ? 1 : this.chipFadeAnimation}}>
-                        <Icon name='circle' color={u.color} type='font-awesome' size={responsiveFontSize(6)}/>
-                        <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
-                      </Animated.View>
-                    )
-                  }
-                })}
-              </View>
+      },
+      update: (cache, mutationResponse) => {
+        try {
+          const { data: { updateTimer }} = mutationResponse
+          let cacheData = cache.readQuery({
+            query: getTournamentQuery, 
+            variables: { id: props.navigation.getParam('id')}
+           })
+          cacheData = {
+            Tournament: {
+              ...cacheData.Tournament,
+              timer: {...cacheData.Tournament.timer, ...updateTimer}
             }
-          </LinearGradient>
-          <BannerAd/>
-        </View>
-      )
-    }
+          }
+          cache.writeQuery({
+            query: getTournamentQuery, 
+            variables: {id: props.navigation.getParam('id')},
+            data: cacheData, 
+          })
+        } catch (error) {
+          console.log('error: ' + error.message)
+        }        
+      }
+    })
   }
-}
 
-export default compose(
-  graphql(getTournamentQuery, { name: 'getTournamentQuery', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(getServerTimeMutation, { name: 'getServerTimeMutation', }),
-  graphql(currentUserQuery, { name: 'currentUserQuery', }),
-  graphql(updateTournamentTimerMutation, {name: 'updateTournamentTimerMutation'}),
-  graphql(updateTournamentChildren, {name: 'updateTournamentChildrenMutation'})
-)(TournamentTimerScreen)
+  fwdButtonPressed = async (tourney) => {
+    jumpTournamentSegment({
+      variables: {
+        id: tourney.timer.id,
+        elapsed: ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
+      },
+      // optimisticResponse: {
+      //   updateTimer: {
+      //     '__typename': 'Timer',
+      //     id: tourney.timer.id,
+      //     elapsed: ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
+      //     active: tourney.timer.active,
+      //     updatedAt: new Date(),
+      //   }
+      // },
+      update: (cache, mutationResponse) => {
+        try {
+          const { data: { updateTimer }} = mutationResponse
+          let cacheData = cache.readQuery({
+            query: getTournamentQuery, 
+            variables: { id: props.navigation.getParam('id')}
+           })
+          cacheData = {
+            Tournament: {
+              ...cacheData.Tournament,
+              timer: {...cacheData.Tournament.timer, ...updateTimer}
+            }
+          }
+          cache.writeQuery({
+            query: getTournamentQuery, 
+            variables: {id: props.navigation.getParam('id')},
+            data: cacheData, 
+          })
+        } catch (error) {
+          console.log('error: ' + error.message)
+        }        
+      }
+    })
+  }
 
+  resetTimerButtonPressed = async (tourney) => {
+    resetTournamentTimer({
+      variables: {
+        id: tourney.timer.id,
+      },
+      optimisticResponse: {
+        updateTimer: {
+          '__typename': 'Timer',
+          id: tourney.timer.id,
+          elapsed: 0,
+          active: false,
+          updatedAt: new Date(),
+        }
+      },
+      update: (cache, mutationResponse) => {
+        try {
+          const { data: { updateTimer }} = mutationResponse
+          let cacheData = cache.readQuery({
+            query: getTournamentQuery, 
+            variables: { id: props.navigation.getParam('id')}
+           })
+          cacheData = {
+            Tournament: {
+              ...cacheData.Tournament,
+              timer: {...cacheData.Tournament.timer, ...updateTimer}
+            }
+          }
+          cache.writeQuery({
+            query: getTournamentQuery, 
+            variables: {id: props.navigation.getParam('id')},
+            data: cacheData, 
+          })
+        } catch (error) {
+          console.log('error: ' + error.message)
+        }        
+      }
+    })
+  }
+
+
+  if (loading || loadingUser) {
+    return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+  } else if (error || errorUser) {
+    return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
+  } else {
+    const { user } = dataUser
+    const { Tournament } = data
+    const { timer } = Tournament
+    const { active, oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor } = timer
+    const chips = sortChips(Tournament.chips)
+    const segments = sortSegments(Tournament.segments)
+    const smallestChipReq = smallestChipArray(chips, segments)
+    const userIsOwner = true //dataUser && (dataUser.id == Tournament.user.id)
+    const orientation = height > width ? 'portrait' : 'landscape'
+    return (
+      <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-around'}]}>
+        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+          <Text style={[{flex: 1}, styles.titleText]}>{Tournament.title}</Text>
+        </View>
+        <LinearGradient
+          colors={[ '#257a2f', '#194a2f', '#226a2f' ]}
+          style={{ flex: 11, margin: responsiveFontSize(1), padding: responsiveFontSize(1), borderRadius: responsiveFontSize(3) }}
+        >
+          <View style={{flex: 8, flexDirection:'row', }}>
+            <View style={{flex: orientation == 'portrait' ? 2 : 1, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'flex-end', paddingLeft: 5}}>
+              {orientation == 'landscape' && chips.map((u,i) => {
+                if (csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
+                  return (
+                    <Animated.View key={i} style={{flexDirection: 'row', alignItems: 'center', opacity: (csi + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }}>{/* chipFadeAnimation}}> TODO: Re-enable chipFadeAnimation*/}
+                      <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}  </Text>
+                      <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(5)}/>
+                    </Animated.View>
+                  )
+                }
+              })}
+            </View>
+            <View style={{flex: 4, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center',}}>
+              <View style={{flex: 5, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', }}>
+                <Text
+                  style={[styles.blindsText, noticeStatus && styles.blindsNoticeText]}
+                >
+                  {display.currentBlinds}
+                </Text>
+                {display.currentAnte != null && 
+                  <Text
+                    style={[styles.anteText, noticeStatus && styles.blindsNoticeText]}
+                  >
+                    {display.currentAnte}
+                  </Text>
+                }
+                <Text 
+                  style={[styles.timerText, noticeStatus && styles.timerNoticeText]}
+                >
+                  {display.timer}
+                </Text>
+              </View>
+              <View style={{flex: 4, flexDirection: 'column',  justifyContent: 'space-evenly', alignItems: 'center', }}>
+                <Text
+                  style={[styles.nextBlindsText, noticeStatus && styles.nextBlindsNoticeText]}
+                >
+                  {nextSegment && ('Next Blinds: ' + nextSegment.sBlind.toLocaleString() + '/' + nextSegment.bBlind.toLocaleString() + (nextSegment.ante ? "Ante: " + nextSegment.ante.toLocaleString() : ""))}
+                  {!nextSegment && ("End")}
+                </Text>
+              </View>
+              { orientation == 'portrait' && userIsOwner &&
+                <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                  {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={() => resetTimerButtonPressed(Tournament)}></Button>}
+                  {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={ active ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={()=> toggleTimerButtonPressed(Tournament)}></Button>}
+                  {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={()=> fwdButtonPressed(Tournament)}></Button>}
+                </View>
+              }
+            </View>
+            <View style={{flex: orientation == 'portrait' ? 2 : 1, flexDirection: 'column', paddingRight: 5}}>
+              { orientation == 'landscape' && userIsOwner &&
+                <View style={{flex: 2, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center'}}>
+                  {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={()=> resetTimerButtonPressed(Tournament)}></Button>}
+                  {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={ active ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={()=> toggleTimerButtonPressed(Tournament)}></Button>}
+                  {<Button title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={()=> fwdButtonPressed(Tournament)}></Button>}
+                </View>
+              }
+            </View>
+          </View>
+          {orientation == 'portrait' && 
+            <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
+              {chips.map((u,i) => {
+                if (csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
+                  return (
+                    <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', opacity: (csi + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }}>{/* chipFadeAnimation}}> TODO: Re-enable chipFadeAnimation*/}
+                      <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(6)}/>
+                      <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
+                    </Animated.View>
+                  )
+                }
+              })}
+            </View>
+          }
+        </LinearGradient>
+        <BannerAd/>
+      </View>
+    )
+  }
+})
 
 const styles = StyleSheet.create({
   blindsText: {
     color: 'rgba(225,225,225,1)',
-    fontSize: Math.min(responsiveHeight(10), responsiveWidth(10)),
+    fontSize: Math.min(responsiveHeight(12), responsiveWidth(12)),
   },
   anteText: {
     color: 'rgba(225,225,225,1)',
@@ -432,8 +447,8 @@ const styles = StyleSheet.create({
     fontWeight: '300',
   },
   nextBlindsText: {
-    color: 'rgba(30,30,30,1)',
-    fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
+    color: 'rgba(150,150,150,1)',
+    fontSize: Math.min(responsiveHeight(5), responsiveWidth(5)),
     textAlign: 'center',
   },
   nextBlindsNoticeText: {
@@ -442,7 +457,7 @@ const styles = StyleSheet.create({
   timerText: {
     color: 'rgba(225,225,225,1)',
     fontFamily: 'Menlo',
-    fontSize: Math.min(responsiveHeight(9), responsiveWidth(9)),
+    fontSize: Math.min(responsiveHeight(10), responsiveWidth(10)),
   },
   timerNoticeText: {
     color: 'red',

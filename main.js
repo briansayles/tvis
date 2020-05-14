@@ -1,80 +1,48 @@
 import { Notifications, AppLoading, registerRootComponent} from 'expo'
 import { Audio } from 'expo-av'
 import { AdMobRewarded, AdMobInterstitial } from 'expo-ads-admob'
-
 import React from 'react'
-import { Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
+import { YellowBox, Alert, Platform, StatusBar, StyleSheet, View, AsyncStorage, Linking, TouchableHighlight } from 'react-native'
 import { ThemeProvider, } from 'react-native-elements'
 import { theme } from './components/FormComponents'
 import { FontAwesome, MaterialCommunityIcons, MaterialIcons, Ionicons} from '@expo/vector-icons'
-import { createHttpLink, HttpLink } from 'apollo-link-http'
-import { InMemoryCache } from 'apollo-cache-inmemory'
 import { setContext } from 'apollo-link-context'
-import { ApolloClient } from 'apollo-client'
-import { ApolloProvider, } from 'react-apollo'
-
-import { getOperationAST } from 'graphql'
-import { ApolloLink, concat, split } from 'apollo-link'
-import { WebSocketLink } from 'apollo-link-ws'
-
-import { SubscriptionClient } from 'subscriptions-transport-ws'
+// Apollo Client v3 (beta)
+import { ApolloClient, ApolloProvider, createHttpLink, ApolloLink, HttpLink, InMemoryCache, from, split, execute, useQuery, useApolloClient, gql} from '@apollo/client'
 import registerForPushNotificationsAsync from './api/registerForPushNotificationsAsync'
 import Navigation from './navigation/ReactNavRouter'
-
 import cacheAssetsAsync from './utilities/cacheAssetsAsync'
-import Auth from './components/Auth'
-
 import { GraphCoolConfig } from './config'
 export const graphQL_endpoint = GraphCoolConfig.endpoint
-export const graphQL_subscription_endpoint = GraphCoolConfig.wsClient
-export const graphQL_subscription_options = GraphCoolConfig.wsClientOptions
 
-
-const httpLink = new HttpLink({ 
+const httpLink = createHttpLink({
   uri: graphQL_endpoint,
-  // credentials: 'same-origin',
 });
 
-const wsLink = new WebSocketLink(
-  {
-    uri: graphQL_subscription_endpoint,
-    options: graphQL_subscription_options
-  }
-)
-
-const link = ApolloLink.split(
-  operation => {
-    const operationAST = getOperationAST(operation.query, operation.operationName);
-    return !!operationAST && operationAST.operation === 'subscription';
-  },
-  wsLink,
-  httpLink
-);
-
-const middlewareLink = setContext(async (req, { headers }) => {
+const authLink = setContext(async (_, { headers }) => {
+  const token = await AsyncStorage.getItem('token');
   return {
-    ...headers,
     headers: {
-      authorization: `Bearer ${await AsyncStorage.getItem('token')}`,
-    },
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    }
   }
-})
-
-const cache = new InMemoryCache()
+});
 
 export const client = new ApolloClient({
-  link: concat(middlewareLink, link),
-  cache: cache,
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache()
 })
 
-
 class AppContainer extends React.Component {
-
   state = {
     appIsReady: false,
   }
-
   componentDidMount() {
+    YellowBox.ignoreWarnings([
+      "Warning: componentWillReceiveProps has been renamed",
+      "Warning: componentWillMount has been renamed",
+    ])
     AdMobRewarded.addEventListener('rewardedVideoDidOpen', () => {
       console.log('rewarded video opened')
     })

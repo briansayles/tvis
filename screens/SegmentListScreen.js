@@ -1,160 +1,219 @@
-import {graphql, compose} from 'react-apollo'
-import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage} from 'react-native'
-import { ListItem, Button, } from 'react-native-elements';
-import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
-import { sortSegments, sortChips } from '../utilities/functions'
-import Events from '../api/events'
-import Swipeout from 'react-native-swipeout'
+import { useQuery, useMutation } from '@apollo/client'
+import React, { useState } from 'react'
+import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
+import { Icon, } from 'react-native-elements'
+import { SwipeListView } from 'react-native-swipe-list-view'
+
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
-import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
-class SegmentListScreen extends React.Component {
+import { sortSegments,  responsiveFontSize } from '../utilities/functions'
+import { currentUserQuery, getTournamentSegmentsQuery, createTournamentSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      // user: null,
-      refreshing: false,
-      loading: false,
-    }
-  }
-
-  static navigationOptions = {
-  };
-
-  componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshSegmentList', () => this._refresh())
-  }
-
-  // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.currentUserQuery) {
-  //     this.setState({user: nextProps.currentUserQuery.user || null})
-  //   }
-  // }
-  
-  componentDidUpdate(prevProps) {
-  }
-
-  componentWillUnmount () {
-    this.refreshEvent.remove()
-  }
-
-  _refresh() {
-    this.props.getData.refetch().then(() => this.setState({loading: false}))
-  }
-
-  _addButtonPressed(parentId, duration) {
-    this.setState({loading: true})
-    this.props.createItem(
+export default (props) => {
+  const [refreshingState, setRefreshingState] = useState(false)
+	const {loading, data, error, refetch} = useQuery(getTournamentSegmentsQuery, { variables: { id: props.navigation.getParam('id') } })
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
+  const [createTournamentSegment] = useMutation(createTournamentSegmentMutation,
+    {
+      variables:
       {
-        variables:
-        {
-          "tournamentId": parentId,
-          "sBlind": 0,
-          "bBlind": 0,
-          "duration": duration,
+        "tournamentId": props.navigation.getParam('id'),
+        "duration": 0,
+        "sBlind": 0,
+        "bBlind": 0,
+        "ante": 0,
+        "game": "NLHE",
+      },
+      optimisticResponse: {
+        createSegment: {
+          __typename: "Segment",
+          id: "tbd",
+          duration: 0,
+          sBlind: 0,
+          bBlind: 0,
+          ante: 0,
+          game: "NLHE",
         }
-      }
-    ).then((result) => {
-      Events.publish('RefreshSegmentList')
-      this._editButtonPressed(result.data.createSegment)
-    }
-    )
-  }
-
-	_editButtonPressed(segment) {
-    this.props.navigation.navigate('SegmentEdit', {segment: segment})
-  }
-
-  _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    this.props.deleteItem({variables: {id: id} }).then(
-      () => Events.publish('RefreshSegmentList')
-    )
-  }
-
-  _search(searchText) {
-  }
-
-  render() {
-    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
-    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
-    if (loadingData || loadingUser) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (errorData || errorUser) {
-      return <Text>Error!</Text>
-    } else {
-      const userIsOwner = user.id === Tournament.user.id
-      const parent = Tournament
-      const list = sortSegments(parent.segments)
-      return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-          <ListHeader 
-            title="Blinds" 
-            showAddButton={userIsOwner} 
-            loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
-            // onSearch={this._search}
-          />
-          <ScrollView 
-            style={{flex: 1, marginLeft: 5, marginRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
-              />
+      },
+      update: (cache, {data: { createSegment }}) => {
+        try {
+          let cacheData = cache.readQuery({ 
+            query: getTournamentSegmentsQuery, 
+            variables: {id: props.navigation.getParam('id')}, 
+          })
+          cacheData = {
+            Tournament: {
+              ...cacheData.Tournament,
+              segments: [...cacheData.Tournament.segments, createSegment]
             }
-          >
-            <View>
-              {
-                list && list.map((item, i) => (
-                  <Swipeout
-                    key={i}
-                    autoClose={true}
-                    right={[
-                      {
-                        text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item),
-                        type: 'primary',
-                      },
-                      {
-                        text: 'DELETE',
-                        onPress: this._deleteButtonPressed.bind(this, item.id),
-                        backgroundColor: '#ff0000',
-                        type: 'delete',
-                      },
-                    ]}
-                  >
-                  <ListItem
-                    title={(item.sBlind || 0) + "/" + (item.bBlind || 0) + (item.ante ? " + " + item.ante + " ante" : "")}
-                    subtitle={item.duration + " minutes"}
-                    onPress={this._editButtonPressed.bind(this, item)}
-                    titleStyle={[ styles.listItemTitle, ]}
-                    subtitleStyle={[ styles.listItemSubtitle, ]}
-                    bottomDivider
-                    chevron
-                  />
-                  </Swipeout>
-                ))
-              }
-            </View>
-          </ScrollView>
-          <BannerAd/>
-        </View>
-      )
+          }
+          cache.writeQuery({ 
+            query: getTournamentSegmentsQuery, 
+            variables: {id: props.navigation.getParam('id')},
+            data: cacheData,
+          })
+        } catch (error) {
+          console.log('error: ' + error.message)
+        }
+      },
     }
+  )
+  
+  const [deleteTournamentSegment] = useMutation(deleteSegmentMutation, {})
+
+  addButtonPressed = () => {
+    createTournamentSegment()
   }
+
+  editButtonPressed = (segment) => {
+    props.navigation.navigate('SegmentEdit', {segment, 'tID': props.navigation.getParam('id')})
+  }
+
+  deleteButtonPressed = (args) => {
+		if (args.id==="tbd") {return}
+    Alert.alert(
+      "Confirm Delete",
+      "Delete: \n" + args.sBlind + '/' + args.bBlind + '/' + (args.ante || "No Ante") + " ?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel"
+        },
+				{ text: "OK", onPress: () => 				
+          deleteTournamentSegment(
+            {
+              variables: {id: args.id},
+							optimisticResponse: {
+								deleteSegment: {
+									__typename: "Segment",
+									id: args.id,
+								}
+              },
+							update: (cache, mutationResponse) => {
+								try {
+									const { data: { deleteSegment }} = mutationResponse
+                  let cacheData = cache.readQuery({
+                    query: getTournamentSegmentsQuery, 
+                    variables: {id: props.navigation.getParam('id')},
+                   })
+                  cacheData = {
+                    Tournament: {
+                      ...cacheData.Tournament,
+                      segments: cacheData.Tournament.segments.filter(i => (i.id !== deleteSegment.id))
+                    }
+                  }
+									cache.writeQuery({
+                    query: getTournamentSegmentsQuery, 
+                    variables: {id: props.navigation.getParam('id')},
+                    data: cacheData, 
+                  })
+								} catch (error) {
+									console.log('error: ' + error.message)
+								}
+							}                            
+            }
+          )
+        }
+      ],
+      { cancelable: false }
+		)
+  }
+
+  if (loading || loadingUser) {
+    return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+  } else if (error || errorUser) {
+  return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
+  } else {
+    const { user } = dataUser
+    const userIsOwner = user.id === data.Tournament.user.id
+    const { Tournament: {segments} } = data
+    return (
+			<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
+        <SwipeListView
+          refreshing={refreshingState}
+          onRefresh={()=>{
+            setRefreshingState(true)
+            refetch().then(()=> 
+              setRefreshingState(false)
+            )
+          }}
+          data={sortSegments(segments)}
+          ListHeaderComponent={
+            <ListHeader 
+            title="Blinds Schedule" 
+            showAddButton={userIsOwner} 
+            onAddButtonPress={addButtonPressed}
+            />
+          }
+          rightOpenValue={-80}
+          stickyHeaderIndices={[0]}
+          disableRightSwipe = {true}
+          swipeToOpenPercent = {10}
+          swipeToClosePercent = {10}
+          closeOnRowBeginSwipe = {true}
+          closeOnRowOpen = {true}
+          closeOnRowPress = {true}
+          closeOnScroll = {true}
+          renderItem={ (data, rowMap) => (
+            <TouchableHighlight
+              onPress={() => editButtonPressed(data.item)}
+              style={[styles.rowFront,]}
+              underlayColor={'#AAA'}
+            >
+              <View style={{flex: 1, flexDirection: 'row'}}>
+                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
+                  <Text style={[styles.listItemTitle, ]}>
+                    {(data.item.sBlind || 0) + "/" + (data.item.bBlind || 0)}
+                  </Text>
+                  <Text style={[styles.listItemSubtitle, ]}>
+                    {(data.item.ante ? " + " + data.item.ante + " ante" : "No Ante")}
+                  </Text>
+                </View>
+                <View style={{flex: 0.40, justifyContent: 'center', alignItems: 'flex-end'}}>
+                  <Text style={[styles.listItemTitle, ]}>{data.item.duration} Minutes</Text>
+                </View>
+                <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
+                  <Icon
+										name='ios-arrow-forward'
+										color='black'
+										type='ionicon'
+									/>
+                </View>
+              </View>
+            </TouchableHighlight>
+          )}
+          renderHiddenItem={ (data, rowMap) => (
+            <View style={styles.rowBack}>
+              <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnCenter]}
+                  onPress={() => editButtonPressed(data.item)}
+              >
+                <Icon
+                  name='edit'
+                  color='white'
+                  type='font-awesome'
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnRight]}
+                  onPress={() => deleteButtonPressed(data.item)}
+              >
+                <Icon
+                  name='ios-trash'
+                  color='white'
+                  type='ionicon'
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+        />
+				<BannerAd />
+			</View>
+		)
+	}
 }
-
-export default compose(
-  graphql(createTournamentSegmentMutation, {name: 'createItem'}),
-  graphql(deleteSegmentMutation, {name: 'deleteItem'}),
-  graphql(getTournamentSegmentsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(currentUserQuery, { name: 'currentUserQuery', }),
-)(SegmentListScreen)
-
 
 const styles = StyleSheet.create({
   active: {
@@ -167,5 +226,45 @@ const styles = StyleSheet.create({
   listItemSubtitle: {
     fontSize: responsiveFontSize(1.5),
     color: '#888'
-  }
+  },
+	backTextWhite: {
+		color: '#FFF',
+	},
+	rowFront: {
+		alignItems: 'flex-start',
+		backgroundColor: '#DDD',
+		borderBottomColor: 'white',
+		borderBottomWidth: 1,
+		justifyContent: 'center',
+		height: 50,
+		paddingLeft: responsiveFontSize(2)
+	},
+	rowBack: {
+			alignItems: 'center',
+			backgroundColor: '#DDD',
+			flex: 1,
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			paddingLeft: 15,
+	},
+	backRightBtn: {
+			alignItems: 'center',
+			bottom: 0,
+			justifyContent: 'center',
+			position: 'absolute',
+			top: 0,
+			width: 40,
+	},
+	backRightBtnLeft: {
+		backgroundColor: 'green',
+		right: 80,
+	},
+	backRightBtnCenter: {
+		backgroundColor: 'blue',
+		right: 40,
+	},
+	backRightBtnRight: {
+			backgroundColor: 'red',
+			right: 0,
+	},
 });

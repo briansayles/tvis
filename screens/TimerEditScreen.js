@@ -1,73 +1,47 @@
-import { graphql, compose } from 'react-apollo'
-import React from 'react'
-import {Text, View, ScrollView, } from 'react-native'
-import { ActivityIndicator, PricingCard, Button, Icon, Input } from 'react-native-elements'
-import { updateTournamentTimerMutation,  } from '../constants/GQL'
-import { dictionaryLookup } from '../utilities/functions'
-import Events from '../api/events'
-import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
+import { useMutation, } from '@apollo/client'
+import React, { useState, } from 'react'
 
-class TimerEditScreen extends React.Component {
+import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      formValues: {},
-    }
-  }
+import { updateTournamentTimerMutation, } from '../constants/GQL'
 
-  async componentDidMount() {
-    const {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor, elapsed, active} = this.props.navigation.getParam('timer')
-    this.setState({formValues: {oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor, elapsed, active}})
-    this.submitButtonPressedEvent = Events.subscribe("TimerEditSubmitted", () => this.props.navigation.goBack())
-  }
-
-  componentWillUnmount () {
-    this.submitButtonPressedEvent.remove()
-  }
-
-  handleInputChange (fieldName, value) {
-    this.setState(({formValues}) => ({formValues: {
+export default ((props) => {
+  const initialValues = {} = props.navigation.getParam('timer')
+  const [formValues, setFormValues] = useState(initialValues)
+	const [ updateTournamentTimer ] = useMutation(updateTournamentTimerMutation, {
+    variables: {
       ...formValues,
-      [fieldName]: value,
-    }}))
+    }
+  })
+
+  const handleInputChange = (fieldName, value) => {
+    setFormValues({...formValues, [fieldName]:value})
   }
 
-  _isDirty() {
-    const {oneMinuteRemainingSpeech: p1, endOfRoundSpeech: p2} = this.props.navigation.getParam('timer')
-    const {oneMinuteRemainingSpeech: f1, endOfRoundSpeech: f2} = this.state.formValues
-    return p1 != f1 || p2 != f2
+  const isDirty = () => {
+    let result = false
+    Object.keys(formValues).forEach((key, index) => { if (formValues[key] !== initialValues[key]) result = true })
+    return result
   }
 
-  render() {
-    return (
-      <FormView contentContainerStyle={{backgroundColor: 'white', flex: 1, flexDirection: 'column', justifyContent: 'flex-start', paddingLeft: 5, paddingRight: 5}}>
-        <MyInput
-          title="One Minute Remaining Speech"
-          value={this.state.formValues.oneMinuteRemainingSpeech || ""}
-          placeholder="Enter speech here for one minute remaining..."
-          onChangeText={(text) => this.handleInputChange('oneMinuteRemainingSpeech', text)}
-        />
-        
-        <MyInput
-          title="End of Round Speech"
-          value={this.state.formValues.endOfRoundSpeech || ""}
-          placeholder="Enter speech here for the end of round..."
-          onChangeText={(text) => this.handleInputChange('endOfRoundSpeech', text)}
-        />
-
-        <SubmitButton 
-          mutation={this.props.updateTournamentTimerMutation}
-          id={this.props.navigation.getParam('timer').id}
-          variables={this.state.formValues}
-          events={["RefreshEditor", "TimerEditSubmitted"]}
-          disabled={!this._isDirty()}
-        />
-      </FormView>
-    )
-  }
-}
-
-export default compose(
-  graphql(updateTournamentTimerMutation, { name: 'updateTournamentTimerMutation'}),
-)(TimerEditScreen)
+  return (
+    <FormView>
+      <MyInput
+        title="One Minute Remaining Speech"
+        value={formValues.oneMinuteRemainingSpeech || ""}
+        placeholder="Enter speech here for one minute remaining..."
+        onChangeText={(text) => handleInputChange('oneMinuteRemainingSpeech', text)}
+      />
+      <MyInput
+        title="End of Round Speech"
+        value={formValues.endOfRoundSpeech || ""}
+        placeholder="Enter speech here for the end of round..."
+        onChangeText={(text) => handleInputChange('endOfRoundSpeech', text)}
+      />
+      <SubmitButton 
+        mutation={updateTournamentTimer}
+        disabled={!isDirty()}
+      />
+    </FormView>
+  )    
+})

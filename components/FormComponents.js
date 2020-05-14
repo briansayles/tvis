@@ -1,14 +1,11 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import ReactNative, {
   Platform, View, TouchableOpacity, TouchableHighlight, StyleSheet, ActionSheetIOS, ActivityIndicator
 } from 'react-native'
-import { ThemeProvider, ThemeConsumer, Button, Icon, Input, Text, SearchBar} from 'react-native-elements'
-import { dictionaryLookup } from '../utilities/functions'
-import Events from '../api/events'
-import Swipeout from 'react-native-swipeout'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { Button, Icon, Input, Text, } from 'react-native-elements'
+import { KeyboardAwareScrollView, } from 'react-native-keyboard-aware-scroll-view'
 import { responsiveFontSize } from '../utilities/functions'
-import {Ionicons, MaterialIcons} from '@expo/vector-icons'
+import {Ionicons, } from '@expo/vector-icons'
 
 export const theme= {
   Button: {
@@ -43,250 +40,108 @@ export const theme= {
   },
 }
 
-
-export class myList extends Component {
-  constructor(props) {
-    super(props)
+export const ListHeader = (props) => {
+  const handleAddButtonPressed = () => {
+    props.onAddButtonPress()
   }
 
-  render() {
-    return (
-      <View>
-        <Swipeout>
-        </Swipeout>
-      </View>
-    )
-  }  
+  const handleSearchBoxChanged = (text) => {
+    props.onSearch(text)
+  }
+
+  return (
+    <View style={{
+      flex: responsiveFontSize(.01),
+      paddingTop: responsiveFontSize(1), 
+      paddingLeft: responsiveFontSize(2),
+      paddingBottom: responsiveFontSize(1),
+      flexDirection: 'row', 
+      justifyContent: 'space-between', 
+      alignItems: 'center',
+      backgroundColor: 'white',
+      borderBottomColor: '#888',
+      borderBottomStyle: 'solid',
+      borderBottomWidth: responsiveFontSize(.05),
+    }}>
+      <Text style={{fontSize: responsiveFontSize(2)}}>
+        {props.title}
+      </Text>
+      {props.showAddButton && !props.loading &&
+        <TouchableHighlight
+          style={{marginRight: responsiveFontSize(3)}}
+          onPress={()=> handleAddButtonPressed()} 
+        >
+          <Ionicons name='ios-add' size={responsiveFontSize(4)} color="green"/>
+        </TouchableHighlight>
+      }
+      {props.showAddButton && props.loading &&
+        <View style={{marginRight: responsiveFontSize(3)}}>
+          <ActivityIndicator
+            color="rgba(100, 100, 100, 1)"
+            size="small"        
+          />
+        </View>
+      }
+    </View>
+  )
+ }
+
+export const FormView = (props) => {
+  return(
+    <KeyboardAwareScrollView
+      contentContainerStyle={{flex: 1, flexDirection: 'column', justifyContent: 'flex-start', padding: responsiveFontSize(4), marginTop: responsiveFontSize(4)}}
+      {...props}
+    >
+      {props.children}
+    </KeyboardAwareScrollView>
+  )
 }
 
-export class ListHeader extends Component {
-  constructor(props) {
-    super(props)
-  }
-  
-  _handleAddButtonPressed() {
-    this.props.onAddButtonPress()
-  }
-
-  _handleSearchBoxChanged(text) {
-    this.props.onSearch(text)
-  }
-
-  render() {
-    return (
-      <View style={{
-        flex: responsiveFontSize(.01),
-        paddingTop: responsiveFontSize(1), 
-        paddingLeft: responsiveFontSize(2),
-        paddingBottom: responsiveFontSize(1),
-        flexDirection: 'row', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        backgroundColor: 'white',
-        borderBottomColor: '#888',
-        borderBottomStyle: 'solid',
-        borderBottomWidth: responsiveFontSize(.05),
-      }}>
-        <Text style={{fontSize: responsiveFontSize(2)}}>
-          {this.props.title}
-        </Text>
-
-        {this.props.showAddButton && !this.props.loading &&
-          <TouchableHighlight
-            style={{marginRight: responsiveFontSize(3)}}
-            onPress={()=> this._handleAddButtonPressed()} 
-          >
-            <Ionicons name='ios-add' size={responsiveFontSize(4)} color="green"/>
-          </TouchableHighlight>
-        }
-        {this.props.showAddButton && this.props.loading &&
-          <View style={{marginRight: responsiveFontSize(3)}}>
-            <ActivityIndicator
-              color="rgba(100, 100, 100, 1)"
-              size="small"        
-            />
-          </View>
-        }
-      </View>
-    )
-  }
+export const MyInput = (props) => {
+  return (
+    <Input
+      value={props.value.toString()}
+      label={props.title}
+      inputContainerStyle={{marginBottom: responsiveFontSize(4), }}
+      {...props}
+    />
+  )  
 }
 
-export class FormView extends Component {
-	constructor(props, context) {
-		super(props, context)
-		this.state = {
-		}
-	}
-
-	render() {
-		return(
-			<KeyboardAwareScrollView 
-				{...this.props}>
-				{this.props.children}
-			</KeyboardAwareScrollView>
-		)
-	}
-}
-
-export class MyInput extends Component {
-
-	constructor(props, context) {
-		super(props, context)
-	}
-
-  render() {
-		return (
-				<Input
-					value={this.props.value.toString()}
-          {...this.props}
-				/>
-		)
-	}
-}
-
-
-export class SubmitButton extends Component {
-
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-    	busy: false,
-    }
-  }
-
-  handlePress() {
-  	this.setState({busy: true})
-  	// console.log(JSON.stringify(this.props.variables))
-  	this.props.mutation(
-  		{
-  			variables: {
-  				id: this.props.id,
-  				...this.props.variables
-  			}
-  		}
-  	).then(() => {
-			this.props.events.forEach(function(event) {
-			  Events.publish(event)
-			})
-  	}).then(() => {
-  		this.setState({busy: false})
+export const SubmitButton = (props) => {
+  [busy, setBusy] = useState(false)
+  const handlePress = () => {
+  	setBusy(true)
+  	props.mutation().then(() => {
+  		setBusy(false)
   	})
-  }
-
-	render() {
-    const {mutation, events, ...props} = this.props
-		return (
-	    <Button 
-        icon={this.state.busy ? <ActivityIndicator/> : <Icon
-          name='ios-checkmark-circle-outline'
-          color='#fff'
-          type='ionicon'
-        />}
-        iconRight
-        buttonStyle={{ borderRadius: 20, marginTop: 18, paddingLeft: 10, paddingRight: 12, marginLeft: 0, marginRight: 0, marginBottom: 0, backgroundColor: '#050', alignSelf: 'flex-end'}}
-        disabledStyle={{backgroundColor: "#0504"}}
-        title='Submit  '
-        titleStyle={{fontSize: 18, color: '#fff'}}
-        onPress={() => this.handlePress()}
-        {...props}
-      />
-    )
-	}
-}
-
-export class AddButton extends Component {
-
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-      busy: false,
-    }
-  }
-
-  handlePress() {
-    this.setState({busy: true})
-    this.props.mutation(
-      {
-        variables: {
-          ...this.props.variables
-        }
-      }
-    ).then(() => {
-      this.props.events.forEach(function(event) {
-        Events.publish(event)
-      })
-    }).then(() => {
-      this.setState({busy: false})
-    })
-  }
-
-  render() {
-    const {mutation, ...props} = this.props
-    return (
-      <Button 
-        icon={this.state.busy ? <ActivityIndicator/> : <Icon
-          name='ios-add-circle-outline'
-          color='#fff'
-          type='ionicon'
-        />}
-        disabled={this.state.busy}
-        iconRight
-        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, marginTop: 8, backgroundColor: '#050', alignSelf: "flex-end"}}
-        title='Add  '
-        titleStyle={{fontSize: 14, color: '#fff'}}
-        onPress={() => this.handlePress()}
-        {...props}
-      />
-    )
-  }
-}
-
-export class RemoveButton extends Component {
-
-  constructor(props, context) {
-    super(props, context)
-    this.state = {
-      busy: false,
-    }
-  }
-
-  handlePress() {
-    this.setState({busy: true})
-    this.props.mutation(
-      {
-        variables: {
-          ...this.props.variables
-        }
-      }
-    ).then(() => {
-      this.props.events.forEach(function(event) {
-        Events.publish(event)
-      })
-    }).then(() => {
-      this.setState({busy: false})
-    })
-  }
-
-  render() {
-    const {mutation, ...props} = this.props
-    return (
-      <Button 
-        icon={this.state.busy ? <ActivityIndicator/> : <Icon
-          name='ios-remove-circle-outline'
-          color='#fff'
-          type='ionicon'
-        />}
-        disabled={this.state.busy || !this.props.variables.id}
-        iconRight
-        buttonStyle={{ borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, marginTop: 8, backgroundColor: '#900', alignSelf: "flex-end"}}
-        title="Remove  "
-        titleStyle={{fontSize: 14, color: '#fff'}}
-        onPress={() => this.handlePress()}
-        {...props}
-      />
-    )
-  }
+  }  
+  return (
+    <Button 
+      icon={busy ? <ActivityIndicator/> : <Icon
+        name='ios-checkmark-circle-outline'
+        color='#fff'
+        type='ionicon'
+      />}
+      iconRight
+      buttonStyle={{ 
+        borderRadius: responsiveFontSize(1), 
+        marginTop: responsiveFontSize(3), 
+        paddingLeft: responsiveFontSize(1), 
+        paddingRight: responsiveFontSize(1), 
+        // marginLeft: 0, 
+        // marginRight: 0, 
+        // marginBottom: 0, 
+        backgroundColor: '#050', 
+        alignSelf: 'flex-end'
+      }}
+      disabledStyle={{backgroundColor: "#0504"}}
+      title='Submit  '
+      titleStyle={{fontSize: 18, color: '#fff'}}
+      onPress={() => handlePress()}
+      {...props}
+    />
+  )
 }
 
 export class Picker extends Component {
@@ -365,4 +220,3 @@ export class Picker extends Component {
     }
   }
 }
-

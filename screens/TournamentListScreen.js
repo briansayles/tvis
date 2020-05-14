@@ -1,196 +1,269 @@
-import { graphql, compose, withApollo } from 'react-apollo'
-import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet, Modal, TouchableHighlight, Linking, AsyncStorage, List } from 'react-native'
-import { ListItem, Button } from 'react-native-elements'
-import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, getTournamentQuery, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
-import Auth from '../components/Auth'
-import Events from '../api/events'
-import Swipeout from 'react-native-swipeout'
+import { useQuery, useMutation} from '@apollo/client'
+import React, { useState } from 'react'
+import { ActivityIndicator, Alert, View, StyleSheet, Text, TouchableOpacity, TouchableHighlight} from 'react-native'
+import { Icon, } from 'react-native-elements'
+import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
+import { SwipeListView } from 'react-native-swipe-list-view'
 import { BannerAd } from '../components/Ads'
 import { ListHeader, } from '../components/FormComponents'
-import { AdMobRewarded, } from 'expo-ads-admob'
-import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
-import { Ionicons } from '@expo/vector-icons'
+import { responsiveFontSize } from '../utilities/functions'
 
-class TournamentListScreen extends React.Component {
-  
-  constructor(props) {
-    super(props)
-    this.state = {
-      user: null,
-      refreshing: false,
-      loading: false,
-    }
+export default ((props) => {
+	const [refreshingState, setRefreshingState] = useState(false)
+	const {loading, data, error, refetch} = useQuery(currentUserTournamentsQuery)
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
+	const [ deleteTournament ] = useMutation(deleteTournamentMutation, {})
+	const [ createTournament ] = useMutation(createTournamentMutation, {})
+
+  navigateToTimerButtonPressed = (id) => {
+    props.navigation.navigate('Details', {id: id})
   }
 
-  componentDidMount() {
-    this.refreshEvent = Events.subscribe('RefreshTournamentList', () => this._refresh())
+	addTournamentButtonPressed = async () => {
+		createTournament(
+			{
+				variables: {"userId": data.user.id, "duration": undefined, "title": "My Tournament #" + (data.user.tournaments.length + 1)},
+
+				optimisticResponse: {
+					createTournament: {
+						__typename: "Tournament",
+						id: "tbd",
+						title: "Creating your tournament...",
+						subtitle: "Server is working on it. Just a sec.",
+						updatedAt: new Date(),
+						childrenUpdatedAt: null,
+						timer: {
+							id: "tbd",
+							__typename: "Timer",
+							active: false,
+						}
+					}
+				},
+				update: (cache, mutationResponse) => {
+					try {
+						const { data: { createTournament }} = mutationResponse
+						let cacheData = cache.readQuery({ 
+							query: currentUserTournamentsQuery,
+							variables: {},
+						});
+						cacheData = {
+							user: {
+								...cacheData.user,
+								tournaments: [
+									...cacheData.user.tournaments,
+									createTournament
+								]
+							}							
+						}
+						cache.writeQuery({
+							query: currentUserTournamentsQuery,
+							variables: {},
+							data: cacheData,
+						})
+					} catch (error) {
+						console.log('error: ' + error.message)
+					}
+				}
+			}
+		)
+	}
+
+  editTournamentButtonPressed = (id) => {
+		if (id==="tbd") {return}
+		props.navigation.navigate('Edit', {id: id})
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.currentUserQuery) {
-  //     if (nextProps.currentUserQuery.user !== this.state.user) {
-  //       Events.publish("RefreshTournamentList")
-  //     }
-  //     this.setState({user: nextProps.currentUserQuery.user || null})
-  //   }
-  // }
-
-  componentWillUnmount () {
-    this.refreshEvent.remove()
+	deleteTournamentButtonPressed = (id, title) => {
+		if (id==="tbd") {return}
+    Alert.alert(
+      "Confirm Delete",
+      "Delete: \n" + title + " ?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel"
+        },
+				{ text: "OK", onPress: () => 
+				
+					deleteTournament(
+						{
+							variables: {id: id},
+							optimisticResponse: {
+								deleteTournament: {
+									__typename: "Tournament",
+									id: id,
+								}
+							},
+							update: (cache, mutationResponse) => {
+								try {
+									const { data: { deleteTournament }} = mutationResponse
+									let cacheData = cache.readQuery({ 
+										query: currentUserTournamentsQuery,
+										variables: {},
+									})
+									cacheData = {
+										user: {
+											...cacheData.user,
+											tournaments: 
+												cacheData.user.tournaments.filter(i => (i.id !== deleteTournament.id))
+										}
+									}
+									cache.writeQuery({
+										query: currentUserTournamentsQuery,
+										variables: {},
+										data: cacheData,
+									})
+								} catch (error) {
+									console.log('error: ' + error.message)
+								}
+							}
+						}
+					)
+				}
+      ],
+      { cancelable: false }
+		)
   }
 
-  _refresh() {
-    this.props.getData.refetch().then(() => this.setState({loading: false}))
-  }
+  copyTournamentButtonPressed = (id) => {
+		if (id==="tbd") {return}
+    // this.setState({loading: true})
+    // const client = useApolloClient() //   const {client} = this.props
+    // client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
+    //   const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
+    //   const userId = user.id
+    //   const newTitle = "Copy of " + title
+    //   const costsInput = costs.map((i, index) => {
+    //     return convertItemToInputType (i, ["tournamentId", "buys", "_buysMeta"])
+    //   })
+    //   const chipsInput = chips.map((i, index) => {
+    //     return convertItemToInputType (i, ["tournamentId"])
+    //   })
+    //   const segmentsInput = segments.map((i, index) => {
+    //     return convertItemToInputType (i, ["tournamentId"])
+    //   })
+	
+//       client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
+//         userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
+//       }}).then((result) => {
+//         Events.publish('RefreshTournamentList')
+//         this._editButtonPressed(result.data.createTournament.id)
+//       }).catch((error) => {
+//         console.log(error.message)
+//         this.setState({loading: false})
+//       })
+//     }).catch((error) => {
+//       this.setState({loading: false})
+//     })
+   }
 
-  _addButtonPressed = async (parentId) => {
-    this.setState({loading: true})
-    this.props.createItemMutation(
-      {
-        variables: { "userId": parentId, "duration": undefined, title: undefined } // note: undefined is passed to allow the defaults in the GQL to be used.
-      }
-    ).then((result) => {
-      Events.publish('RefreshTournamentList')
-      this._editButtonPressed(result.data.createTournament.id)
-    })
-  }
+	if (loading || loadingUser) {
+    return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+  } else if (error || errorUser) {
+  return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
+  } else {
+		return (
+			<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
+				<SwipeListView
+					refreshing={refreshingState}
+					onRefresh={()=>{
+						setRefreshingState(true)
+						refetch().then(()=> 
+							setRefreshingState(false)
+						)
+					}}
+					data={!!data.user && data.user.tournaments}
+					ListHeaderComponent={
+						<ListHeader 
+						title="Tournaments" 
+						showAddButton={!!data.user} 
+						onAddButtonPress={addTournamentButtonPressed}
+						/>
+					}
+					rightOpenValue={-120}
+					stickyHeaderIndices={[0]}
+					disableRightSwipe = {true}
+					swipeToOpenPercent = {10}
+					swipeToClosePercent = {10}
+					closeOnRowBeginSwipe = {true}
+					closeOnRowOpen = {true}
+					closeOnRowPress = {true}
+					closeOnScroll = {true}
 
-  _editButtonPressed(id) {
-    this.props.navigation.navigate('Edit', {id: id})
-  }
-
-  _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    this.props.deleteItemMutation({variables: {id: id} }).then(
-      () => Events.publish('RefreshTournamentList')
-    )
-  }
-
-  _copyButtonPressed(id) {
-    this.setState({loading: true})
-    const {client} = this.props
-    client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
-      const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
-      const userId = user.id
-      const newTitle = "Copy of " + title
-      const costsInput = costs.map((i, index) => {
-        return convertItemToInputType (i, ["tournamentId", "buys", "_buysMeta"])
-      })
-      const chipsInput = chips.map((i, index) => {
-        return convertItemToInputType (i, ["tournamentId"])
-      })
-      const segmentsInput = segments.map((i, index) => {
-        return convertItemToInputType (i, ["tournamentId"])
-      })
-
-      client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
-        userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
-      }}).then((result) => {
-        Events.publish('RefreshTournamentList')
-        this._editButtonPressed(result.data.createTournament.id)
-      }).catch((error) => {
-        console.log(error.message)
-        this.setState({loading: false})
-      })
-    }).catch((error) => {
-      this.setState({loading: false})
-    })
-  }
-
-  _search(searchText) {
-  }
-
-  render() {
-    const { getData: { loading: loadingData, error: errorData, user } } = this.props
-    if (loadingData) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (errorData) {
-      return <Text>Error!</Text>
-    } else if (!user) {
-      return (<Auth/>)
-    } else {
-      const parent = user
-      const list = parent.tournaments
-      return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-          <ListHeader 
-            title="Tournaments" 
-            showAddButton={true} 
-            loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed.bind(this, parent.id)}
-            // onSearch={this._search}
-          />
-          <ScrollView 
-            style={{flex: 1, paddingLeft: 5, paddingRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._refresh.bind(this)}
-              />
-            }
-          >
-            <View>
-              {
-                list && list.map((item, i) => (
-                  <Swipeout
-                    key={i}
-                    style={{ flex: 1 }}
-                    autoClose={true}
-                    right={[
-                      {
-                        text: 'Copy',
-                        onPress: this._copyButtonPressed.bind(this, item.id),
-                        type: 'default'
-                      },
-                      {
-                        text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item.id),
-                        type: 'primary',
-                      },
-                      {
-                        text: 'DELETE',
-                        onPress: this._deleteButtonPressed.bind(this, item.id),
-                        backgroundColor: '#ff0000',
-                        type: 'delete',
-                      },
-                    ]}
-                  >
-                    <ListItem
-                      title={item.title}
-                      titleStyle={[ styles.listItemTitle, item.timer.active ? styles.active : {}]}
-                      subtitle={item.subtitle}
-                      subtitleStyle={[ styles.listItemSubtitle, item.timer.active ? styles.active : {}]}
-                      onPress={this._editButtonPressed.bind(this, item.id)}
-                      chevron
-                      bottomDivider
-                      rightIcon={item.timer.active && <Ionicons name="ios-timer"/>}
-                    />
-                  </Swipeout>
-                  )
-                )
-              }
-            </View>
-          </ScrollView>
-          <BannerAd />
-        </View>
-      )
-    }
-  }
-
-  _endRef = (element) => {
-    this.endRef = element
-  }
-}
-
-export default compose(
-  graphql(createTournamentMutation, { name: 'createItemMutation'}),
-  graphql(deleteTournamentMutation, { name: 'deleteItemMutation' }),
-  graphql(currentUserTournamentsQuery, { name: 'getData' }),
-  graphql(currentUserQuery, { name: 'currentUserQuery' }),
-  withApollo,
-)(TournamentListScreen)
-
+					renderItem={ (data, rowMap) => (
+						<TouchableHighlight
+							onPress={() => {
+								// rowMap[data.item.key].closeRow()	
+								editTournamentButtonPressed(data.item.id)
+							}}
+							style={[styles.rowFront,]}
+							underlayColor={'#AAA'}
+						>
+							<View style={{flex: 1, flexDirection: 'row'}}>
+								<View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
+									<Text style={[styles.listItemTitle, data.item.timer.active ? styles.active : {}]}>{data.item.title}</Text>
+									<Text style={[styles.listItemSubtitle, data.item.timer.active ? styles.active : {}]}>{data.item.subtitle}</Text>
+								</View>
+								<View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
+									<Icon
+										name='ios-arrow-forward'
+										color='black'
+										type='ionicon'
+									/>
+								</View>
+							</View>
+						</TouchableHighlight>
+					)}
+					renderHiddenItem={ (data, rowMap) => (
+						<View style={styles.rowBack}>
+							<TouchableOpacity
+								style={[styles.backRightBtn, styles.backRightBtnLeft]}
+								onPress={() => {
+									// rowMap[data.item.key].closeRow()	
+									navigateToTimerButtonPressed(data.item.id)
+								}}
+							>
+								<Icon
+									name='ios-timer'
+									color='white'
+									type='ionicon'
+								/>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.backRightBtn, styles.backRightBtnCenter]}
+								onPress={() => {
+									// rowMap[data.item.key].closeRow()	
+									editTournamentButtonPressed(data.item.id)
+								}}
+							>
+								<Icon
+									name='edit'
+									color='white'
+									type='font-awesome'
+								/>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={[styles.backRightBtn, styles.backRightBtnRight]}
+								onPress={() => {
+									// rowMap[data.item.key].closeRow()	
+									deleteTournamentButtonPressed(data.item.id, data.item.title)
+								}}
+							>
+								<Icon
+									name='ios-trash'
+									color='white'
+									type='ionicon'
+								/>
+							</TouchableOpacity>
+						</View>
+					)}
+				/>
+				<BannerAd />
+			</View>
+		)
+	}
+})
 
 const styles = StyleSheet.create({
   active: {
@@ -203,5 +276,45 @@ const styles = StyleSheet.create({
   listItemSubtitle: {
     fontSize: responsiveFontSize(1.5),
     color: '#888'
-  }
+	},
+	backTextWhite: {
+		color: '#FFF',
+	},
+	rowFront: {
+		alignItems: 'flex-start',
+		backgroundColor: '#DDD',
+		borderBottomColor: 'white',
+		borderBottomWidth: 1,
+		justifyContent: 'center',
+		height: 50,
+		paddingLeft: responsiveFontSize(2)
+	},
+	rowBack: {
+			alignItems: 'center',
+			backgroundColor: '#DDD',
+			flex: 1,
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			paddingLeft: 15,
+	},
+	backRightBtn: {
+			alignItems: 'center',
+			bottom: 0,
+			justifyContent: 'center',
+			position: 'absolute',
+			top: 0,
+			width: 40,
+	},
+	backRightBtnLeft: {
+		backgroundColor: 'green',
+		right: 80,
+	},
+	backRightBtnCenter: {
+		backgroundColor: 'blue',
+		right: 40,
+	},
+	backRightBtnRight: {
+			backgroundColor: 'red',
+			right: 0,
+	},
 });

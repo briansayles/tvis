@@ -1,147 +1,220 @@
-import {graphql, compose} from 'react-apollo'
-import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, StyleSheet, RefreshControl, Modal, TouchableHighlight, Linking, AsyncStorage, } from 'react-native'
-import { ListItem, Avatar, Button, Card, PricingCard} from 'react-native-elements';
-import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
-import { sortChips, numberToSuffixedString, dictionaryLookup } from '../utilities/functions'
-import Events from '../api/events'
-import Swipeout from 'react-native-swipeout'
+import { useQuery, useMutation } from '@apollo/client'
+import React, { useState } from 'react'
+import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
+import { Icon, } from 'react-native-elements';
+import { SwipeListView } from 'react-native-swipe-list-view'
+
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
-import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
-class ChipListScreen extends React.Component {
+import { currentUserQuery, getTournamentChipsQuery, createTournamentChipMutation, deleteChipMutation,} from '../constants/GQL'
+import { sortChips, dictionaryLookup, responsiveFontSize } from '../utilities/functions'
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      // user: null,
-      refreshing: false,
-      loading: false,
-    }
-  }
-
-  static navigationOptions = {
-  };
-
-  componentDidMount() {
-    this.refreshEventSubscription = Events.subscribe('RefreshChipList', () => this._onRefresh())
-  }
-
-  componentWillUnmount () {
-    this.refreshEventSubscription.remove()
-  }
-
-  _onRefresh = async () => {
-    await this.props.getData.refetch()
-  }
-
-  _addButtonPressed = async () => {
-    this.setState({loading: true})
-    result = await this.props.createItem(
-      {
-        variables:
-        {
-          "tournamentId": this.props.getData.Tournament.id,
-          "denom": 1,
-          "color": "#fff",
+export default (props) => {
+  const [refreshingState, setRefreshingState] = useState(false)
+	const {loading, data, error, refetch} = useQuery(getTournamentChipsQuery, { variables: { id: props.navigation.getParam('id') } })
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
+  const [createTournamentChip] = useMutation(createTournamentChipMutation, {
+    variables:
+    {
+      "tournamentId": props.navigation.getParam('id'),
+      "denom": 1,
+      "color": "#fff",
+    },
+    optimisticResponse: {
+      createChip: {
+        __typename: "Chip",
+        id: "tbd",
+        denom: 1,
+        color: "#fff",
+        textColor: "#000",
+        rimColor: "#fff",
+      }
+    },
+    update: (cache, {data: { createChip }}) => {
+      try {
+        let cacheData = cache.readQuery({ 
+          query: getTournamentChipsQuery, 
+          variables: {id: props.navigation.getParam('id')}, 
+        })
+        cacheData = {
+          Tournament: {
+            ...cacheData.Tournament,
+            chips: [...cacheData.Tournament.chips, createChip]
+          }
         }
+        cache.writeQuery({ 
+          query: getTournamentChipsQuery, 
+          variables: {id: props.navigation.getParam('id')},
+          data: cacheData,
+        })
+      } catch (error) {
+        console.log('error: ' + error.message)
       }
-    )
-    Events.publish('RefreshChipList')
-    this.setState({loading: false})
-    console.log('passing chip: ' + JSON.stringify(result.data.createChip))
-    this._editButtonPressed(result.data.createChip)
-  }
-
-  _editButtonPressed(chip) {
-    this.props.navigation.navigate('ChipEdit', 
-      {
-        chip: chip
-      }
-    )
-  }
+    },
+  })
   
-  _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    this.props.deleteItem({variables: {id: id} }).then(
-      () => Events.publish('RefreshChipList')
-    ).then(()=>this.setState({loading: false}))
+  const [deleteTournamentChip] = useMutation(deleteChipMutation, {})
+
+  addButtonPressed = () => {
+    createTournamentChip()
   }
 
-  _search(searchText) {
+  editButtonPressed = (chip) => {
+    props.navigation.navigate('ChipEdit', {chip, 'tID': props.navigation.getParam('id')})
   }
 
-  render() {
-    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
-    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
-    if (loadingData || loadingUser) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (errorData || errorUser) {
-      return <Text>Error!</Text>
-    } else {
-      const userIsOwner = user.id === Tournament.user.id
-      const parent = Tournament
-      const list = sortChips(parent.chips)
-      return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-          <ListHeader 
+  deleteButtonPressed = (args) => {
+		if (args.id==="tbd") {return}
+    Alert.alert(
+      "Confirm Delete",
+      "Delete: \n" + dictionaryLookup(args.color, "ChipColorOptions", "long") + ' (value=' + args.denom + ') chip?',
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel"
+        },
+				{ text: "OK", onPress: () => 				
+          deleteTournamentChip(
+            {
+              variables: {id: args.id},
+							optimisticResponse: {
+								deleteChip: {
+									__typename: "Chip",
+									id: args.id,
+								}
+              },
+							update: (cache, mutationResponse) => {
+								try {
+									const { data: { deleteChip }} = mutationResponse
+                  let cacheData = cache.readQuery({
+                    query: getTournamentChipsQuery, 
+                    variables: {id: props.navigation.getParam('id')},
+                   })
+                  cacheData = {
+                    Tournament: {
+                      ...cacheData.Tournament,
+                      chips: cacheData.Tournament.chips.filter(i => (i.id !== deleteChip.id))
+                    }
+                  }
+									cache.writeQuery({
+                    query: getTournamentChipsQuery, 
+                    variables: {id: props.navigation.getParam('id')},
+                    data: cacheData, 
+                  })
+								} catch (error) {
+									console.log('error: ' + error.message)
+								}
+							}                            
+            }
+          )
+        }
+      ],
+      { cancelable: false }
+		)
+  }
+
+  if (loading || loadingUser) {
+    return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+  } else if (error || errorUser) {
+  return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
+  } else {
+    const { user } = dataUser
+    const userIsOwner = user.id === data.Tournament.user.id
+    const { Tournament: {chips} } = data
+    return (
+			<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
+        <SwipeListView
+          refreshing={refreshingState}
+          onRefresh={()=>{
+            setRefreshingState(true)
+            refetch().then(()=> 
+              setRefreshingState(false)
+            )
+          }}
+          data={sortChips(chips)}
+          ListHeaderComponent={
+            <ListHeader 
             title="Chips" 
-            showAddButton={userIsOwner}
-            loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed}
-            // onSearch={this._search}
-          />
-          <ScrollView 
-            style={{flex: 1, marginLeft: 5, marginRight: 5}}
-          >
-            <View>
-              {
-                list && list.map((item, i) => (
-                  <Swipeout
-                    key={i}
-                    autoClose={true}
-                    right={[
-                      {
-                        text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item),
-                        type: 'primary',
-                      },
-                      {
-                        text: 'DELETE',
-                        onPress: this._deleteButtonPressed.bind(this, item.id),
-                        backgroundColor: '#ff0000',
-                        type: 'delete',
-                      },
-                    ]}
-                  >
-                  <ListItem 
-                    title={dictionaryLookup(item.color, "ChipColorOptions", "long")}
-                    subtitle={numberToSuffixedString(item.denom)}
-                    onPress={this._editButtonPressed.bind(this, item)}
-                    titleStyle={[ styles.listItemTitle, { color: item.color != "#fff" ? item.color : "#000" }]}
-                    subtitleStyle={[ styles.listItemSubtitle, ]}
-                    bottomDivider
-                    chevron
-                  />
-                  </Swipeout>
-                ))
-              }
+            showAddButton={userIsOwner} 
+            onAddButtonPress={addButtonPressed}
+            />
+          }
+          rightOpenValue={-80}
+          stickyHeaderIndices={[0]}
+          disableRightSwipe = {true}
+          swipeToOpenPercent = {10}
+          swipeToClosePercent = {10}
+          closeOnRowBeginSwipe = {true}
+          closeOnRowOpen = {true}
+          closeOnRowPress = {true}
+          closeOnScroll = {true}
+          renderItem={ (data, rowMap) => (
+            <TouchableHighlight
+              onPress={() => editButtonPressed(data.item)}
+              style={[styles.rowFront,]}
+              underlayColor={'#AAA'}
+            >
+              <View style={{flex: 1, flexDirection: 'row', }}>
+                <View style={{flex: 0.4, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
+                  <Text style={[styles.listItemTitle, styles.textBold, {color: dictionaryLookup(data.item.color, "ChipColorOptions", "short")}]}>
+                    {dictionaryLookup(data.item.color, "ChipColorOptions", "long")}
+                  </Text>
+                  {/* <Text style={[styles.listItemSubtitle,]}>
+                    {'Tournament value: ' + data.item.denom}
+                  </Text> */}
+                </View>
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-end', paddingRight: responsiveFontSize(2)}}>
+                  <Text style={[styles.listItemTitle, ]}>{'Tournament value: ' + data.item.denom}</Text>
+                </View>
+                <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center', }}>
+                  <Icon
+										name='ios-arrow-forward'
+										color= 'black'
+										type='ionicon'
+									/>
+                </View>
+              </View>
+            </TouchableHighlight>
+          )}
+          renderHiddenItem={ (data, rowMap) => (
+            <View style={styles.rowBack}>
+              {/* <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnLeft]}
+                  onPress={() => copyButtonPressed(data.item.id)}
+              >
+                  <Text style={styles.backTextWhite}>C</Text>
+              </TouchableOpacity> */}
+              <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnCenter]}
+                  onPress={() => editButtonPressed(data.item)}
+              >
+                <Icon
+                  name='edit'
+                  color='white'
+                  type='font-awesome'
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnRight]}
+                  onPress={() => deleteButtonPressed(data.item)}
+              >
+                <Icon
+                  name='ios-trash'
+                  color='white'
+                  type='ionicon'
+                />
+                {/* <Text style={styles.backTextWhite}>DEL</Text> */}
+              </TouchableOpacity>
             </View>
-          </ScrollView>
-          <BannerAd/>
-        </View>
-      )
-    }
+          )}
+        />
+				<BannerAd />
+      </View>
+    )
   }
 }
-
-export default compose(
-  graphql(createTournamentChipMutation, {name: 'createItem'}),
-  graphql(deleteChipMutation, { name: 'deleteItem' }),
-  graphql(getTournamentChipsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(currentUserQuery, { name: 'currentUserQuery', }),
-)(ChipListScreen)
 
 const styles = StyleSheet.create({
   active: {
@@ -154,5 +227,48 @@ const styles = StyleSheet.create({
   listItemSubtitle: {
     fontSize: responsiveFontSize(1.5),
     color: '#888'
-  }
+  },
+  textBold: {
+    fontWeight: 'bold',
+  },
+	backTextWhite: {
+		color: '#FFF',
+	},
+	rowFront: {
+		alignItems: 'flex-start',
+		backgroundColor: '#DDD',
+		borderBottomColor: 'white',
+		borderBottomWidth: 1,
+		justifyContent: 'center',
+		height: 50,
+		paddingLeft: responsiveFontSize(2)
+	},
+	rowBack: {
+			alignItems: 'center',
+			backgroundColor: '#DDD',
+			flex: 1,
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			paddingLeft: 15,
+	},
+	backRightBtn: {
+			alignItems: 'center',
+			bottom: 0,
+			justifyContent: 'center',
+			position: 'absolute',
+			top: 0,
+			width: 40,
+	},
+	backRightBtnLeft: {
+		backgroundColor: 'green',
+		right: 80,
+	},
+	backRightBtnCenter: {
+		backgroundColor: 'blue',
+		right: 40,
+	},
+	backRightBtnRight: {
+			backgroundColor: 'red',
+			right: 0,
+	},
 });

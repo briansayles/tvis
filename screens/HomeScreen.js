@@ -1,73 +1,57 @@
-import React from 'react';
-import { graphql, compose, withApollo } from 'react-apollo'
+import React, { useState, useEffect } from 'react';
 import {
-  Alert,
-  Image,
-  Linking,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+    ActivityIndicator,
+		Alert,
+		AsyncStorage,
+    Button,
+    Image,
+    Linking,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+  } from 'react-native';
+import {useQuery, } from '@apollo/client'
 import { currentUserQuery, } from '../constants/GQL'
 import Auth from '../components/Auth'
 
-class HomeScreen extends React.Component {
-  
-  constructor(props) {
-    super(props)
-    this.state = {
-    }
-  }
 
-  componentDidMount() {
-    this.setState({renderedTime: new Date()})
 
-  }
+export default ((props) => {
+	const { loading, data, error, refetch, client } = useQuery(currentUserQuery);
+	const logout = async () => {
+		await AsyncStorage.removeItem('token')
+		client.resetStore()
+	}
 
-  componentWillUnmount() {
-    clockInterval(clockInterval)
-  }
-
-  render() {
-    const { currentUserQuery: { user } } = this.props
-    return (
-      <View style={styles.container}>
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
-            <Image
-              source={require('../assets/icons/app-icon.png')}
-              style={styles.welcomeImage}
-            />
-          </View>
-          <View style={styles.getStartedContainer}>
-            <Text style={styles.getStartedText}>
-              Welcome to TourneyVision{"\n"}{"\n"}
-              Poker Tournament Management{"\n"}
-              made EASY.{"\n"}{"\n"}{"\n"}
-              Tap 'Tournaments' to get started.
-            </Text>
-          </View>
-          { !user && 
-            <View style={{paddingTop: 20}}>
-              <Auth/>
-            </View>
-          }
-        </ScrollView>
-      </View>
-    )
-  }
-}
-
-export default compose(
-  graphql(currentUserQuery, { name: 'currentUserQuery' }),
-  withApollo,
-)(HomeScreen)
-
+  return (
+		<ScrollView
+		style={styles.container}
+		contentContainerStyle={styles.contentContainer}>
+		<View style={styles.welcomeContainer}>
+			<Image
+				source={require('../assets/icons/app-icon.png')}
+				style={styles.welcomeImage}
+			/>
+		</View>
+		<View style={styles.getStartedContainer}>
+			<Text style={styles.getStartedText}>
+				Welcome to TourneyVision{"\n"}{"\n"}
+				Poker Tournament Management{"\n"}
+				made EASY.{"\n"}{"\n"}{"\n"}
+				Tap 'Tournaments' to get started.
+			</Text>
+		</View>
+		{ loading? <ActivityIndicator/>
+			: error? <Text>ERROR!</Text>
+				: !data.user? <View style={{paddingTop: 20}}><Auth/></View>
+					: <Button onPress={logout} title={`Logout ${data.user.name}`}/>
+		}
+	</ScrollView>
+  );
+})
 
 const styles = StyleSheet.create({
   container: {

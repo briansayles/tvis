@@ -1,155 +1,222 @@
-import {graphql, compose} from 'react-apollo'
-import React from 'react'
-import { ActivityIndicator, Text, View, ScrollView, RefreshControl, StyleSheet,} from 'react-native'
-import { ListItem, Button} from 'react-native-elements'
-import { currentUserQuery, tournamentCosts, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation, createCostBuyMutation, deleteBuyMutation, lastBuyOnCost} from '../constants/GQL'
-import { dictionaryLookup, sortEntryFees } from '../utilities/functions'
-import Events from '../api/events'
-import Swipeout from 'react-native-swipeout'
+import { useQuery, useMutation } from '@apollo/client'
+import React, { useState } from 'react'
+import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
+import { Icon, } from 'react-native-elements';
+import { SwipeListView } from 'react-native-swipe-list-view'
+
 import { BannerAd } from '../components/Ads'
 import { ListHeader } from '../components/FormComponents'
-import { convertItemToInputType, responsiveFontSize } from '../utilities/functions'
 
-class CostListScreen extends React.Component {
+import { dictionaryLookup, sortEntryFees, responsiveFontSize} from '../utilities/functions'
+import { currentUserQuery, getTournamentCostsQuery, createTournamentCostMutation, deleteCostMutation, } from '../constants/GQL'
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      refreshing: false,
-      loading: false,
-    }
-  }
+export default (props) => {
+  const [refreshingState, setRefreshingState] = useState(false)
+	const {loading, data, error, refetch} = useQuery(getTournamentCostsQuery, { variables: { id: props.navigation.getParam('id') } })
+  const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
+  const [createTournamentCost] = useMutation(createTournamentCostMutation, {})
+  const [deleteTournamentCost] = useMutation(deleteCostMutation, {})
 
-  static navigationOptions = {
-  };
-
-  componentDidMount() {
-    this.refreshEventSubscription = Events.subscribe('RefreshCostList', () => this._onRefresh())
-  }
-
-  componentWillUnmount () {
-    this.refreshEventSubscription.remove()
-  }
-
-  _onRefresh = async () => {
-    console.log('_onRefresh CostListScreen')
-    await this.props.getData.refetch()
-  }
-
-  _addButtonPressed = async () => {
-    this.setState({loading: true})
-    result = await this.props.createItem(
+  addButtonPressed = () => {
+    createTournamentCost(
       {
         variables:
         {
-          "tournamentId": this.props.navigation.state.params.id,
+          "tournamentId": props.navigation.getParam('id'),
           "costType": "Buyin",
           "price": 20,
           "chipStack": 1000,
-        }
-      }
-    )
-    Events.publish('RefreshCostList')
-    this.setState({loading: false})
-    console.log('passing cost: ' + JSON.stringify(result.data.createCost))
-    this._editButtonPressed(result.data.createCost)
-  }
-
-  _editButtonPressed(cost) {
-    this.props.navigation.navigate('CostEdit', 
-      {
-        cost: cost
-      }
-    )
-  }
-  
-  _deleteButtonPressed(id) {
-    this.setState({loading: true})
-    this.props.deleteItem({variables: {id: id} }).then(
-      () => Events.publish('RefreshCostList')
-    ).then(()=>this.setState({loading: false}))
-  }
-
-  _search(searchText) {
-  }
-
-  render() {
-    const { getData: { loading: loadingData, error: errorData, Tournament } } = this.props
-    const { currentUserQuery: { loading: loadingUser, error: errorUser, user}} = this.props
-    if (loadingData || loadingUser || !Tournament || !user) {
-      return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
-    } else if (errorData || errorUser) {
-      return <Text>Error!</Text>
-    } else {
-      const userIsOwner = user.id === Tournament.user.id
-      const parent = Tournament
-      const list = sortEntryFees(parent.costs)
-      return (
-        <View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-          <ListHeader 
-            title="Entry Fee(s)" 
-            showAddButton={userIsOwner} 
-            loading={this.state.loading} 
-            onAddButtonPress={this._addButtonPressed.bind(this)}
-            // onSearch={this._search}
-          />
-          <ScrollView 
-            style={{flex: 1, marginLeft: 5, marginRight: 5}}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this._onRefresh.bind(this)}
-              />
-            }
-          >
-            <View>
-              {
-                list && list.map((item, i) => (
-                  <Swipeout
-                    key={i}
-                    autoClose={true}
-                    right={[
-                      {
-                        text: 'Edit',
-                        onPress: this._editButtonPressed.bind(this, item),
-                        type: 'primary',
-                      },
-                      {
-                        text: 'DELETE',
-                        onPress: this._deleteButtonPressed.bind(this, item.id),
-                        backgroundColor: '#ff0000',
-                        type: 'delete',
-                      },
-                    ]}
-                  >
-                  <ListItem
-                    title={item.costType && dictionaryLookup(item.costType, "EntryFeeOptions", "long") + ": " + (item.price && item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}))}
-                    subtitle={item.chipStack && item.chipStack.toLocaleString() + ' Chips, ' + item._buysMeta.count + ' buys.'}
-                    onPress={this._editButtonPressed.bind(this, item)}
-                    titleStyle={[ styles.listItemTitle, ]}
-                    subtitleStyle={[ styles.listItemSubtitle, ]}
-                    bottomDivider
-                    chevron
-
-                  />
-                  </Swipeout>
-                ))
+        },
+        optimisticResponse: {
+          createCost: {
+            __typename: "Cost",
+            id: "tbd",
+            price: 20,
+            chipStack: 1000,
+            costType: "Buyin",
+            _buysMeta: { count: 0},
+          }
+        },
+        update: (cache, {data: { createCost }}) => {
+					try {
+            let cacheData = cache.readQuery({ 
+              query: getTournamentCostsQuery, 
+              variables: {id: props.navigation.getParam('id')}, 
+            })
+            cacheData = {
+              Tournament: {
+                ...cacheData.Tournament,
+                costs: [...cacheData.Tournament.costs, createCost]
               }
+            }
+            cache.writeQuery({ 
+              query: getTournamentCostsQuery, 
+              variables: {id: props.navigation.getParam('id')},
+              data: cacheData,
+            })
+					} catch (error) {
+						console.log('error: ' + error.message)
+					}
+        },
+      }
+    )
+  }
+
+  editButtonPressed = (cost) => {
+    props.navigation.navigate('CostEdit', {cost, 'tID': props.navigation.getParam('id')})
+  }
+
+  deleteButtonPressed = (args) => {
+		if (args.id==="tbd") {return}
+    Alert.alert(
+      "Confirm Delete",
+      "Delete: \n" + dictionaryLookup(args.costType, "EntryFeeOptions", "long") + '?',
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel"
+        },
+				{ text: "OK", onPress: () => 				
+          deleteTournamentCost(
+            {
+              variables: {id: args.id},
+							optimisticResponse: {
+								deleteCost: {
+									__typename: "Cost",
+									id: args.id,
+								}
+              },
+							update: (cache, mutationResponse) => {
+								try {
+									const { data: { deleteCost }} = mutationResponse
+                  let cacheData = cache.readQuery({
+                    query: getTournamentCostsQuery, 
+                    variables: {id: props.navigation.getParam('id')},
+                  })
+                  cacheData = {
+                    Tournament: {
+                      ...cacheData.Tournament,
+                      costs: cacheData.Tournament.costs.filter(i => (i.id !== deleteCost.id))
+                    }
+                  }
+									cache.writeQuery({
+                    query: getTournamentCostsQuery, 
+                    variables: {id: props.navigation.getParam('id')},
+                    data: cacheData, 
+                  })
+								} catch (error) {
+									console.log('error: ' + error.message)
+								}
+							}                            
+            }
+          )
+        }
+      ],
+      { cancelable: false }
+		)
+  }
+
+  if (loading || loadingUser) {
+    return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
+  } else if (error || errorUser) {
+  return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
+  } else {
+    const { user } = dataUser
+    const userIsOwner = user.id === data.Tournament.user.id
+    const { Tournament: {costs} } = data
+    return (
+			<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
+        <SwipeListView
+          refreshing={refreshingState}
+          onRefresh={()=>{
+            setRefreshingState(true)
+            refetch().then(()=> 
+              setRefreshingState(false)
+            )
+          }}
+          data={sortEntryFees(costs)}
+          ListHeaderComponent={
+            <ListHeader 
+            title="Entry Fees" 
+            showAddButton={userIsOwner} 
+            onAddButtonPress={addButtonPressed}
+            />
+          }
+          rightOpenValue={-80}
+          stickyHeaderIndices={[0]}
+          disableRightSwipe = {true}
+          swipeToOpenPercent = {10}
+          swipeToClosePercent = {10}
+          closeOnRowBeginSwipe = {true}
+          closeOnRowOpen = {true}
+          closeOnRowPress = {true}
+          closeOnScroll = {true}
+          renderItem={ (data, rowMap) => (
+            <TouchableHighlight
+              onPress={() => editButtonPressed(data.item)}
+              style={[styles.rowFront,]}
+              underlayColor={'#AAA'}
+            >
+              <View style={{flex: 1, flexDirection: 'row', }}>
+                <View style={{flex: 0.4, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
+                  <Text style={[styles.listItemTitle, styles.textBold, ]}>
+                    {data.item.costType && dictionaryLookup(data.item.costType, "EntryFeeOptions", "long") + ": " + (data.item.price && data.item.price.toLocaleString(undefined, {style: 'currency', currency: 'USD', currencyDisplay: 'symbol', useGrouping: true}))}
+                  </Text>
+                  {/* <Text style={[styles.listItemSubtitle,]}>
+                    {'Tournament value: ' + data.item.denom}
+                  </Text> */}
+                </View>
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'flex-end', paddingRight: responsiveFontSize(2)}}>
+                  <Text style={[styles.listItemTitle, ]}>{data.item.chipStack && data.item.chipStack.toLocaleString() + ' Chips, ' + data.item._buysMeta.count + ' buys.'}</Text>
+                </View>
+                <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center', }}>
+                  <Icon
+										name='ios-arrow-forward'
+										color= 'black'
+										type='ionicon'
+									/>
+                </View>
+              </View>
+            </TouchableHighlight>
+          )}
+          renderHiddenItem={ (data, rowMap) => (
+            <View style={styles.rowBack}>
+              {/* <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnLeft]}
+                  onPress={() => copyButtonPressed(data.item.id)}
+              >
+                  <Text style={styles.backTextWhite}>C</Text>
+              </TouchableOpacity> */}
+              <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnCenter]}
+                  onPress={() => editButtonPressed(data.item)}
+              >
+                <Icon
+                  name='edit'
+                  color='white'
+                  type='font-awesome'
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                  style={[styles.backRightBtn, styles.backRightBtnRight]}
+                  onPress={() => deleteButtonPressed(data.item)}
+              >
+                <Icon
+                  name='ios-trash'
+                  color='white'
+                  type='ionicon'
+                />
+                {/* <Text style={styles.backTextWhite}>DEL</Text> */}
+              </TouchableOpacity>
             </View>
-          </ScrollView>
-          <BannerAd/>
-        </View>
-      )
-    }
+          )}
+        />
+				<BannerAd />
+      </View>
+    )
   }
 }
-
-export default compose(
-  graphql(createTournamentCostMutation, {name: 'createItem'}),
-  graphql(deleteCostMutation, { name: 'deleteItem' }),
-  graphql(getTournamentCostsQuery, { name: 'getData', options: ({ navigation }) => ({ variables: { id: navigation.state.params.id } })}),
-  graphql(currentUserQuery, { name: 'currentUserQuery', }),
-)(CostListScreen)
 
 const styles = StyleSheet.create({
   active: {
@@ -162,5 +229,48 @@ const styles = StyleSheet.create({
   listItemSubtitle: {
     fontSize: responsiveFontSize(1.5),
     color: '#888'
-  }
+  },
+  textBold: {
+    fontWeight: 'bold',
+  },
+  backTextWhite: {
+    color: '#FFF',
+  },
+  rowFront: {
+    alignItems: 'flex-start',
+    backgroundColor: '#DDD',
+    borderBottomColor: 'white',
+    borderBottomWidth: 1,
+    justifyContent: 'center',
+    height: 50,
+    paddingLeft: responsiveFontSize(2)
+  },
+  rowBack: {
+      alignItems: 'center',
+      backgroundColor: '#DDD',
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingLeft: 15,
+  },
+  backRightBtn: {
+      alignItems: 'center',
+      bottom: 0,
+      justifyContent: 'center',
+      position: 'absolute',
+      top: 0,
+      width: 40,
+  },
+  backRightBtnLeft: {
+    backgroundColor: 'green',
+    right: 80,
+  },
+  backRightBtnCenter: {
+    backgroundColor: 'blue',
+    right: 40,
+  },
+  backRightBtnRight: {
+      backgroundColor: 'red',
+      right: 0,
+  },
 });
