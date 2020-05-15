@@ -10,13 +10,13 @@ import HomeScreen from '../screens/HomeScreen'
 import TournamentListScreen from '../screens/TournamentListScreen'
 import TournamentTimerScreen from '../screens/TournamentTimerScreen'
 import TournamentDashboardScreen from '../screens/TournamentDashboardScreen'
-import SegmentListScreen from '../screens/SegmentListScreen'
+// import SegmentListScreen from '../screens/SegmentListScreen'
 import SegmentEditScreen from '../screens/SegmentEditScreen'
-import ChipListScreen from '../screens/ChipListScreen'
+// import ChipListScreen from '../screens/ChipListScreen'
 import ChipEditScreen from '../screens/ChipEditScreen'
 // import ContactListScreen from '../screens/ContactListScreen'
 import GeneralInfoEditScreen from '../screens/GeneralInfoEditScreen'
-import CostListScreen from '../screens/CostListScreen'
+// import CostListScreen from '../screens/CostListScreen'
 import CostEditScreen from '../screens/CostEditScreen'
 import BuyListScreen from '../screens/BuyListScreen'
 import ProfileScreen from '../screens/ProfileScreen'
@@ -28,7 +28,7 @@ const TournamentsStack = createStackNavigator({
 	TournamentList: {
 		screen: TournamentListScreen,
 		navigationOptions: {
-			title: 'TourneyVision'
+			title: 'My Tournaments'
 		}
 	},
 	Details: {
@@ -46,27 +46,27 @@ const TournamentsStack = createStackNavigator({
 	TimerEdit: {
 		screen: TimerEditScreen,
 		navigationOptions: {
-			title: 'Timer Editor'
+			title: 'Timer Options'
 		}
 	},
-	SegmentList: {
-		screen: SegmentListScreen,
-		navigationOptions: {
-			title: 'TourneyVision'
-		}
-	},
+	// SegmentList: {
+	// 	screen: SegmentListScreen,
+	// 	navigationOptions: {
+	// 		title: 'TourneyVision'
+	// 	}
+	// },
 	SegmentEdit: {
 		screen: SegmentEditScreen,
 		navigationOptions: {
 			title: 'Segment Editor',
 		}
 	},
-	ChipList: {
-		screen: ChipListScreen,
-		navigationOptions: {
-			title: 'TourneyVision'
-		}
-	},
+	// ChipList: {
+	// 	screen: ChipListScreen,
+	// 	navigationOptions: {
+	// 		title: 'TourneyVision'
+	// 	}
+	// },
 	ChipEdit: {
 		screen: ChipEditScreen,
 		navigationOptions: {
@@ -79,12 +79,12 @@ const TournamentsStack = createStackNavigator({
 			title: 'General Info',
 		}
 	},
-	CostList: {
-		screen: CostListScreen,
-		navigationOptions: {
-			title: 'TourneyVision'
-		}
-	},
+	// CostList: {
+	// 	screen: CostListScreen,
+	// 	navigationOptions: {
+	// 		title: 'TourneyVision'
+	// 	}
+	// },
 	CostEdit: {
 		screen: CostEditScreen,
 		navigationOptions: {

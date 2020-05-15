@@ -1,19 +1,73 @@
 import { useMutation } from '@apollo/client'
 import React, { useState, } from 'react'
+import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
+import { Button, Icon, Input, } from 'react-native-elements'
 
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 
-import { dictionaryLookup, } from '../utilities/functions'
-import { updateSegmentMutation} from '../constants/GQL'
+import { dictionaryLookup, responsiveFontSize} from '../utilities/functions'
+import { getTournamentQuery, updateSegmentMutation, deleteSegmentMutation} from '../constants/GQL'
 
 export default (props) => {
   const initialValues = {} = props.navigation.getParam('segment')
   const [formValues, setFormValues] = useState(initialValues)
   const [updateSegment] = useMutation(updateSegmentMutation, {
-    variables: {
-      ...formValues,
-    },
+    variables: {...formValues, },
+    update: (cache, mutationResponse) => { props.navigation.goBack()}
   })
+  const [deleteTournamentSegment] = useMutation(deleteSegmentMutation, {})
+
+  const deleteButtonPressed = (args) => {
+		if (args.id==="tbd") {return}
+    Alert.alert(
+      "Confirm Delete",
+      "Delete: \n" + args.sBlind + '/' + args.bBlind + '/' + (args.ante || "No Ante") + " ?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel"
+        },
+				{ text: "OK", onPress: () => 				
+          deleteTournamentSegment(
+            {
+              variables: {id: args.id},
+							optimisticResponse: {
+								deleteSegment: {
+									__typename: "Segment",
+									id: args.id,
+								}
+              },
+							update: (cache, mutationResponse) => {
+								try {
+									const { data: { deleteSegment }} = mutationResponse
+                  let cacheData = cache.readQuery({
+                    query: getTournamentQuery, 
+                    variables: {id: props.navigation.getParam('tID')},
+                   })
+                  cacheData = {
+                    Tournament: {
+                      ...cacheData.Tournament,
+                      segments: cacheData.Tournament.segments.filter(i => (i.id !== deleteSegment.id))
+                    }
+                  }
+									cache.writeQuery({
+                    query: getTournamentQuery, 
+                    variables: {id: props.navigation.getParam('tID')},
+                    data: cacheData, 
+                  })
+                  props.navigation.goBack()
+								} catch (error) {
+									console.log('error: ' + error.message)
+								}
+							}                            
+            }
+          )
+        }
+      ],
+      { cancelable: false }
+		)
+  }
 
   const handleInputChange = (fieldName, value) => {
     setFormValues({...formValues, [fieldName]:value})
@@ -63,10 +117,29 @@ export default (props) => {
         ))
         }
       </Picker>
-      <SubmitButton 
-        mutation={updateSegment}
-        disabled={!isDirty()}
-      />
-     </FormView>
+      <View style={{
+        marginTop: responsiveFontSize(4),
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+      }}>
+        <Button
+          onPress={()=>deleteButtonPressed(initialValues)}
+          icon={
+            <Icon
+              name="ios-trash"
+              color="red"
+              type="ionicon"
+              size={responsiveFontSize(6)}
+            />
+          }
+          type="clear"
+        />
+        <SubmitButton 
+          mutation={updateSegment}
+          disabled={!isDirty()}
+        />
+      </View>
+    </FormView>
   )
 }

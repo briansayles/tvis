@@ -13,7 +13,7 @@ export function convertItemToInputType(item, relationNamesArray) {
 }
 
 export function smallestChipArray (sortedChips, sortedSegments) {
-	const chips = sortedChips.slice(0)
+	const chips = sortedChips.filter(i => (i.denom)).slice(0)
 	const segments = sortedSegments.slice(0)
   const chipsReversed = chips.slice(0).reverse()
   const segmentsReversed = segments.slice(0).reverse()
@@ -82,11 +82,11 @@ export function	msToTime(duration, includeFractions, alwaysIncludeHours) {
 }
 
 export function numberToSuffixedString(number) {
-	if (number === 0 || number === null) {return 0}
+	if (!number) {return "?"}
 	if (number % 1000000 === 0 || (number > 1000000 && number % 1000000 === 500000)) {
 		return (number / 1000000).toLocaleString() + "M"	
 	}
-	if (number % 1000 === 0 || (number > 1000 && number % 1000000 === 500)) {
+	if (number > 9999 && (number % 1000 === 0 || (number > 1000 && number % 1000000 === 500))) {
 		return (number / 1000).toLocaleString() + "k"
 	}
 	return number.toLocaleString()
@@ -163,7 +163,7 @@ export function sortSegments (segments) {
 
 export function sortChips (chips) {
 	return chips.slice(0).sort((a,b) => {
-		return (parseInt(a.denom) - parseInt(b.denom))
+		return (parseInt(a.denom ? a.denom : 0) - parseInt(b.denom ? b.denom : 0))
 	})
 }
 

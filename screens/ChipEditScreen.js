@@ -1,46 +1,73 @@
 import { useMutation, } from '@apollo/client'
 import React, { useState, } from 'react'
+import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
+import { Button, Icon, Input, } from 'react-native-elements'
 
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 
-import { dictionaryLookup } from '../utilities/functions'
-import { getTournamentChipsQuery, updateChipMutation} from '../constants/GQL'
+import { dictionaryLookup, responsiveFontSize } from '../utilities/functions'
+import { getTournamentQuery, updateChipMutation, deleteChipMutation } from '../constants/GQL'
 
 export default (props) => {
   const initialValues = {} = props.navigation.getParam('chip')
   const [formValues, setFormValues] = useState(initialValues)
   const [updateChip] = useMutation(updateChipMutation, {
-    variables: {
-      ...formValues,
-    },
-    optimisticResponse: {
-      updateChip: {
-        ...formValues,
-      }      
-    },
-    update: (cache, mutationResponse) => {
-      try {
-        const {data: { updateChip }} = mutationResponse
-        let cacheData = cache.readQuery({ 
-          query: getTournamentChipsQuery, 
-          variables: {id: props.navigation.getParam('tID')}, 
-        })
-        cacheData = {
-          Tournament: {
-            ...cacheData.Tournament,
-            chips: [...cacheData.Tournament.chips.filter(i => i.id !== updateChip.id), updateChip]
-          }
+    variables: {...formValues,},
+    update: (cache, mutationResponse) => {props.navigation.goBack()}
+  })  
+  const [deleteTournamentChip] = useMutation(deleteChipMutation, {})
+
+  const deleteButtonPressed = (args) => {
+		if (args.id==="tbd") {return}
+    Alert.alert(
+      "Confirm Delete",
+      "Delete: \n" + dictionaryLookup(args.color, "ChipColorOptions", "long") + ' (value=' + args.denom + ') chip?',
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel"
+        },
+				{ text: "OK", onPress: () => 				
+          deleteTournamentChip(
+            {
+              variables: {id: args.id},
+							optimisticResponse: {
+								deleteChip: {
+									__typename: "Chip",
+									id: args.id,
+								}
+              },
+							update: (cache, mutationResponse) => {
+								try {
+									const { data: { deleteChip }} = mutationResponse
+                  let cacheData = cache.readQuery({
+                    query: getTournamentQuery, 
+                    variables: {id: props.navigation.getParam('tID')},
+                  })
+                  cacheData = {
+                    Tournament: {
+                      ...cacheData.Tournament,
+                      chips: cacheData.Tournament.chips.filter(i => (i.id !== deleteChip.id))
+                    }
+                  }
+									cache.writeQuery({
+                    query: getTournamentQuery, 
+                    variables: {id: props.navigation.getParam('tID')},
+                    data: cacheData, 
+                  })
+                  props.navigation.goBack()
+								} catch (error) {
+									console.log('error: ' + error.message)
+								}
+							}                            
+            }
+          )
         }
-        cache.writeQuery({ 
-          query: getTournamentChipsQuery, 
-          variables: {id: props.navigation.getParam('tID')},
-          data: cacheData,
-        })
-      } catch (error) {
-        console.log('error: ' + error.message)
-      }
-    }
-  })
+      ],
+      { cancelable: false }
+		)
+  }
 
   const handleInputChange = (fieldName, value) => {
     setFormValues({...formValues, [fieldName]:value})
@@ -61,11 +88,18 @@ export default (props) => {
         onChangeText={(text) => handleInputChange('denom', parseInt(text))}
         keyboardType="numeric"
       />
+      <MyInput
+        title="Quantity Available (optional)"
+        value={(formValues.qtyAvailable || "").toString()}
+        placeholder="Enter number of chips available here..."
+        onChangeText={(text) => handleInputChange('qtyAvailable', parseInt(text))}
+        keyboardType="numeric"
+      />
       <Picker
         prompt="Choose a color"
         title="Chip color"
         initialValue={initialValues.color || "Pick color..."}
-        selectedValue={formValues.color || '#fff'}
+        selectedValue={formValues.color || '#000'}
         onValueChange={(itemValue, itemIndex) => handleInputChange('color', itemValue)}
       >
         {dictionaryLookup("ChipColorOptions").map((item, i) => (
@@ -73,10 +107,30 @@ export default (props) => {
         ))
         }
       </Picker>
-      <SubmitButton 
-        mutation={updateChip}
-        disabled={!isDirty()}
-      />
+      <View style={{
+        marginTop: responsiveFontSize(4),
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+      }}>
+        <Button
+          onPress={()=>deleteButtonPressed(initialValues)}
+          icon={
+            <Icon
+              name="ios-trash"
+              color="red"
+              type="ionicon"
+              size={responsiveFontSize(6)}
+            />
+          }
+          type="clear"
+        />
+        <SubmitButton 
+          mutation={updateChip}
+          disabled={!isDirty()}
+        />
+     </View>
+
     </FormView>
   )
 }

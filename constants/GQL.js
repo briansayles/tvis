@@ -69,26 +69,71 @@ export const addCreditsMutation = gql`
   }
 `
 
+export const TournamentFragments =
+{
+  overview: gql`
+    fragment TournamentOverviewPayload on Tournament {
+      id
+      title
+      subtitle
+      updatedAt
+      childrenUpdatedAt
+      comments
+      game
+      timer {
+        id
+        active
+      }
+    }
+  `,
+  segment: gql`
+    fragment SegmentPayload on Segment {
+      id
+      duration
+      sBlind
+      bBlind
+      ante
+      game
+    }
+  `,
+  chip: gql`
+    fragment ChipPayload on Chip {
+      id
+      denom
+      color
+      rimColor
+      textColor
+      qtyAvailable
+    }
+  `,
+  cost: gql`
+    fragment CostPayload on Cost {
+      id
+      costType
+      price
+      chipStack
+      buys {
+        player {
+          id
+        } 
+      }
+      _buysMeta {
+        count
+      }
+    }
+  `
+}
+
 export const currentUserTournamentsQuery = gql`
   query currentUserTournaments {
     user 
     {
       id
       name
-      tournaments
-      {
-        id
-        title
-        subtitle
-        updatedAt
-        childrenUpdatedAt
-        timer {
-          id
-          active
-        }
-      }
+      tournaments {...TournamentOverviewPayload}
     }
   }
+  ${TournamentFragments.overview}
 `
 
 export const allTournamentsQuery = gql`
@@ -96,11 +141,7 @@ export const allTournamentsQuery = gql`
     allTournaments (
       orderBy: updatedAt_DESC,
     )
-    {
-      id
-      title
-      subtitle
-    }
+    {...TournamentOverviewParts}
   }
 `
 
@@ -108,12 +149,7 @@ export const getTournamentQuery = gql`
   query getTournament($id: ID) {
     Tournament(id: $id)
     {
-      id
-      title
-      subtitle
-      comments
-      updatedAt
-      game
+      ...TournamentOverviewPayload
       timer {
         id
         active
@@ -127,18 +163,7 @@ export const getTournamentQuery = gql`
         backgroundColor
       }
       costs (orderBy: chipStack_DESC) {
-        id
-        costType
-        price
-        chipStack
-        buys {
-          player {
-            id
-          } 
-        }
-        _buysMeta {
-          count
-        }
+        ...CostPayload
       }
       payoutLevels (orderBy: levelNumber_ASC) {
         id
@@ -150,19 +175,10 @@ export const getTournamentQuery = gql`
         count
       }
       segments (orderBy: bBlind_ASC) {
-        id
-        duration
-        sBlind
-        bBlind
-        ante
-        game
+        ...SegmentPayload
       } 
       chips (orderBy: denom_ASC) {
-        id
-        denom
-        color
-        rimColor
-        textColor
+        ...ChipPayload
       }
       tags (orderBy: name_ASC) {
         id
@@ -174,21 +190,12 @@ export const getTournamentQuery = gql`
       }
     }
   }
+  ${TournamentFragments.segment}
+  ${TournamentFragments.overview}
+  ${TournamentFragments.chip}
+  ${TournamentFragments.cost}
 `
 
-export const tournamentSubscription = gql`
-  subscription {
-    Tournament(filter: {
-      mutation_in: [UPDATED]
-    }) {
-      node {
-        id
-      }
-    }
-  }
-`
-
-// TODO: Make costs, chips and segments Input Types. Doesn't work as-is.
 export const createTournamentFromExistingTournamentMutation = gql`
   mutation createTournament($userId: ID!, $title: String, $subtitle: String, $comments: String, $game: Game, $costs: [TournamentcostsCost!], $chips: [TournamentchipsChip!], $segments: [TournamentsegmentsSegment!] ) {
     createTournament (
@@ -205,11 +212,9 @@ export const createTournamentFromExistingTournamentMutation = gql`
         elapsed: 0
       }
    )
-    {
-      id
-      title
-    }
+    {...TournamentOverviewPayload}
   }
+  ${TournamentFragments.overview}
 `
 export const createTournamentMutation = gql`
   mutation createTournament( $userId: ID!, $title: String="Default Tournament", $duration: Int=20) {
@@ -359,73 +364,23 @@ export const createTournamentMutation = gql`
         }
       ]
     )
-    {
-      id
-        title
-        subtitle
-        updatedAt
-        childrenUpdatedAt
-        timer {
-          id
-          active
-        }
-    }
+    {...TournamentOverviewPayload}
   }
+  ${TournamentFragments.overview}
 `
 
 export const updateTournamentMutation = gql`
   mutation updateTournament ($id: ID!, $title: String, $subtitle: String, $comments: String, $game: Game) {
-    updateTournament(id: $id, title: $title, subtitle: $subtitle, comments: $comments, game: $game) {
-      id
-      title
-      subtitle
-      comments
-      game
-    }
+    updateTournament(
+      id: $id, title: $title, subtitle: $subtitle, comments: $comments, game: $game
+    ) 
+    {...TournamentOverviewPayload}
   }
+  ${TournamentFragments.overview}
 `
+export const deleteTournamentMutation = gql`mutation deleteTournament($id: ID!) {deleteTournament(id: $id) {id}}`
 
-export const deleteTournamentMutation = gql`
-  mutation deleteTournament($id: ID!) {
-    deleteTournament(id: $id) {
-      id
-    }
-  }
-`
-export const toggleTournamentTimerMutation = gql`
-  mutation updateTournamentTimer($id: ID!, $active: Boolean!, $elapsed: Int!) {
-    updateTimer(id: $id, active: $active, elapsed: $elapsed) {
-      id
-      active
-      updatedAt
-      elapsed
-    }
-  }
-`
-
-export const jumpTournamentSegmentMutation = gql`
-  mutation updateTournamentTimer($id: ID!, $elapsed: Int!) {
-    updateTimer(id: $id, elapsed: $elapsed) {
-      id
-      active
-      updatedAt
-      elapsed
-    }
-  }
-`
-
-export const resetTournamentTimerMutation = gql`
-  mutation updateTournamentTimer($id: ID!) {
-    updateTimer(id: $id, active: false, elapsed: 0) {
-      id
-      active
-      updatedAt
-      elapsed
-    }
-  }
-`
-
-export const updateTournamentTimerMutation = gql`
+export const updateTimerMutation = gql`
   mutation updateTournamentTimer($id: ID!, $active: Boolean, $elapsed: Int, $oneMinuteRemainingSpeech: String, $playOneMinuteRemainingSound: Boolean, $endOfRoundSpeech: String, $playEndOfRoundSound: Boolean, $backgroundColor: String) {
     updateTimer(id: $id, active: $active, elapsed: $elapsed, oneMinuteRemainingSpeech: $oneMinuteRemainingSpeech,
     playOneMinuteRemainingSound: $playOneMinuteRemainingSound, endOfRoundSpeech: $endOfRoundSpeech, playEndOfRoundSound: $playEndOfRoundSound,
@@ -443,272 +398,70 @@ export const updateTournamentTimerMutation = gql`
     }
   }
 `
-export const deleteTimerMutation = gql`
-  mutation deleteTimer($id: ID!) {
-    deleteTimer(id: $id) {
-      id
-    }
-  }
-`
-export const updateTournamentChildren = gql`
-  mutation updateTournamentChildren ($id: ID!, $now: DateTime) {
-    updateTournament(id: $id, childrenUpdatedAt: $now) {
-      id
-      updatedAt
-    }
-  }
-`
+export const deleteTimerMutation = gql`mutation deleteTimer($id: ID!) {deleteTimer(id: $id) {id}}`
 
-export const createTournamentSegmentMutation = gql`
-  mutation createTournamentSegment( $tournamentId: ID!, $sBlind: Int=1, $bBlind: Int=2, $duration: Int=20, $ante: Int=0, $game: Game=NLHE) {
+export const createSegmentMutation = gql`
+  mutation createSegment( $tournamentId: ID!, $sBlind: Int, $bBlind: Int, $duration: Int, $ante: Int, $game: Game) {
     createSegment (
-      tournamentId: $tournamentId
-      duration: $duration
-      sBlind: $sBlind 
-      bBlind: $bBlind
-      ante: $ante
-      game: $game
+      tournamentId: $tournamentId, duration: $duration, sBlind: $sBlind, bBlind: $bBlind, ante: $ante, game: $game
     )
-    {
-      id
-      duration
-      sBlind
-      bBlind
-      ante
-      game
-    }
+    { ...SegmentPayload }
   }
+  ${TournamentFragments.segment}
 `
-
-export const getTournamentSegmentsQuery = gql`
-  query getTournament($id: ID) {
-    Tournament(id: $id)
-    {
-      id
-      user { id }
-      segments (orderBy: bBlind_ASC) {
-        id
-        duration
-        sBlind
-        bBlind
-        ante
-        game
-      }
-    }
-  }
-`
-
-export const getSegmentQuery = gql`
-  query getSegment($id: ID) {
-    Segment(id: $id)
-    {
-      id
-      duration
-      sBlind
-      bBlind
-      ante
-      game
-      tournament {
-        id
-      }
-    }
-  }
-`
-
 export const updateSegmentMutation = gql`
   mutation updateSegment($id: ID!, $duration: Int, $sBlind: Int, $bBlind: Int, $ante: Int, $game: Game) {
-    updateSegment(id: $id, duration: $duration, sBlind: $sBlind, bBlind: $bBlind, ante: $ante, game: $game) {
-      id
-      duration
-      sBlind
-      bBlind
-      ante
-      game
-    }
+    updateSegment(
+      id: $id, duration: $duration, sBlind: $sBlind, bBlind: $bBlind, ante: $ante, game: $game
+    )
+    { ...SegmentPayload }
   }
+  ${TournamentFragments.segment}
 `
+export const deleteSegmentMutation = gql`mutation deleteSegment($id: ID!) {deleteSegment(id: $id) {id}}`
 
-export const deleteSegmentMutation = gql`
-  mutation deleteSegment($id: ID!) {
-    deleteSegment(id: $id) {
-      id
-    }
-  }
-`
-
-export const createTournamentChipMutation = gql`
-  mutation createTournamentChip( $tournamentId: ID!, $denom: Int=1, $color: String="#888", $textColor: String="#000", $rimColor: String="#fff") {
+export const createChipMutation = gql`
+  mutation createChip( $tournamentId: ID!, $denom: Int, $color: String, $textColor: String="#000", $rimColor: String="#fff", $qtyAvailable: Int, ) {
     createChip (
-      tournamentId: $tournamentId
-      denom: $denom 
-      color: $color
-      textColor: $textColor
-      rimColor: $rimColor
+      tournamentId: $tournamentId, denom: $denom, color: $color, textColor: $textColor, rimColor: $rimColor, qtyAvailable: $qtyAvailable
     )
-    {
-      id
-      denom
-      color
-      rimColor
-      textColor
-      qtyAvailable
-    }
+    {...ChipPayload }
   }
+  ${TournamentFragments.chip}
 `
-
-export const getTournamentChipsQuery = gql`
-  query getTournament($id: ID) {
-    Tournament(id: $id)
-    {
-      id
-      user { id }
-      chips (orderBy: denom_ASC) {
-        id
-        denom
-        color
-        rimColor
-        textColor
-        qtyAvailable
-      }
-    }
-  }
-`
-
-export const getChipQuery = gql`
-  query getChip($id: ID) {
-    Chip(id: $id)
-    {
-      id
-      denom
-      color
-      textColor
-      rimColor
-      qtyAvailable
-    }
-  }
-`
-
 export const updateChipMutation = gql`
-  mutation updateChip($id: ID!, $denom: Int, $color: String, $textColor: String, $rimColor: String, ) {
-    updateChip(id: $id, denom: $denom, color: $color, textColor: $textColor, rimColor: $rimColor) {
-      id
-      denom
-      color
-      textColor
-      rimColor
-      qtyAvailable
-    }
-  }
-`
-
-export const deleteChipMutation = gql`
-  mutation deleteChip($id: ID!) {
-    deleteChip(id: $id) {
-      id
-    }
-  }
-`
-
-export const createTournamentCostMutation = gql`
-  mutation createTournamentCost( $tournamentId: ID!, $price: Int, $chipStack: Int) {
-    createCost (
-      tournamentId: $tournamentId
-      price: $price
-      chipStack: $chipStack
+  mutation updateChip($id: ID!, $denom: Int, $color: String, $textColor: String, $rimColor: String, $qtyAvailable: Int, ) {
+    updateChip(
+      id: $id, denom: $denom, color: $color, textColor: $textColor, rimColor: $rimColor, qtyAvailable: $qtyAvailable
     )
-    {
-        id
-        price
-        chipStack
-        costType
-        _buysMeta {
-          count
-        }
-    }
+    { ...ChipPayload }
   }
+  ${TournamentFragments.chip}
 `
+export const deleteChipMutation = gql`mutation deleteChip($id: ID!) {deleteChip(id: $id) {id}}`
 
-export const getTournamentCostsQuery = gql`
-  query getTournament($id: ID) {
-    Tournament(id: $id)
-    {
-      id
-      user { id }
-      costs (orderBy: chipStack_DESC) {
-        id
-        price
-        chipStack
-        costType
-        _buysMeta {
-          count
-        }
-      }
-    }
+export const createCostMutation = gql`
+  mutation createCost( $tournamentId: ID!, $price: Int, $chipStack: Int) {
+    createCost (
+      tournamentId: $tournamentId,price: $price, chipStack: $chipStack
+    )
+    {...CostPayload}
   }
+  ${TournamentFragments.cost}
 `
-
-export const tournamentCosts = gql`
-  query ($id: ID!) {
-    allCosts(filter: {
-      tournament: {
-        id: $id
-      }
-    }) {
-      id
-      price
-      chipStack
-      costType
-      _buysMeta {
-        count
-      }
-      tournament {
-        user {
-          id
-        }
-      }
-    }
-  }
-`
-
-export const getCostQuery = gql`
-  query getCost($id: ID) {
-    Cost(id: $id)
-    {
-      id
-      price
-      chipStack
-      costType
-      _buysMeta {
-        count
-      }
-      tournament {
-        id
-      }
-    }
-  }
-`
-
 export const updateCostMutation = gql`
   mutation updateCost ($id: ID!, $price: Int, $chipStack: Int, $costType: CostType, ) {
-    updateCost(id: $id, price: $price, chipStack: $chipStack, costType: $costType) {
-      id
-      price
-      chipStack
-      costType
-      _buysMeta {
-        count
-      }
-    }
+    updateCost(
+      id: $id, price: $price, chipStack: $chipStack, costType: $costType
+    )
+    {...CostPayload}
   }
+  ${TournamentFragments.cost}
 `
+export const deleteCostMutation = gql`mutation deleteCost($id: ID!) { deleteCost(id: $id) {id}}`
 
-export const deleteCostMutation = gql`
-  mutation deleteCost($id: ID!) {
-    deleteCost(id: $id) {
-      id
-    }
-  }
-`
+
+
 
 export const createCostBuyMutation = gql`
   mutation createCostBuy( $costId: ID!) {
@@ -718,50 +471,6 @@ export const createCostBuyMutation = gql`
     {
       id
       player { id }
-    }
-  }
-`
-
-export const getTournamentBuysQuery = gql`
-  query getTournament($id: ID) {
-    Tournament(id: $id)
-    {
-      id
-      user { id } 
-      costs (orderBy: chipStack_DESC) {
-        id
-        price
-        chipStack
-        costType
-        _buysMeta {
-          count
-        }
-        buys {
-          id
-          player {id}
-        }
-      }
-    }
-  }
-`
-
-export const tournamentBuys = gql`
-  query ($id: ID!) {
-    allBuys(filter: {
-      cost: {
-        tournament: {
-          id: $id
-        }
-      }
-    }) {
-      id
-      cost {
-        tournament {
-          user {
-            id
-          }
-        }
-      }
     }
   }
 `

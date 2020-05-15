@@ -3,15 +3,14 @@ import React, { useState, } from 'react'
 
 import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
 
-import { updateTournamentTimerMutation, } from '../constants/GQL'
+import { updateTimerMutation, } from '../constants/GQL'
 
 export default ((props) => {
   const initialValues = {} = props.navigation.getParam('timer')
   const [formValues, setFormValues] = useState(initialValues)
-	const [ updateTournamentTimer ] = useMutation(updateTournamentTimerMutation, {
-    variables: {
-      ...formValues,
-    }
+	const [ updateTimer ] = useMutation(updateTimerMutation, {
+    variables: {...formValues, },
+    update: (cache, mutationResponse) => {props.navigation.goBack()}
   })
 
   const handleInputChange = (fieldName, value) => {
@@ -39,7 +38,7 @@ export default ((props) => {
         onChangeText={(text) => handleInputChange('endOfRoundSpeech', text)}
       />
       <SubmitButton 
-        mutation={updateTournamentTimer}
+        mutation={updateTimer}
         disabled={!isDirty()}
       />
     </FormView>

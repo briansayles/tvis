@@ -1,8 +1,8 @@
 import { useQuery, useMutation} from '@apollo/client'
 import React, { useState } from 'react'
 import { ActivityIndicator, Alert, View, StyleSheet, Text, TouchableOpacity, TouchableHighlight} from 'react-native'
-import { Icon, } from 'react-native-elements'
-import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, deleteTournamentMutation, createTournamentFromExistingTournamentMutation} from '../constants/GQL' // copyTournamentMutation, 
+import { Icon, ListItem, List} from 'react-native-elements'
+import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, } from '../constants/GQL' // copyTournamentMutation, 
 import { SwipeListView } from 'react-native-swipe-list-view'
 import { BannerAd } from '../components/Ads'
 import { ListHeader, } from '../components/FormComponents'
@@ -12,14 +12,9 @@ export default ((props) => {
 	const [refreshingState, setRefreshingState] = useState(false)
 	const {loading, data, error, refetch} = useQuery(currentUserTournamentsQuery)
   const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
-	const [ deleteTournament ] = useMutation(deleteTournamentMutation, {})
 	const [ createTournament ] = useMutation(createTournamentMutation, {})
 
-  navigateToTimerButtonPressed = (id) => {
-    props.navigation.navigate('Details', {id: id})
-  }
-
-	addTournamentButtonPressed = async () => {
+	const addTournamentButtonPressed = async () => {
 		createTournament(
 			{
 				variables: {"userId": data.user.id, "duration": undefined, "title": "My Tournament #" + (data.user.tournaments.length + 1)},
@@ -60,6 +55,7 @@ export default ((props) => {
 							variables: {},
 							data: cacheData,
 						})
+						if (createTournament.id !== "tbd") {props.navigation.navigate('Edit', {id: createTournament.id})}
 					} catch (error) {
 						console.log('error: ' + error.message)
 					}
@@ -68,95 +64,10 @@ export default ((props) => {
 		)
 	}
 
-  editTournamentButtonPressed = (id) => {
+  const editTournamentButtonPressed = (id) => {
 		if (id==="tbd") {return}
 		props.navigation.navigate('Edit', {id: id})
   }
-
-	deleteTournamentButtonPressed = (id, title) => {
-		if (id==="tbd") {return}
-    Alert.alert(
-      "Confirm Delete",
-      "Delete: \n" + title + " ?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => {},
-          style: "cancel"
-        },
-				{ text: "OK", onPress: () => 
-				
-					deleteTournament(
-						{
-							variables: {id: id},
-							optimisticResponse: {
-								deleteTournament: {
-									__typename: "Tournament",
-									id: id,
-								}
-							},
-							update: (cache, mutationResponse) => {
-								try {
-									const { data: { deleteTournament }} = mutationResponse
-									let cacheData = cache.readQuery({ 
-										query: currentUserTournamentsQuery,
-										variables: {},
-									})
-									cacheData = {
-										user: {
-											...cacheData.user,
-											tournaments: 
-												cacheData.user.tournaments.filter(i => (i.id !== deleteTournament.id))
-										}
-									}
-									cache.writeQuery({
-										query: currentUserTournamentsQuery,
-										variables: {},
-										data: cacheData,
-									})
-								} catch (error) {
-									console.log('error: ' + error.message)
-								}
-							}
-						}
-					)
-				}
-      ],
-      { cancelable: false }
-		)
-  }
-
-  copyTournamentButtonPressed = (id) => {
-		if (id==="tbd") {return}
-    // this.setState({loading: true})
-    // const client = useApolloClient() //   const {client} = this.props
-    // client.query({ query: getTournamentQuery, variables: {id: id} }).then((result) => {
-    //   const {user, title, subtitle, comments, game, costs, chips, segments} = result.data.Tournament
-    //   const userId = user.id
-    //   const newTitle = "Copy of " + title
-    //   const costsInput = costs.map((i, index) => {
-    //     return convertItemToInputType (i, ["tournamentId", "buys", "_buysMeta"])
-    //   })
-    //   const chipsInput = chips.map((i, index) => {
-    //     return convertItemToInputType (i, ["tournamentId"])
-    //   })
-    //   const segmentsInput = segments.map((i, index) => {
-    //     return convertItemToInputType (i, ["tournamentId"])
-    //   })
-	
-//       client.mutate({mutation: createTournamentFromExistingTournamentMutation, variables: {
-//         userId: userId, title: newTitle, subtitle: subtitle, comments: comments, game: game, costs: costsInput, chips: chipsInput, segments: segmentsInput
-//       }}).then((result) => {
-//         Events.publish('RefreshTournamentList')
-//         this._editButtonPressed(result.data.createTournament.id)
-//       }).catch((error) => {
-//         console.log(error.message)
-//         this.setState({loading: false})
-//       })
-//     }).catch((error) => {
-//       this.setState({loading: false})
-//     })
-   }
 
 	if (loading || loadingUser) {
     return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
@@ -205,23 +116,23 @@ export default ((props) => {
 									<Text style={[styles.listItemTitle, data.item.timer.active ? styles.active : {}]}>{data.item.title}</Text>
 									<Text style={[styles.listItemSubtitle, data.item.timer.active ? styles.active : {}]}>{data.item.subtitle}</Text>
 								</View>
-								<View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
+								{/* <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
 									<Icon
 										name='ios-arrow-forward'
 										color='black'
 										type='ionicon'
 									/>
-								</View>
+								</View> */}
 							</View>
 						</TouchableHighlight>
 					)}
 					renderHiddenItem={ (data, rowMap) => (
 						<View style={styles.rowBack}>
-							<TouchableOpacity
+							{/* <TouchableOpacity
 								style={[styles.backRightBtn, styles.backRightBtnLeft]}
 								onPress={() => {
 									// rowMap[data.item.key].closeRow()	
-									navigateToTimerButtonPressed(data.item.id)
+									// navigateToTimerButtonPressed(data.item.id)
 								}}
 							>
 								<Icon
@@ -247,7 +158,7 @@ export default ((props) => {
 								style={[styles.backRightBtn, styles.backRightBtnRight]}
 								onPress={() => {
 									// rowMap[data.item.key].closeRow()	
-									deleteTournamentButtonPressed(data.item.id, data.item.title)
+									// deleteTournamentButtonPressed(data.item.id, data.item.title)
 								}}
 							>
 								<Icon
@@ -255,7 +166,7 @@ export default ((props) => {
 									color='white'
 									type='ionicon'
 								/>
-							</TouchableOpacity>
+							</TouchableOpacity> */}
 						</View>
 					)}
 				/>

@@ -12,14 +12,12 @@ import { BannerAd } from '../components/Ads'
 
 import { GraphCoolConfig } from '../config'
 import { smallestChipArray, msToTime, numberToSuffixedString, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
-import { currentUserQuery, getTournamentQuery, toggleTournamentTimerMutation, jumpTournamentSegmentMutation, resetTournamentTimerMutation, getServerTimeMutation, } from '../constants/GQL'
+import { currentUserQuery, getTournamentQuery, updateTimerMutation, getServerTimeMutation, } from '../constants/GQL'
 
 export default ((props) => {
   const { data, loading, error, } = useQuery(getTournamentQuery, { variables: { id: props.navigation.getParam('id')}})
   const {data: dataUser, loading: loadingUser, error: errorUser} = useQuery(currentUserQuery)
-  const [ toggleTournamentTimer ] = useMutation(toggleTournamentTimerMutation, {})
-  const [ jumpTournamentSegment ] = useMutation(jumpTournamentSegmentMutation, {})
-  const [ resetTournamentTimer ] = useMutation(resetTournamentTimerMutation, {})
+  const [ updateTimer ] = useMutation(updateTimerMutation, {})
   const [ getServerTime] = useMutation(getServerTimeMutation, {})
   const [ ms, setMs] = useState(0)
   const [ display, setDisplay] = useState ({timer: "--:--", currentBlinds: "--/--", currentAnte: "", })
@@ -211,7 +209,7 @@ export default ((props) => {
   useEffect(() => {animate()},[data])
 
   toggleTimerButtonPressed = async (tourney) => {
-    toggleTournamentTimer({
+    updateTimer({
       variables: {
         id: tourney.timer.id,
         active: !(tourney.timer.active),
@@ -226,75 +224,26 @@ export default ((props) => {
           elapsed: tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
         }
       },
-      update: (cache, mutationResponse) => {
-        try {
-          const { data: { updateTimer }} = mutationResponse
-          let cacheData = cache.readQuery({
-            query: getTournamentQuery, 
-            variables: { id: props.navigation.getParam('id')}
-           })
-          cacheData = {
-            Tournament: {
-              ...cacheData.Tournament,
-              timer: {...cacheData.Tournament.timer, ...updateTimer}
-            }
-          }
-          cache.writeQuery({
-            query: getTournamentQuery, 
-            variables: {id: props.navigation.getParam('id')},
-            data: cacheData, 
-          })
-        } catch (error) {
-          console.log('error: ' + error.message)
-        }        
-      }
+      // update: (cache, mutationResponse) => {}
     })
   }
 
   fwdButtonPressed = async (tourney) => {
-    jumpTournamentSegment({
+    updateTimer({
       variables: {
         id: tourney.timer.id,
         elapsed: ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
       },
-      // optimisticResponse: {
-      //   updateTimer: {
-      //     '__typename': 'Timer',
-      //     id: tourney.timer.id,
-      //     elapsed: ms + tourney.timer.elapsed + (tourney.timer.active ? new Date().valueOf() - offsetFromServerTime - new Date(tourney.timer.updatedAt).valueOf() : 0),
-      //     active: tourney.timer.active,
-      //     updatedAt: new Date(),
-      //   }
-      // },
-      update: (cache, mutationResponse) => {
-        try {
-          const { data: { updateTimer }} = mutationResponse
-          let cacheData = cache.readQuery({
-            query: getTournamentQuery, 
-            variables: { id: props.navigation.getParam('id')}
-           })
-          cacheData = {
-            Tournament: {
-              ...cacheData.Tournament,
-              timer: {...cacheData.Tournament.timer, ...updateTimer}
-            }
-          }
-          cache.writeQuery({
-            query: getTournamentQuery, 
-            variables: {id: props.navigation.getParam('id')},
-            data: cacheData, 
-          })
-        } catch (error) {
-          console.log('error: ' + error.message)
-        }        
-      }
+      // update: (cache, mutationResponse) => {}
     })
   }
 
   resetTimerButtonPressed = async (tourney) => {
-    resetTournamentTimer({
+    updateTimer({
       variables: {
         id: tourney.timer.id,
+        elapsed: 0,
+        active: false,
       },
       optimisticResponse: {
         updateTimer: {
@@ -305,28 +254,7 @@ export default ((props) => {
           updatedAt: new Date(),
         }
       },
-      update: (cache, mutationResponse) => {
-        try {
-          const { data: { updateTimer }} = mutationResponse
-          let cacheData = cache.readQuery({
-            query: getTournamentQuery, 
-            variables: { id: props.navigation.getParam('id')}
-           })
-          cacheData = {
-            Tournament: {
-              ...cacheData.Tournament,
-              timer: {...cacheData.Tournament.timer, ...updateTimer}
-            }
-          }
-          cache.writeQuery({
-            query: getTournamentQuery, 
-            variables: {id: props.navigation.getParam('id')},
-            data: cacheData, 
-          })
-        } catch (error) {
-          console.log('error: ' + error.message)
-        }        
-      }
+      // update: (cache, mutationResponse) => {}
     })
   }
 
@@ -340,7 +268,7 @@ export default ((props) => {
     const { Tournament } = data
     const { timer } = Tournament
     const { active, oneMinuteRemainingSpeech, playOneMinuteRemainingSound, endOfRoundSpeech, playEndOfRoundSound, backgroundColor } = timer
-    const chips = sortChips(Tournament.chips)
+    const chips = sortChips(Tournament.chips.filter(i => (i.denom)))
     const segments = sortSegments(Tournament.segments)
     const smallestChipReq = smallestChipArray(chips, segments)
     const userIsOwner = true //dataUser && (dataUser.id == Tournament.user.id)
@@ -359,7 +287,7 @@ export default ((props) => {
               {orientation == 'landscape' && chips.map((u,i) => {
                 if (csi <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
                   return (
-                    <Animated.View key={i} style={{flexDirection: 'row', alignItems: 'center', opacity: (csi + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }}>{/* chipFadeAnimation}}> TODO: Re-enable chipFadeAnimation*/}
+                    <Animated.View key={i} style={{flexDirection: 'row', alignItems: 'center', opacity: (csi + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }}>
                       <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}  </Text>
                       <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(5)}/>
                     </Animated.View>

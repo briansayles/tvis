@@ -14,7 +14,7 @@ export default {
 		{longName: "H.O.S.E.", shortName: "HOSE"},
 	],
 	EntryFeeOptions: [
-		{longName: "Standard Buy-In", shortName: "Buyin"},
+		{longName: "Buy-In", shortName: "Buyin"},
 		{longName: "Re-Buy", shortName: "Rebuy"},
 		{longName: "Add-On", shortName: "Addon"},
 		{longName: "Bounty", shortName: "Bounty"},
@@ -24,13 +24,13 @@ export default {
 	ChipColorOptions: [
 		{longName: "White", shortName: "#fff"},
 		{longName: "Red", shortName: "#f00"},
-		{longName: "Green", shortName: "#0f0"},
+		{longName: "Green", shortName: "#0d0"},
 		{longName: "Blue", shortName: "#00f"},
 		{longName: "Black", shortName: "#000"},
 		{longName: "Orange", shortName: "#f90"},
 		{longName: "Purple", shortName: "#808"},
 		{longName: "Grey", shortName: "#888"},
-		{longName: "Yellow", shortName: "#ff0"},
+		{longName: "Yellow", shortName: "#ee0"},
 		{longName: "Light Blue", shortName: "#cff"}
 	],
 	DurationOptions: [

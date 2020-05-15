@@ -1,9 +1,11 @@
 import { useMutation } from '@apollo/client'
 import React, { useState, } from 'react'
+import { ActivityIndicator, Alert, Text, View, StyleSheet, TouchableHighlight, TouchableOpacity, } from 'react-native'
+import { Button, Icon, Input, } from 'react-native-elements'
 
 import { FormView, Picker, SubmitButton, MyInput, } from '../components/FormComponents'
 
-import { dictionaryLookup } from '../utilities/functions'
+import { dictionaryLookup, responsiveFontSize } from '../utilities/functions'
 import { updateTournamentMutation, getTournamentQuery } from '../constants/GQL'
 
 export default (props) => {
@@ -11,32 +13,33 @@ export default (props) => {
   const [formValues, setFormValues] = useState(initialValues)
   const [updateTournament] = useMutation(updateTournamentMutation, {
     variables: {...formValues},
-    optimisticResponse: {
-      updateTournament: {
-        ...formValues,
-      }      
-    },
+    // optimisticResponse: {
+    //   updateTournament: {
+    //     ...formValues,
+    //   }      
+    // },
     update: (cache, mutationResponse)=> {
-      try {
-        const { data: { updateTournament }} = mutationResponse
-        let cacheData = cache.readQuery({ 
-          query: getTournamentQuery,
-          variables: {id: initialValues.id},
-        })
-        cacheData = {
-          Tournament: {
-            ...cacheData.Tournament,
-            ...updateTournament
-          }							
-        }
-        cache.writeQuery({
-          query: getTournamentQuery,
-          variables: {id: initialValues.id},
-          data: cacheData,
-        })
-      } catch (error) {
-        console.log('error: ' + error.message)
-      }      
+      // try {
+      //   const { data: { updateTournament }} = mutationResponse
+      //   let cacheData = cache.readQuery({ 
+      //     query: getTournamentQuery,
+      //     variables: {id: initialValues.id},
+      //   })
+      //   cacheData = {
+      //     Tournament: {
+      //       ...cacheData.Tournament,
+      //       ...updateTournament
+      //     }							
+      //   }
+      //   cache.writeQuery({
+      //     query: getTournamentQuery,
+      //     variables: {id: initialValues.id},
+      //     data: cacheData,
+      //   })
+        props.navigation.goBack()
+      // } catch (error) {
+      //   console.log('error: ' + error.message)
+      // }      
     }
   })
 
@@ -85,10 +88,18 @@ export default (props) => {
         ))
         }
       </Picker>
-      <SubmitButton 
-        mutation={updateTournament}
-        disabled={!isDirty()}
-      />
+      <View style={{
+        marginTop: responsiveFontSize(4),
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+      }}>
+        <View></View>
+        <SubmitButton 
+          mutation={updateTournament}
+          disabled={!isDirty()}
+        />
+     </View>
     </FormView>
   )
 }

@@ -90,6 +90,7 @@ export const FormView = (props) => {
   return(
     <KeyboardAwareScrollView
       contentContainerStyle={{flex: 1, flexDirection: 'column', justifyContent: 'flex-start', padding: responsiveFontSize(4), marginTop: responsiveFontSize(4)}}
+      keyboardShouldPersistTaps="always"
       {...props}
     >
       {props.children}
@@ -111,34 +112,38 @@ export const MyInput = (props) => {
 export const SubmitButton = (props) => {
   [busy, setBusy] = useState(false)
   const handlePress = () => {
-  	setBusy(true)
+    if (props.disabled) return
+    setBusy(true)
   	props.mutation().then(() => {
   		setBusy(false)
   	})
-  }  
+  }
   return (
     <Button 
       icon={busy ? <ActivityIndicator/> : <Icon
         name='ios-checkmark-circle-outline'
-        color='#fff'
+        color={props.disabled ? 'grey' : 'green'}
         type='ionicon'
+        size={responsiveFontSize(6)}
+        
       />}
-      iconRight
-      buttonStyle={{ 
-        borderRadius: responsiveFontSize(1), 
-        marginTop: responsiveFontSize(3), 
-        paddingLeft: responsiveFontSize(1), 
-        paddingRight: responsiveFontSize(1), 
-        // marginLeft: 0, 
-        // marginRight: 0, 
-        // marginBottom: 0, 
-        backgroundColor: '#050', 
-        alignSelf: 'flex-end'
-      }}
-      disabledStyle={{backgroundColor: "#0504"}}
-      title='Submit  '
-      titleStyle={{fontSize: 18, color: '#fff'}}
+      // iconRight
+      // buttonStyle={{ 
+      //   borderRadius: responsiveFontSize(1), 
+      //   marginTop: responsiveFontSize(3), 
+      //   paddingLeft: responsiveFontSize(1), 
+      //   paddingRight: responsiveFontSize(1), 
+      //   // marginLeft: 0, 
+      //   // marginRight: 0, 
+      //   // marginBottom: 0, 
+      //   backgroundColor: '#050', 
+      //   alignSelf: 'flex-end'
+      // }}
+      // disabledStyle={{backgroundColor: "#0504"}}
+      // title='Submit  '
+      // titleStyle={{fontSize: responsiveFontSize(3), color: '#fff'}}
       onPress={() => handlePress()}
+      type='clear'
       {...props}
     />
   )
