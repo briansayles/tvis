@@ -1,11 +1,11 @@
 import { useQuery, useMutation} from '@apollo/client'
 import React, { useState } from 'react'
 import { ActivityIndicator, Alert, View, StyleSheet, Text, TouchableOpacity, TouchableHighlight} from 'react-native'
-import { Icon, ListItem, List} from 'react-native-elements'
+import { Icon, ListItem, } from 'react-native-elements'
 import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation, } from '../constants/GQL' // copyTournamentMutation, 
-import { SwipeListView } from 'react-native-swipe-list-view'
+// import { SwipeListView } from 'react-native-swipe-list-view'
 import { BannerAd } from '../components/Ads'
-import { ListHeader, } from '../components/FormComponents'
+// import { ListHeader, } from '../components/FormComponents'
 import { responsiveFontSize } from '../utilities/functions'
 
 export default ((props) => {
@@ -72,105 +72,26 @@ export default ((props) => {
 	if (loading || loadingUser) {
     return <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}><ActivityIndicator /></View>
   } else if (error || errorUser) {
-  return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
+  	return <Text>Error! {error && error.message} {errorUser && errorUser.message}</Text>
   } else {
 		return (
 			<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
-				<SwipeListView
-					refreshing={refreshingState}
-					onRefresh={()=>{
-						setRefreshingState(true)
-						refetch().then(()=> 
-							setRefreshingState(false)
-						)
-					}}
-					data={!!data.user && data.user.tournaments}
-					ListHeaderComponent={
-						<ListHeader 
-						title="Tournaments" 
-						showAddButton={!!data.user} 
-						onAddButtonPress={addTournamentButtonPressed}
-						/>
-					}
-					rightOpenValue={-120}
-					stickyHeaderIndices={[0]}
-					disableRightSwipe = {true}
-					swipeToOpenPercent = {10}
-					swipeToClosePercent = {10}
-					closeOnRowBeginSwipe = {true}
-					closeOnRowOpen = {true}
-					closeOnRowPress = {true}
-					closeOnScroll = {true}
-
-					renderItem={ (data, rowMap) => (
-						<TouchableHighlight
-							onPress={() => {
-								// rowMap[data.item.key].closeRow()	
-								editTournamentButtonPressed(data.item.id)
-							}}
-							style={[styles.rowFront,]}
-							underlayColor={'#AAA'}
-						>
-							<View style={{flex: 1, flexDirection: 'row'}}>
-								<View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'flex-start'}}>
-									<Text style={[styles.listItemTitle, data.item.timer.active ? styles.active : {}]}>{data.item.title}</Text>
-									<Text style={[styles.listItemSubtitle, data.item.timer.active ? styles.active : {}]}>{data.item.subtitle}</Text>
-								</View>
-								{/* <View style={{flex: 0.1, justifyContent: 'center', alignItems: 'center'}}>
-									<Icon
-										name='ios-arrow-forward'
-										color='black'
-										type='ionicon'
-									/>
-								</View> */}
-							</View>
-						</TouchableHighlight>
-					)}
-					renderHiddenItem={ (data, rowMap) => (
-						<View style={styles.rowBack}>
-							{/* <TouchableOpacity
-								style={[styles.backRightBtn, styles.backRightBtnLeft]}
-								onPress={() => {
-									// rowMap[data.item.key].closeRow()	
-									// navigateToTimerButtonPressed(data.item.id)
-								}}
-							>
-								<Icon
-									name='ios-timer'
-									color='white'
-									type='ionicon'
-								/>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.backRightBtn, styles.backRightBtnCenter]}
-								onPress={() => {
-									// rowMap[data.item.key].closeRow()	
-									editTournamentButtonPressed(data.item.id)
-								}}
-							>
-								<Icon
-									name='edit'
-									color='white'
-									type='font-awesome'
-								/>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={[styles.backRightBtn, styles.backRightBtnRight]}
-								onPress={() => {
-									// rowMap[data.item.key].closeRow()	
-									// deleteTournamentButtonPressed(data.item.id, data.item.title)
-								}}
-							>
-								<Icon
-									name='ios-trash'
-									color='white'
-									type='ionicon'
-								/>
-							</TouchableOpacity> */}
-						</View>
-					)}
-				/>
-				<BannerAd />
+				<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
+					{ data.user.tournaments.map((t)=> {
+						return(
+							<ListItem
+								onPress={()=>{editTournamentButtonPressed(t.id)}}
+								key={t.id}
+								title={t.title}
+								subtitle={t.subtitle}
+								titleStyle={[styles.listItemTitle, ]}
+								subtitleStyle={[styles.listItemSubtitle, ]}
+								bottomDivider
+							/>
+						)			
+					})}					
+				</View>
+				<BannerAd/>
 			</View>
 		)
 	}

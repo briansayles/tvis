@@ -33,7 +33,7 @@ export class BannerAd extends React.Component {
     return (
 			<View style={{backgroundColor: 'transparent', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', }}>
 				<AdMobBanner
-					style={{flex: -1, backgroundColor: 'transparent'}}
+          style={{flex: -1, backgroundColor: 'transparent'}}
 		    	bannerSize={this.state.orientation == 'landscape' ? 'smartBannerLandscape' : 'smartBannerPortrait'}
 		    	adUnitID={dict.BANNER_ID} // banner1
 		    	// testDeviceID='EMULATOR'
