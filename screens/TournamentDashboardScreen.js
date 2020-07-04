@@ -300,7 +300,7 @@ export default ( (props) => {
             title="Chips"
           >
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
-              <View style={{flexDirection: 'row', justifyContent: 'space-around', backgroundColor: '#eee', paddingTop: 3, paddingBottom: 3}}>
+              <View style={{flexDirection: 'row', justifyContent: 'space-around', flexWrap: 'wrap', backgroundColor: '#eee', paddingTop: 3, paddingBottom: 3}}>
                 {chips.map((u,i) => {
                   return (
                     <TouchableHighlight key={i} onPress={() => editChipButtonPressed(u)} >

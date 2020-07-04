@@ -23,9 +23,8 @@
       "hideExponentText": false
     },
     "packagerOpts": {
-      "assetExts": [
-        "ttf"
-      ]
+      "assetExts": ["ttf"],
+      "sourceExts": ["js", "jsx", "svg", "svgx"]  
     },
     "ios": {
       "supportsTablet": true,

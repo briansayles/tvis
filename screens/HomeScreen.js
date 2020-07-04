@@ -28,28 +28,28 @@ export default ((props) => {
 
   return (
 		<ScrollView
-		style={styles.container}
-		contentContainerStyle={styles.contentContainer}>
-		<View style={styles.welcomeContainer}>
-			<Image
-				source={require('../assets/icons/app-icon.png')}
-				style={styles.welcomeImage}
-			/>
-		</View>
-		<View style={styles.getStartedContainer}>
-			<Text style={styles.getStartedText}>
-				Welcome to TourneyVision{"\n"}{"\n"}
-				Poker Tournament Management{"\n"}
-				made EASY.{"\n"}{"\n"}{"\n"}
-				Tap 'Tournaments' to get started.
-			</Text>
-		</View>
-		{ loading? <ActivityIndicator/>
-			: error? <Text>ERROR!</Text>
-				: !data.user? <View style={{paddingTop: 20}}><Auth/></View>
-					: <Button onPress={logout} title={`Logout ${data.user.name}`}/>
-		}
-	</ScrollView>
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}>
+      <View style={styles.welcomeContainer}>
+        <Image
+          source={require('../assets/icons/app-icon.png')}
+          style={styles.welcomeImage}
+        />
+      </View>
+      <View style={styles.getStartedContainer}>
+        <Text style={styles.getStartedText}>
+          Welcome to TourneyVision{"\n"}{"\n"}
+          Poker Tournament Management{"\n"}
+          made EASY.{"\n"}{"\n"}{"\n"}
+          Tap 'Tournaments' to get started.
+        </Text>
+      </View>
+      { loading? <ActivityIndicator/>
+        : error? <Text>ERROR!</Text>
+          : !data.user? <View style={{paddingTop: 20}}><Auth/></View>
+            : <Button onPress={logout} title={`Logout ${data.user.name}`}/>
+      }
+	  </ScrollView>
   );
 })
 

@@ -7,6 +7,7 @@ import { currentUserQuery, currentUserTournamentsQuery, createTournamentMutation
 import { BannerAd } from '../components/Ads'
 // import { ListHeader, } from '../components/FormComponents'
 import { responsiveFontSize } from '../utilities/functions'
+import Auth from '../components/Auth'
 
 export default ((props) => {
 	const [refreshingState, setRefreshingState] = useState(false)
@@ -17,8 +18,11 @@ export default ((props) => {
 	const addTournamentButtonPressed = async () => {
 		createTournament(
 			{
-				variables: {"userId": data.user.id, "duration": undefined, "title": "My Tournament #" + (data.user.tournaments.length + 1)},
-
+				variables: {
+					"userId": dataUser.user.id,
+					"duration": undefined, 
+					"title": "New Tournament"
+				},
 				optimisticResponse: {
 					createTournament: {
 						__typename: "Tournament",
@@ -77,7 +81,7 @@ export default ((props) => {
 		return (
 			<View style={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', backgroundColor: 'white', }}>
 				<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
-					{ data.user.tournaments.map((t)=> {
+					{ data.user && data.user.tournaments && data.user.tournaments.map((t)=> {
 						return(
 							<ListItem
 								onPress={()=>{editTournamentButtonPressed(t.id)}}
@@ -90,7 +94,13 @@ export default ((props) => {
 							/>
 						)			
 					})}					
+					{dataUser.user && 
+						<TouchableHighlight onPress={() => addTournamentButtonPressed()}>
+							<Icon name="ios-add" color="green" type="ionicon" size={responsiveFontSize(4)} />
+						</TouchableHighlight>
+					}
 				</View>
+				{!dataUser.user && <Auth/>}
 				<BannerAd/>
 			</View>
 		)
