@@ -1,0 +1,42 @@
+export default {
+	REVMOB_ID: '5a5ca4b4a30c3b1c882dfe7b',
+	GameOptions: [
+		{longName: "No Limit Hold'Em", shortName: "NLHE"},
+		{longName: "Pot Limit Omaha", shortName: "PLO"},
+		{longName: "Limit Hold'Em", shortName: "LHE"},
+		{longName: "Limit 7 Card Stud", shortName: "L7S"},
+		{longName: "H.O.R.S.E.", shortName: "HORSE"},
+		{longName: "H.O.S.E.", shortName: "HOSE"},
+	],
+	EntryFeeOptions: [
+		{longName: "Standard Buy-In", shortName: "Buyin"},
+		{longName: "Re-Buy", shortName: "Rebuy"},
+		{longName: "Add-On", shortName: "Addon"},
+		{longName: "Bounty", shortName: "Bounty"},
+		{longName: "House Fee", shortName: "House"},
+		{longName: "Charity Fee", shortName: "Charity"}
+	],
+	ChipColorOptions: [
+		{longName: "White", shortName: "#fff"},
+		{longName: "Red", shortName: "#d00"},
+		{longName: "Green", shortName: "#0d0"},
+		{longName: "Blue", shortName: "#00f"},
+		{longName: "Black", shortName: "#000"},
+		{longName: "Orange", shortName: "#f90"},
+		{longName: "Purple", shortName: "#808"},
+		{longName: "Grey", shortName: "#888"},
+		{longName: "Yellow", shortName: "#ff0"},
+		{longName: "Light Blue", shortName: "#cff"}
+	],
+	tintColor: '#009900',
+	tabIconDefault: '#888',
+	tabIconSelected: '009900',
+	tabBar: '#fefefe',
+	errorBackground: 'red',
+	errorText: '#fff',
+	warningBackground: '#EAEB5E',
+	warningText: '#666804',
+	noticeBackground: '009900',
+	noticeText: '#fff',
+	editButtonColor: '#0498',
+}

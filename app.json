@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "tvis",
+    "scheme": "tvis",
+    "description": "TourneyVision",
+    "slug": "tvis",
+    "privacy": "unlisted",
+    "version": "0.0.1",
+    "orientation": "default",
+    "primaryColor": "#cccccc",
+    "icon": "./assets/icons/app-icon.png",
+    "notification": {
+      "icon": "./assets/icons/notification-icon.png",
+      "color": "#000000"
+    },
+    "packagerOpts": {
+      "assetExts": [
+        "ttf"
+      ],
+      "sourceExts": [
+        "js",
+        "jsx",
+        "svg",
+        "svgx"
+      ]
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tourneyvision.tourneyvision",
+      "buildNumber": "0.0.1",
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3013833975597353~9684490974"
+      }
+    },
+    "android": {
+      "package": "com.tourneyvision.tourneyvision",
+      "versionCode": 1,
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3013833975597353~9684490974"
+      }
+    },
+    "githubUrl": "https://github.com/briansayles/tvis-auth0",
+    "platforms": [
+      "android",
+      "ios",
+      "web"
+    ],
+    "plugins": [
+      "expo-secure-store"
+    ]
+  }
+}
