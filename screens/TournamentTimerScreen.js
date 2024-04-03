@@ -9,13 +9,15 @@ import { useKeepAwake} from 'expo-keep-awake';
 import useDimensions from '@rnhooks/dimensions'
 import CircularProgress from 'react-native-circular-progress-indicator'
 import { ErrorMessage } from '../components/ErrorMessage'
-import { AppOptions } from '../config'
 import { smallestChipArray, msToTime, numberToSuffixedString, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
 import { AppLayout } from '../components/AppLayout'
 import { styles, } from '../styles'
 import * as Haptics from 'expo-haptics'
 // import * as ScreenOrientation from 'expo-screen-orientation'
 // import { useFocusEffect } from '@react-navigation/native'
+import Constants from 'expo-constants'
+
+const AppOptions = Constants.expoConfig.extra.AppOptions
 
 const initialState = {
   newCSI: 0,

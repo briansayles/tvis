@@ -1,5 +1,5 @@
 config.js
-
+ghpat.txt
 # OSX
 #
 .DS_Store
@@ -23,6 +23,8 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
+
+ios/
 
 # Android/IntelliJ
 #

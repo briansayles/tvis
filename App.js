@@ -22,15 +22,15 @@ import { CostEditScreen } from './screens/CostEditScreen'
 import { TimerEditScreen } from './screens/TimerEditScreen'
 import { AuthContext, authReducer, authData, redirectUri, } from './Contexts'
 import * as WebBrowser from 'expo-web-browser'
-import { AuthConfig } from './config'
 import { generateChallange } from './utilities/functions'
+import Constants from 'expo-constants'
 
+const AuthConfig = Constants.expoConfig.extra.AuthConfig
 const Stack = createStackNavigator()
 const Tab = createBottomTabNavigator()
 WebBrowser.maybeCompleteAuthSession()
 
 export default function App({ navigation }) {
-  console.log(redirectUri.toString())
   var randomString = function(length) {
     var text = "";
     var possible = "abcdefghijklmnopqrtsuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -94,15 +94,16 @@ export default function App({ navigation }) {
               clientId: AuthConfig.clientId,
               clientSecret: AuthConfig.clientSecret,
               usePKCE: false, //Could not get PKCE working, even when sending known-good strings
-              // usePKCE: true,
-              codeChallenge: codeChallenge,
-              codeChallengeMethod: 'S256',
+              //usePKCE: true,
+              // codeChallenge: codeChallenge,
+              // codeChallengeMethod: AuthSession.CodeChallengeMethod.S256,
               scopes: ["openid", "profile", "offline_access"],
               redirectUri,
             }, discoveryDocument
           )
           const result = await request.promptAsync({})
           if (result.error) {
+            // console.log(result.error)
             Alert.alert(
               'Authentication error',
               result.params.error_description || 'something went wrong'
@@ -110,14 +111,12 @@ export default function App({ navigation }) {
             dispatch({type: 'SIGN_OUT'})
           }
           if (result.type === 'success') {
+            // console.log('successful initial signin. attempting exchangeCodeAsync.')
             exchangeResult = await AuthSession.exchangeCodeAsync(
               {
                 code: result.params.code,
                 clientId: AuthConfig.clientId,
                 clientSecret: AuthConfig.clientSecret,
-                extraParams: { 
-                  // code_verifier: codeVerifier,
-                },
                 redirectUri,
               }, discoveryDocument
             )
@@ -139,6 +138,7 @@ export default function App({ navigation }) {
             dispatch({ type: 'SIGN_IN', accessToken: jwtToken, refreshToken: exchangeResult.refreshToken, idToken: exchangeResult.idToken, tokenExpiry: expiry });
           }
         } catch (error) {
+          // console.log(error.message)
           Alert.alert('Error', error.message, [{text: 'Cancel', onPress: ()=>{}, style: 'cancel'}])
         }
       },
@@ -179,15 +179,23 @@ export default function App({ navigation }) {
       refreshTokenTimeout = setTimeout(async ()=>{
         discoveryDocument = await AuthSession.fetchDiscoveryAsync(AuthConfig.discoveryURI)
         refreshResult = await AuthSession.refreshAsync({
-          responseType: AuthSession.ResponseType.Code,
-          clientId: AuthConfig.clientId,
-          clientSecret: AuthConfig.clientSecret,
-          scopes: ["openid", "profile", "offline_access"],
-          redirectUri,
+          // responseType: AuthSession.ResponseType.Code,
+          // extraParams: {
+          //   nonce: randomString(12),
+          // },
+          // clientId: AuthConfig.clientId,
+          // clientSecret: AuthConfig.clientSecret,
+          // usePKCE: false, //Could not get PKCE working, even when sending known-good strings
+          //usePKCE: true,
+          //codeChallenge: codeChallenge,
+          //codeChallengeMethod: 'S256',
+          // scopes: ["openid", "profile", "offline_access"],
+          // redirectUri,
           refreshToken: state.refreshToken
         },
           discoveryDocument)
         if (refreshResult.accessToken) {
+          console.log('successful refreshResult')
           const jwtToken = JSON.stringify(refreshResult.accessToken)
           const decoded = jwt_decode(jwtToken)
           const { sub, exp, id } = decoded
@@ -197,6 +205,7 @@ export default function App({ navigation }) {
           await SecureStore.setItemAsync('refreshToken', refreshResult.refreshToken)
           dispatch({type: 'REFRESH_TOKEN', accessToken: jwtToken, tokenExpiry: expiry, refreshToken: refreshResult.refreshToken})
         } else {
+          console.log('refresh failed. signing out.')
           dispatch({type: 'SIGN_OUT'})
         }
       }, state.tokenExpiry.valueOf() - new Date().valueOf() - 5000)

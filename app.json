@@ -39,7 +39,7 @@
         "googleMobileAdsAppId": "ca-app-pub-3013833975597353~9684490974"
       }
     },
-    "githubUrl": "https://github.com/briansayles/tvis-auth0",
+    "githubUrl": "https://github.com/briansayles/tvis",
     "platforms": [
       "android",
       "ios",
@@ -47,6 +47,31 @@
     ],
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "20549fd0-fbc7-11e7-923d-f7ffd3671a25"
+      },
+      "AppOptions": {
+        "timerUpdateInterval": 250,
+        "warningTime": 60000
+      },
+      "AuthConfig": {
+        "clientId": "0oa9e8otx3qmfThsn5d7",
+        "discoveryURI": "https://dev-08567763.okta.com/oauth2/default",
+        "clientSecret": "PHEbxRXv-omPKwaDLe8FhP4sr6MXPCllGB6HzHH4rnaW8ETF5xBEzeO-Udv89nD1",
+        "audience": "https://tvis-graphql-api.hasura.app/v1/graphql"
+      },
+      "GraphQLConfig": {
+        "httpLinkUri": "https://tvis-graphql-api.hasura.app/v1/graphql",
+        "wsLinkUri": "wss://tvis-graphql-api.hasura.app/v1/graphql"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/20549fd0-fbc7-11e7-923d-f7ffd3671a25"
+    }
   }
 }
