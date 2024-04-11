@@ -1,10 +1,13 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
-import { ActivityIndicator, View } from 'react-native'
-import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
+import { ActivityIndicator, View, useWindowDimensions, Text } from 'react-native'
+import { SubmitButton, MyInput, } from '../components/FormComponents'
 import { ErrorMessage } from '../components/ErrorMessage'
+import { AppLayout } from '../components/AppLayout'
 
 export const TournamentInfoEditScreen = (props) => {
+  const { height, width } = useWindowDimensions()
+  const orientation = height > width ? 'portrait' : 'landscape'
   const [initialValues, setInitialValues] = useState(null)
   const [formValues, setFormValues] = useState(null)
   const {data, loading, error, client, refetch} = useQuery(TOURNAMENT_QUERY, {variables: {id: props.route.params.id}})
@@ -35,7 +38,7 @@ export const TournamentInfoEditScreen = (props) => {
   if (error) return (<ErrorMessage error={error}/>)
   if (data && formValues !== null && initialValues !== null) {
     return (
-      <FormView>
+      <AppLayout>
         <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
           <MyInput
             title="Title"
@@ -52,13 +55,14 @@ export const TournamentInfoEditScreen = (props) => {
             keyboardType="default"
           />
         </View>
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
+        <View style={{flex: orientation=='portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+          <Text> </Text>
           <SubmitButton 
             mutation={updateTournament}
             navigation={()=> props.navigation.goBack()}
           />
         </View>
-      </FormView>            
+      </AppLayout>            
     )
   }
   return null

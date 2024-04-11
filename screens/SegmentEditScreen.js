@@ -1,10 +1,13 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
-import { ActivityIndicator, View} from 'react-native'
-import { FormView, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
+import { ActivityIndicator, View, useWindowDimensions } from 'react-native'
+import { SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
 import { ErrorMessage } from '../components/ErrorMessage'
+import { AppLayout } from '../components/AppLayout'
 
 export const SegmentEditScreen = (props) => {
+  const { height, width } = useWindowDimensions()
+  const orientation = height > width ? 'portrait' : 'landscape'
   const [initialValues, setInitialValues] = useState(null)
   const [formValues, setFormValues] = useState(null)
   const {data, loading, error} = useQuery(GET_SEGMENT_QUERY, {variables: {id: props.route.params.id}})
@@ -40,54 +43,56 @@ export const SegmentEditScreen = (props) => {
   if (error) return (<ErrorMessage error={error}/>)
   if (data && formValues !== null && initialValues !== null) {
     return (
-      <FormView>
-        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
-          <MyInput
-            title="Small Blind"
-            value={(formValues.sBlind.toString()).replace(/^0+/, '')}
-            placeholder="Enter small blind here..."
-            onChangeText={(text) => handleInputChange('sBlind', (!text ? 0 : text))}
-            keyboardType="numeric"
-          />
-          <MyInput
-            title="Big Blind"
-            value={(formValues.bBlind).toString().replace(/^0+/, '')}
-            placeholder="Enter big blind here..."
-            onChangeText={(text) => handleInputChange('bBlind', (!text ? 0 : text))}
-            keyboardType="numeric"
-            onFocus={(currentText = '') => {
-              setFormValues({...formValues, bBlind: formValues.bBlind || (formValues.sBlind) * 2})
-            }}
-          />
-          <MyInput
-            title="Ante"
-            value={(formValues.ante).toString().replace(/^0+/, '')}
-            placeholder="Enter ante here..."
-            onChangeText={(text) => handleInputChange('ante', (!text ? 0 : text))}
-            keyboardType="numeric"
-          />
-          <MyInput
-            title="Duration (Minutes)"
-            value={(formValues.duration).toString().replace(/^0+/, '')}
-            placeholder="Enter duration here..."
-            onChangeText={(text) => handleInputChange('duration', (!text ? 0 : text))}
-            keyboardType="numeric"
-          />
-        </View>
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-          <DeleteButton
-            mutation={deleteSegment}
-            navigation={()=> props.navigation.goBack()}
-            confirmationString={'Are you sure you want to delete this segment?'}
-            confirmationTitleString='Confirm Deletion'
-          />
-          <SubmitButton 
-            mutation={updateSegment}
-            // disabled={!isDirty()}
-            navigation={()=> props.navigation.goBack()}
-          />
-        </View>
-      </FormView>
+      // <FormView>
+        <AppLayout>
+          <View style={{flex: 9, flexDirection: 'column'}}>
+            <MyInput
+              title="Small Blind"
+              value={(formValues.sBlind.toString()).replace(/^0+/, '')}
+              placeholder="Enter small blind here..."
+              onChangeText={(text) => handleInputChange('sBlind', (!text ? 0 : text))}
+              keyboardType="numeric"
+            />
+            <MyInput
+              title="Big Blind"
+              value={(formValues.bBlind).toString().replace(/^0+/, '')}
+              placeholder="Enter big blind here..."
+              onChangeText={(text) => handleInputChange('bBlind', (!text ? 0 : text))}
+              keyboardType="numeric"
+              onFocus={(currentText = '') => {
+                setFormValues({...formValues, bBlind: formValues.bBlind || (formValues.sBlind) * 2})
+              }}
+            />
+            <MyInput
+              title="Ante"
+              value={(formValues.ante).toString().replace(/^0+/, '')}
+              placeholder="Enter ante here..."
+              onChangeText={(text) => handleInputChange('ante', (!text ? 0 : text))}
+              keyboardType="numeric"
+            />
+            <MyInput
+              title="Duration (Minutes)"
+              value={(formValues.duration).toString().replace(/^0+/, '')}
+              placeholder="Enter duration here..."
+              onChangeText={(text) => handleInputChange('duration', (!text ? 0 : text))}
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={{flex: orientation=='portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+            <DeleteButton
+              mutation={deleteSegment}
+              navigation={()=> props.navigation.goBack()}
+              confirmationString={'Are you sure you want to delete this segment?'}
+              confirmationTitleString='Confirm Deletion'
+            />
+            <SubmitButton 
+              mutation={updateSegment}
+              // disabled={!isDirty()}
+              navigation={()=> props.navigation.goBack()}
+            />
+          </View>
+        </AppLayout>
+      //<FormView>
     )
   }
   return null

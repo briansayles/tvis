@@ -247,13 +247,13 @@ export const styles = StyleSheet.create({
     fontWeight: '300',
   },
   nextBlindsText: {
-    color: 'black',
+    color: 'midnightblue',
     fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
     fontWeight: '500',
     textAlign: 'center',
   },
   nextBlindsTextLandscape: {
-    color: 'black',
+    color: 'midnightblue',
     fontSize: Math.min(responsiveHeight(7), responsiveWidth(7)),
     fontWeight: '500',
     textAlign: 'center',
@@ -271,12 +271,15 @@ export const styles = StyleSheet.create({
     color: 'red',
   },
   titleText: {
-    fontSize: Math.min(responsiveHeight(4.5), responsiveWidth(4.5)),
-    color: '#222',
+    fontSize: Math.min(responsiveHeight(4), responsiveWidth(4)),
+    color: 'midnightblue',
     fontWeight: 'bold'
   },
   chipText: {
     fontSize: responsiveFontSize(2.5),
     color: 'rgba(225,225,225,1)',
+  },
+  underlinedText: {
+    textDecorationLine: 'underline'
   }
 });

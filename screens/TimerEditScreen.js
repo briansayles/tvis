@@ -1,14 +1,17 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
-import { ActivityIndicator, View, Platform, } from 'react-native'
+import { ActivityIndicator, View, Platform, useWindowDimensions } from 'react-native'
 import { Text, Button, CheckBox} from '@rneui/themed'
-import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
+import { SubmitButton, MyInput, } from '../components/FormComponents'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { responsiveFontSize } from '../utilities/functions'
 import { Audio } from 'expo-av';
 import * as Speech from 'expo-speech';
+import { AppLayout } from '../components/AppLayout'
 
 export const TimerEditScreen = (props) => {
+  const { height, width } = useWindowDimensions()
+  const orientation = height > width ? 'portrait' : 'landscape'
   const [initialValues, setInitialValues] = useState(null)
   const [formValues, setFormValues] = useState(null)
   const {data, loading, error} = useQuery(GET_TIMER_QUERY, {variables: {id: props.route.params.id}})
@@ -87,7 +90,7 @@ export const TimerEditScreen = (props) => {
   if (error) return (<ErrorMessage error={error}/>)
   if (data && formValues !== null && initialValues !== null) {
     return (
-      <FormView>
+      <AppLayout>
         <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
           <CheckBox
             title="Play sound and speech one minute before the end of each round"
@@ -104,6 +107,7 @@ export const TimerEditScreen = (props) => {
             multiline={true}
             disabled={!formValues?.playOneMinuteRemainingSound}
           />
+          <Button disabled={!formValues.playOneMinuteRemainingSound || playingSound} buttonStyle={[ , {marginHorizontal: responsiveFontSize(10), }]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> soundCheckOneMinuteWarning()}>Test 1 Minute Warning</Button>
           <CheckBox
             title="Play sound and speech at the end of each round"
             checked={formValues.playEndOfRoundSound}
@@ -119,19 +123,17 @@ export const TimerEditScreen = (props) => {
             multiline={true}
             disabled={!formValues?.playEndOfRoundSound}
           />
-          <View style={[, {flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}]}>
-            <Button disabled={!formValues.playOneMinuteRemainingSound || playingSound} style={[ , {marginVertical: responsiveFontSize(0.5), }]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> soundCheckOneMinuteWarning()}>Test 1 Minute Warning</Button>
-            <Button disabled={!formValues.playEndOfRoundSound || playingSound} style={[ , {marginVertical: responsiveFontSize(0.5), }]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> soundCheckEndOfRound()}>Test End of Round</Button>
-          </View>
+          <Button disabled={!formValues.playEndOfRoundSound || playingSound} buttonStyle={[ , {marginHorizontal: responsiveFontSize(10), }]}  titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> soundCheckEndOfRound()}>Test End of Round</Button>
         </View>
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end'}}>
+        <View style={{flex: orientation == 'portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+          <Text> </Text>
           <SubmitButton 
             mutation={updateTimer}
             // disabled={!isDirty()}
             navigation={()=> props.navigation.goBack()}
           />
         </View>
-      </FormView>
+      </AppLayout>
     )
   }
 }

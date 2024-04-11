@@ -1,11 +1,14 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
-import { ActivityIndicator, View} from 'react-native'
-import { FormView, Picker, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
+import { ActivityIndicator, View, useWindowDimensions} from 'react-native'
+import { Picker, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
 import { dictionaryLookup, } from '../utilities/functions'
 import { ErrorMessage } from '../components/ErrorMessage'
+import { AppLayout } from '../components/AppLayout'
 
 export const CostEditScreen = (props) => {
+  const { height, width } = useWindowDimensions()
+  const orientation = height > width ? 'portrait' : 'landscape'
   const [initialValues, setInitialValues] = useState(null)
   const [formValues, setFormValues] = useState(null)
   const {data, loading, error} = useQuery(GET_COST_QUERY, {variables: {id: props.route.params.id}})
@@ -41,8 +44,8 @@ export const CostEditScreen = (props) => {
   if (error) return (<ErrorMessage error={error}/>)
   if (data && formValues !== null && initialValues !== null) {
     return (
-      <FormView>
-        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
+      <AppLayout>
+        <View style={{flex: 9, flexDirection: 'column', }}>
           <MyInput
             title="Price"
             value={formValues.price.toString().replace(/^0+/, '')}
@@ -70,7 +73,7 @@ export const CostEditScreen = (props) => {
             }
           </Picker>
         </View>
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+        <View style={{flex: orientation=='portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
           <DeleteButton
             mutation={deleteCost}
             navigation={()=> props.navigation.goBack()}
@@ -83,7 +86,7 @@ export const CostEditScreen = (props) => {
             navigation={()=> props.navigation.goBack()}
           />
         </View>
-      </FormView>        
+      </AppLayout>        
     )
   }
   return null

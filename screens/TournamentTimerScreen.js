@@ -447,7 +447,7 @@ export const TournamentTimerScreen = (props) => {
             <View style={[styles.test, styles.column3, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 9}]}>
               <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 1}]}></View>
               <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 7}]}>
-                <Text style={[styles.test, styles.blindsTitleTextLandscape, noticeStatus && styles.blindsNoticeText, {}]}>
+                <Text style={[styles.test, styles.blindsTitleTextLandscape, styles.underlinedText, noticeStatus && styles.blindsNoticeText, { }]}>
                   Current Blinds:
                 </Text>
                 <Text style={[styles.test, styles.blindsTextLandscape, noticeStatus && styles.blindsNoticeText, {}]}>
@@ -460,7 +460,7 @@ export const TournamentTimerScreen = (props) => {
               <View style={[styles.test, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', alignSelf: 'stretch' , flex: 2, }]}>
               </View>
               <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 5}]}>
-                <Text style={[styles.test, styles.nextBlindsTextLandscape, noticeStatus && styles.nextBlindsNoticeText]}>
+                <Text style={[styles.test, styles.nextBlindsTextLandscape, styles.underlinedText, noticeStatus && styles.nextBlindsNoticeText]}>
                   Next Blinds:
                 </Text>
                 <Text style={[styles.test, styles.nextBlindsTextLandscape, noticeStatus && styles.nextBlindsNoticeText]}>

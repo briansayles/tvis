@@ -41,16 +41,16 @@ export const HomeScreen = (props) => {
   return (
     <AppLayout>
       <View style={[, {flex: 8, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center'}]}>
-        <Image style={{width: width * 0.50, height: width*0.50}} source={require('../assets/icons/app-icon.png')} PlaceholderContent={<ActivityIndicator/>}/>
+        <Image style={{width: Math.min(width, height) * 0.50, height: Math.min(width, height)*0.50}} source={require('../assets/icons/app-icon.png')} PlaceholderContent={<ActivityIndicator/>}/>
         <Text h3 style={{width: width * 0.75, textAlign: 'center', paddingTop: height * 0.02}}>
           Live Poker Tournament design and management made EASY!!
         </Text>
       </View>
       {(data) && 
       <View style={[, {flex: 2, flexDirection: 'column', justifyContent: 'space-evenly'}]}>
-      <Text>Logged in as: {name}</Text>
+        <Text style={[, {textAlign: 'center'}]}>Logged in as: {name}</Text>
         <Button
-          top={height*0.40}
+          buttonStyle={{width: Math.min(width, height)*.25, alignSelf: 'center'}}
           onPress={() => signOut()}
         >
           Log Out

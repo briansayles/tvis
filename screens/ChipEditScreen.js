@@ -1,7 +1,7 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
 import { ActivityIndicator, View, Alert, Text, useWindowDimensions } from 'react-native'
-import { FormView, Picker, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
+import { Picker, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
 import { dictionaryLookup, } from '../utilities/functions'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { AppLayout } from '../components/AppLayout'
@@ -45,9 +45,7 @@ export const ChipEditScreen = (props) => {
   if (data && formValues !== null && initialValues !== null) {
     return (
       <AppLayout>
-
-      <FormView>
-        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
+        <View style={{flex: 9, flexDirection: 'column', }}>
           <MyInput
             title="Denomination"
             value={(formValues.denom).toString().replace(/^0+/, '')}
@@ -68,7 +66,7 @@ export const ChipEditScreen = (props) => {
             }
           </Picker>
         </View>
-        <View style={{flex: orientation == 'portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+        <View style={{flex: orientation=='portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
           <DeleteButton
             mutation={deleteChip}
             navigation={()=> props.navigation.goBack()}
@@ -81,7 +79,6 @@ export const ChipEditScreen = (props) => {
             navigation={()=> props.navigation.goBack()}
           />
         </View>
-      </FormView>
       </AppLayout>
     )
   }

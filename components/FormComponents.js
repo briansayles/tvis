@@ -88,24 +88,12 @@ export const ListHeader = (props) => {
   )
  }
 
-export const FormView = (props) => {
-  return(
-    <KeyboardAwareScrollView
-      contentContainerStyle={{flex: 1, flexDirection: 'column', justifyContent: 'space-between', padding: responsiveFontSize(4), marginTop: responsiveFontSize(4)}}
-      {...props}
-    >
-      {props.children}
-    </KeyboardAwareScrollView>
-  )
-}
-
 export const MyInput = (props) => {
   return (
     <Input
       value={props.value.toString()}
       label={props.title}
-      labelStyle={[props.disabled ? styles.inputTitleDisabled : styles.inputTitleEnabled]}
-      inputContainerStyle={{marginBottom: responsiveFontSize(4), }}
+      labelStyle={[props.disabled ? styles.inputTitleDisabled : styles.inputTitleEnabled, {}]}
       {...props}
     />
   )  
@@ -278,13 +266,13 @@ export class Picker extends Component {
 	            alignItems: 'center',
 	            justifyContent: 'center',
 	            flexDirection: 'row',
-	            paddingHorizontal: 10,
+              backgroundColor: 'silver',
 	          }, flatStyle]}
 	        >
-	          <Text style={[{ flex: 1 }, defaultTextStyle, textStyle]}>
+	          <Text style={[{ flex: 1, }, defaultTextStyle, textStyle]}>
 	            {labels[values.indexOf(selectedValue || initialValue)] || initialValue}
 	          </Text>
-	          <Text style={[{color: 'black'}, defaultTextStyle, textStyle]}>▼</Text>
+	          <Text style={[defaultTextStyle, textStyle, {color: 'red'}]}>▼</Text>
 	        </TouchableOpacity>
         </View>
       )
@@ -293,7 +281,7 @@ export class Picker extends Component {
         <View
           style={[{
             alignSelf: 'stretch',
-            paddingHorizontal: 10,
+            backgroundColor: 'silver'
           }, flatStyle]}
         >
           <RNPPicker

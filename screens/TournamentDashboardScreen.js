@@ -6,11 +6,12 @@ import { styles, responsiveFontSize, } from '../styles'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { SwipeableCollapsibleSectionList } from '../components/SwipeableList'
 import { AppLayout } from '../components/AppLayout'
-import { DeleteButton, GoToTimerButton} from '../components/FormComponents'
+import { DeleteButton, GoToTimerButton, MyInput} from '../components/FormComponents'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, dictionaryLookup } from '../utilities/functions'
 
 export const TournamentDashboardScreen = (props) => {
   const {height, width} = useWindowDimensions()
+  const orientation = height > width ? 'portrait' : 'landscape'
   const [sliderValue, setSliderValue] = useState(0)
   const {data, loading, error, client, refetch} = useSubscription(TOURNAMENT_SUBSCRIPTION, {variables: {id: props.route.params.id}})
   const [deleteTournament, {loading: deletingTournament, data: deleteTournamentData, error: deleteTournamentError}] = useMutation(DELETE_TOURNAMENT_MUTATION, {variables: {id: props.route.params.id}})
@@ -277,24 +278,24 @@ export const TournamentDashboardScreen = (props) => {
         renderFrontRow: (item, index, collapsed) => {
           return (
             <>
-            <View style={[ collapsed ? styles.collapsed : null, {flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center'}]}>
-              <View style={[styles.rowFront, collapsed ? styles.collapsed : null, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}]}>
-                {!collapsed && <Slider
-                  style={[ , {flex: 20, marginHorizontal: responsiveFontSize(1)}]}
-                  value={sliderValue}
-                  onValueChange={setSliderValue}
-                  maximumValue={60}
-                  minimumValue={0}
-                  step={sliderValue < 10 ? 0.5 : (sliderValue >=20 ? 5 : 1)}
-                  allowTouchTrack
-                  trackStyle={{ height: 5, }}
-                  thumbStyle={{ height: 20, width: 20, backgroundColor: 'grey' }}
-                />}
-                <Text style={[collapsed ? styles.collapsed : null, {flex: 4, fontSize: responsiveFontSize(1.5), marginHorizontal: responsiveFontSize(1.5)}]}>{sliderValue} Min</Text>
+            <View style={[ collapsed ? styles.collapsed : null, {flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start'}]}>
+              <View style={[styles.rowFront, collapsed ? styles.collapsed : null, {flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}]}>
+                <Button style={[ , {flex: 2, marginVertical: responsiveFontSize(0.5), }]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> editAllSegmentDurations(sliderValue)}>Set all durations to: </Button>
+                <MyInput
+                  value={sliderValue.toString()}
+                  placeholder="minutes"
+                  onChangeText={(text) => setSliderValue(text)}
+                  keyboardType="numeric"
+                  containerStyle={{flex: 0.5, alignSelf: 'flex-start'}}
+                />
+                <Text style={[, {flex: 2, fontSize: responsiveFontSize(1.5)}]}> Minute(s)</Text>
               </View>
-              <Button style={[ , {marginVertical: responsiveFontSize(0.5), alignSelf: 'flex-end'}]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> editAllSegmentDurations(sliderValue)}>Set all durations</Button>
-              <Button style={[ , {marginVertical: responsiveFontSize(0.5)}]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> removeAllAntes()}>Remove antes</Button>
-              <Button style={[ , {marginVertical: responsiveFontSize(0.5)}]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> copyTournamentFunction(segments, chips, costs, Tournament.title, Tournament.subtitle, timer)}>Copy to New Tournament</Button>
+              <View style={[styles.rowFront, collapsed ? styles.collapsed : null, {flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}]}>
+                <Button style={[, {marginVertical: responsiveFontSize(0.5)}]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> removeAllAntes()}>Remove antes</Button>
+              </View>
+              <View style={[styles.rowFront, collapsed ? styles.collapsed : null, {flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}]}>
+                <Button style={[, {marginVertical: responsiveFontSize(0.5)}]} titleStyle={[ , {fontSize: responsiveFontSize(1.5)}]} onPress={()=> copyTournamentFunction(segments, chips, costs, Tournament.title, Tournament.subtitle, timer)}>Copy to New Tournament</Button>
+              </View>
             </View>
             </>
           )
@@ -309,7 +310,7 @@ export const TournamentDashboardScreen = (props) => {
             sections={sectionListData}
           />
         </View>
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
+        <View style={{flex: orientation == 'portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
           <DeleteButton
             mutation={deleteTournament}
             navigation={()=> props.navigation.popToTop()}
