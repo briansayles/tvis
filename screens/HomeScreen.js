@@ -1,13 +1,13 @@
-import { View, ActivityIndicator } from 'react-native'
+import { View, ActivityIndicator, useWindowDimensions } from 'react-native'
 import { Text, Button, Image, } from '@rneui/themed'
-import React, {useEffect} from 'react'
-import { AuthContext } from '../Contexts'
-import { styles, responsiveHeight, responsiveWidth } from '../styles'
+import React, {useEffect, useState} from 'react'
+import { AuthContext, } from '../Contexts'
+import { styles, } from '../styles'
 import { AppLayout } from '../components/AppLayout'
 import { useQuery, useMutation, gql } from '@apollo/client'
 
-
 export const HomeScreen = (props) => {
+  const {height, width} = useWindowDimensions()
   const {signOut, signIn, userName, userId} = React.useContext(AuthContext);
   const {loading, data, error} = useQuery(USER_QUERY)
   const [name, setName] = React.useState("")
@@ -17,6 +17,7 @@ export const HomeScreen = (props) => {
       name
     }
   })
+
   useEffect(()=> {
     // console.log('name effect') 
     const fetchName = async () => {
@@ -40,8 +41,8 @@ export const HomeScreen = (props) => {
   return (
     <AppLayout>
       <View style={[, {flex: 8, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center'}]}>
-        <Image style={{width: responsiveWidth(50), height: responsiveWidth(50)}} source={require('../assets/icons/app-icon.png')} PlaceholderContent={<ActivityIndicator/>}/>
-        <Text h3 style={{width: responsiveWidth(75), textAlign: 'center', paddingTop: responsiveHeight(2)}}>
+        <Image style={{width: width * 0.50, height: width*0.50}} source={require('../assets/icons/app-icon.png')} PlaceholderContent={<ActivityIndicator/>}/>
+        <Text h3 style={{width: width * 0.75, textAlign: 'center', paddingTop: height * 0.02}}>
           Live Poker Tournament design and management made EASY!!
         </Text>
       </View>
@@ -49,7 +50,7 @@ export const HomeScreen = (props) => {
       <View style={[, {flex: 2, flexDirection: 'column', justifyContent: 'space-evenly'}]}>
       <Text>Logged in as: {name}</Text>
         <Button
-          top={responsiveHeight(40)}
+          top={height*0.40}
           onPress={() => signOut()}
         >
           Log Out
@@ -60,7 +61,7 @@ export const HomeScreen = (props) => {
       <View style={[, {flex: 2, flexDirection: 'column', justifyContent: 'space-evenly'}]}>
         <Text>  </Text>
         <Button
-          top={responsiveHeight(40)}
+          top={height*0.40}
           onPress={() => {signIn()}
           }
         >

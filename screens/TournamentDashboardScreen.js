@@ -1,17 +1,16 @@
 import { useMutation, useSubscription, gql } from '@apollo/client'
 import React, {useState, useEffect} from 'react'
-import { ActivityIndicator, Alert, View, ScrollView, RefreshControl, Pressable, SafeAreaView, SectionList, TouchableOpacity} from 'react-native'
+import { ActivityIndicator, Alert, View, ScrollView, RefreshControl, Pressable, SafeAreaView, SectionList, TouchableOpacity, useWindowDimensions} from 'react-native'
 import { Text, Button, Slider, } from '@rneui/themed';
-import { styles, responsiveFontSize, responsiveWidth, responsiveHeight} from '../styles'
+import { styles, responsiveFontSize, } from '../styles'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { SwipeableCollapsibleSectionList } from '../components/SwipeableList'
 import { AppLayout } from '../components/AppLayout'
 import { DeleteButton, GoToTimerButton} from '../components/FormComponents'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, dictionaryLookup } from '../utilities/functions'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/native'
 
 export const TournamentDashboardScreen = (props) => {
+  const {height, width} = useWindowDimensions()
   const [sliderValue, setSliderValue] = useState(0)
   const {data, loading, error, client, refetch} = useSubscription(TOURNAMENT_SUBSCRIPTION, {variables: {id: props.route.params.id}})
   const [deleteTournament, {loading: deletingTournament, data: deleteTournamentData, error: deleteTournamentError}] = useMutation(DELETE_TOURNAMENT_MUTATION, {variables: {id: props.route.params.id}})
@@ -305,10 +304,12 @@ export const TournamentDashboardScreen = (props) => {
     ]
     return (
       <AppLayout>
-        <SwipeableCollapsibleSectionList
-          sections={sectionListData}
-        />
-        <View style={[ , {width: responsiveWidth(90), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: responsiveFontSize(7), marginVertical: responsiveFontSize(0.5)}]}>
+        <View style={{flex: 9, flexDirection: 'column'}}>
+          <SwipeableCollapsibleSectionList
+            sections={sectionListData}
+          />
+        </View>
+        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
           <DeleteButton
             mutation={deleteTournament}
             navigation={()=> props.navigation.popToTop()}

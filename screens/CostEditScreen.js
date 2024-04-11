@@ -4,8 +4,6 @@ import { ActivityIndicator, View} from 'react-native'
 import { FormView, Picker, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
 import { dictionaryLookup, } from '../utilities/functions'
 import { ErrorMessage } from '../components/ErrorMessage'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/core'
 
 export const CostEditScreen = (props) => {
   const [initialValues, setInitialValues] = useState(null)
@@ -44,7 +42,7 @@ export const CostEditScreen = (props) => {
   if (data && formValues !== null && initialValues !== null) {
     return (
       <FormView>
-        <View style={{flex: 8, flexDirection: 'column', justifyContent: 'flex-start'}}>
+        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
           <MyInput
             title="Price"
             value={formValues.price.toString().replace(/^0+/, '')}

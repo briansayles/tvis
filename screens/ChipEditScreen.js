@@ -1,15 +1,13 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
-import { ActivityIndicator, View, Alert, Text } from 'react-native'
+import { ActivityIndicator, View, Alert, Text, useWindowDimensions } from 'react-native'
 import { FormView, Picker, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
 import { dictionaryLookup, } from '../utilities/functions'
 import { ErrorMessage } from '../components/ErrorMessage'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/core'
-import useDimensions from '@rnhooks/dimensions'
+import { AppLayout } from '../components/AppLayout'
 
 export const ChipEditScreen = (props) => {
-  const { fontScale, width, height, scale } = useDimensions('screen')
+  const { height, width } = useWindowDimensions()
   const orientation = height > width ? 'portrait' : 'landscape'
   const [initialValues, setInitialValues] = useState(null)
   const [formValues, setFormValues] = useState(null)
@@ -46,8 +44,10 @@ export const ChipEditScreen = (props) => {
   if (error) return (<ErrorMessage error={error}/>)
   if (data && formValues !== null && initialValues !== null) {
     return (
+      <AppLayout>
+
       <FormView>
-        <View style={{flex: 8, flexDirection: 'column', justifyContent: 'flex-start'}}>
+        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
           <MyInput
             title="Denomination"
             value={(formValues.denom).toString().replace(/^0+/, '')}
@@ -82,6 +82,7 @@ export const ChipEditScreen = (props) => {
           />
         </View>
       </FormView>
+      </AppLayout>
     )
   }
   return null

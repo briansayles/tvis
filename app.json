@@ -1,9 +1,6 @@
 {
   "expo": {
-    "name": "tvis",
-    "scheme": "tvis",
     "description": "TourneyVision",
-    "slug": "tvis",
     "privacy": "unlisted",
     "version": "0.0.1",
     "orientation": "default",
@@ -24,21 +21,6 @@
         "svgx"
       ]
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.tourneyvision.tourneyvision",
-      "buildNumber": "0.0.1",
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3013833975597353~9684490974"
-      }
-    },
-    "android": {
-      "package": "com.tourneyvision.tourneyvision",
-      "versionCode": 1,
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-3013833975597353~9684490974"
-      }
-    },
     "githubUrl": "https://github.com/briansayles/tvis",
     "platforms": [
       "android",
@@ -58,8 +40,8 @@
       },
       "AuthConfig": {
         "clientId": "0oa9e8otx3qmfThsn5d7",
+        "domain": "https://dev-08567763.okta.com/",
         "discoveryURI": "https://dev-08567763.okta.com/oauth2/default",
-        "clientSecret": "PHEbxRXv-omPKwaDLe8FhP4sr6MXPCllGB6HzHH4rnaW8ETF5xBEzeO-Udv89nD1",
         "audience": "https://tvis-graphql-api.hasura.app/v1/graphql"
       },
       "GraphQLConfig": {

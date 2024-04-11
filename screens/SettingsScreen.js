@@ -4,8 +4,6 @@ import { Text, Button, } from '@rneui/themed'
 import { responsiveFontSize, styles } from '../styles'
 import { AuthContext } from '../Contexts';
 import { AppLayout } from '../components/AppLayout'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/core';
 
 export const SettingsScreen = (props) => {
   const {userName} = React.useContext(AuthContext)
@@ -18,12 +16,11 @@ export const SettingsScreen = (props) => {
   },[])
   return (
     <AppLayout>
-      <SafeAreaView style={[styles.container, {justifyContent: 'space-between', alignItems: 'flex-start', marginHorizontal: responsiveFontSize(2)} ]}>
-        <Text style={[ , {flex: 2, alignSelf: 'center'}]} h3>Profile</Text>
+      <View style = {[ , {flex: 1, flexDirection: 'column', alignItems: 'center', }]}>        
+        <Text style={[ , {flex: 2, textAlignVertical: 'center'}]} h3>Profile</Text>
         <Text style={[ , {flex: 2, fontSize: responsiveFontSize(2)}]}>Logged in as: {name}</Text>
-        {/* <Text style={[ , {flex: 1, fontSize: responsiveFontSize(2)}]}>Redirect URI: {redirect}</Text> */}
         <Text style={[ , {flex: 10, fontSize: responsiveFontSize(2)}]}>Sorry...not much to see here yet.</Text>
-      </SafeAreaView>
+      </View>
     </AppLayout>
   );
 }

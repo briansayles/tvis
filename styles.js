@@ -45,15 +45,6 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingHorizontal: responsiveWidth(1),
-    paddingVertical: responsiveHeight(1),
-  },
-  appContainer: {
-    flex: 1,
-    justifyContent:'space-around',
-    alignItems: 'center',
   },
   adContainer: {
     height: 50,

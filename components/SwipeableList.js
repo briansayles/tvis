@@ -1,4 +1,4 @@
-import { responsiveFontSize, responsiveWidth, responsiveHeight, styles, colors } from '../styles'
+import { responsiveFontSize, styles, colors } from '../styles'
 import { TouchableHighlight, View, TouchableOpacity, Icon, ActivityIndicator, Pressable, StyleSheet, SectionList} from 'react-native'
 import { Text, Button, } from '@rneui/themed'
 import { SwipeRow} from 'react-native-swipe-list-view'
@@ -48,25 +48,7 @@ export function SwipeableCollapsibleSectionList (props) {
       )}
       renderItem= {({item, index, section: {sectionIndex, rightButtons, renderFrontRow}})=> {
         return(
-          // <SwipeRow
-          //   closeOnRowPress={false}
-          //   swipeToOpenPercent={10}
-          //   rightOpenValue={-responsiveFontSize(0*rightButtons.length * (buttonSize + 2 * buttonSpacing))}
-          // >
-          //   <View style={[{}]}>
-          //     {rightButtons.map((buttonData, buttonIndex) => {return (
-          //       <View style={[
-          //         styles.backRightBtn, 
-          //         collapsedState[sectionIndex] ? styles.collapsed : null,
-          //         {backgroundColor: buttonData.backgroundColor, right: buttonIndex * responsiveFontSize(buttonSize + buttonSpacing)}]}
-          //         key={buttonIndex}
-          //       >
-          //       </View>
-          //     )
-          //     })}
-          //   </View>
-            renderFrontRow(item, index, collapsedState[sectionIndex])              
-          // </SwipeRow>
+          renderFrontRow(item, index, collapsedState[sectionIndex])              
         )
       }}
     />

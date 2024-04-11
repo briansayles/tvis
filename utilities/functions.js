@@ -1,36 +1,5 @@
 import { Dimensions } from 'react-native'
 import Dictionary from '../constants/Dictionary'
-import * as Crypto from 'expo-crypto';
-
-function URLEncode(str) {
-	return str
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=/g, '')
-}
-
-async function sha256(buffer) {
-	return await Crypto.digestStringAsync(
-			Crypto.CryptoDigestAlgorithm.SHA256,
-			buffer,
-			{ encoding: Crypto.CryptoEncoding.BASE64 }
-	)
-}
-
-function generateShortUUID() {
-	return Math.random()
-				.toString(36)
-				.substring(2, 15)
-}
-
-export async function generateChallange(){
-	const state = generateShortUUID()
-	const randomBytes = await Crypto.getRandomBytesAsync(32)
-	const base64String = randomBytes.buffer.toString('base64')
-	const codeVerifier = URLEncode(base64String)
-	const codeChallenge = URLEncode(await sha256(codeVerifier))
-	return { codeVerifier, codeChallenge, state}
-}
 
 export function smallestChipArray (sortedChips, sortedSegments) {
 	const chips = sortedChips.slice(0)
@@ -145,7 +114,6 @@ export function sortEntryFees (fees) {
 	})
 }
 
-
 export function totalItems (items) {
 	var total = items.price * items.buys.length
 }
@@ -162,27 +130,4 @@ export const responsiveWidth = (w) => {
 
 export const responsiveFontSize = (f) => {
   return Math.sqrt((height*height)+(width*width))*(f/100);
-}
-
-export const checkUserCredits = (userId, creditsRequired) => {
-	return
-}
-
-export const showRewardedAd = () => {
-	return
-}
-
-export const rewardUser = (userId, credits) => {
-	return
-}
-
-export const creditCheck = (userId, creditsRequired) => {
-	if (checkUserCredits(userId, creditsRequired)) {
-		return true
-	} else {
-		showRewardedAd().then(() => {
-			rewardUser(userId, 100)
-			return true
-		})
-	}
 }

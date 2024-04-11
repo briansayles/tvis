@@ -1,22 +1,18 @@
 import { gql, useMutation, useSubscription} from '@apollo/client'
 import React, { useState, useEffect, useReducer, useRef } from 'react'
-import { Animated, ActivityIndicator, View, Pressable, SafeAreaView } from 'react-native'
+import { Animated, ActivityIndicator, View, Pressable, SafeAreaView, Platform, useWindowDimensions } from 'react-native'
 import { Button, Icon, Text } from '@rneui/themed'
 import * as Speech from 'expo-speech';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Audio } from 'expo-av';
 import { useKeepAwake} from 'expo-keep-awake';
-import useDimensions from '@rnhooks/dimensions'
 import CircularProgress from 'react-native-circular-progress-indicator'
 import { ErrorMessage } from '../components/ErrorMessage'
-import { smallestChipArray, msToTime, numberToSuffixedString, sortChips, sortSegments, responsiveFontSize, responsiveWidth, responsiveHeight} from '../utilities/functions'
+import { smallestChipArray, msToTime, numberToSuffixedString, sortChips, sortSegments, responsiveFontSize, } from '../utilities/functions'
 import { AppLayout } from '../components/AppLayout'
 import { styles, } from '../styles'
 import * as Haptics from 'expo-haptics'
-// import * as ScreenOrientation from 'expo-screen-orientation'
-// import { useFocusEffect } from '@react-navigation/native'
 import Constants from 'expo-constants'
-
 const AppOptions = Constants.expoConfig.extra.AppOptions
 
 const initialState = {
@@ -192,7 +188,7 @@ export const TournamentTimerScreen = (props) => {
   const [ toggleTournamentTimer ] = useMutation(UPDATE_TIMER_MUTATION, {})
   const [ jumpTournamentSegment ] = useMutation(JUMP_SEGMENT_MUTATION, {})
   const [ resetTournamentTimer ] = useMutation(RESET_TIMER_MUTATION, {})
-  const { fontScale, width, height, scale } = useDimensions('screen')
+  const { height, width } = useWindowDimensions()
   const { data, loading, error, } = useSubscription(TOURNAMENT_SUBSCRIPTION, { variables: { id: props.route.params.id}, onData: ({data: {data}}) => {}})
   const [state, dispatch] = useReducer(reducer, initialState)
   const { newCSI, remainingTimeMS, lastSI, currentBlindsText, nextBlindsText, currentDurationMS, currentDurationText, nextDurationText, isActive, smallestChipReq, title,
@@ -252,7 +248,7 @@ export const TournamentTimerScreen = (props) => {
   const playSoundEffect = async (customSpeech="", beepRate, playBeeps, volume) => {
     try {
       const { sound: soundObject, status }  = await Audio.Sound.createAsync(
-        require('../assets/sounds/3beeps.aiff'),
+        require('../assets/sounds/0925.mp3'),
         {
           positionMillis: 0,
           volume,
@@ -266,7 +262,7 @@ export const TournamentTimerScreen = (props) => {
               customSpeech,
               {
                 rate: 0.9,
-                pitch: 1.30,
+                pitch: Platform.OS === "ios" ? 1.30 : 1.00,
                 onDone: async () => {
                   setPlayingSound(false)               
                 }
@@ -403,10 +399,10 @@ export const TournamentTimerScreen = (props) => {
     return (
       <>
         {orientation == 'landscape' &&
-          <SafeAreaView style={[styles.test, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', flex: 1}]}>
+          <SafeAreaView style={[styles.test, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', alignSelf: 'center', flex: 1, width: width*0.98, }]}>
             <LinearGradient
               colors={[ '#257a2f', '#194a2f', '#226a2f' ]}
-              style={[styles.test, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', flex: 1, borderRadius: Math.min(responsiveHeight(5), responsiveWidth(5))}]}
+              style={[styles.test, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', flex: 1, borderRadius: width *0.08}]}
             >
             <View style={[styles.test, styles.column1, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 4}]}>
               {sortedChipsArray && sortedChipsArray.length > 0 && sortedChipsArray.map((u,i) => {
@@ -422,13 +418,13 @@ export const TournamentTimerScreen = (props) => {
             </View>
             <View style={[styles.test, styles.column2, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'stretch', flex: 7}]}>
               <View style={[ , {flex: 0.5}]}></View>
-              <Text style={[styles.test, styles.titleText, { textAlign:  'center', flex: 1,}]}>{title}</Text>            
-              <Text style={[styles.test, styles.titleText, { textAlign:  'center', flex: 1,}]}>{subtitle}</Text>            
+              <Text style={[styles.test, styles.titleText, { textAlign:  'center', flex: 1.5,}]}>{title}</Text>            
+              <Text style={[styles.test, styles.titleText, { textAlign:  'center', flex: 1.5,}]}>{subtitle}</Text>            
               <View style={[ styles.test, {flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex: 12}]}>
                 <Pressable onPress={()=> toggleTimerButtonPressed()} onLongPress={()=> resetTimerButtonPressed()}>
                   <CircularProgress
                     value={remainingTimeMS}
-                    radius={Math.min(responsiveHeight(26), responsiveWidth(26))}
+                    radius={height*0.24}
                     duration={500}
                     progressValueColor={noticeStatus ? 'red' : '#ecf0f1'}
                     activeStrokeColor={noticeStatus ? 'red' : (isActive ? 'limegreen' : 'orange')}
@@ -450,7 +446,7 @@ export const TournamentTimerScreen = (props) => {
             </View>
             <View style={[styles.test, styles.column3, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 9}]}>
               <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 1}]}></View>
-              <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 5}]}>
+              <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 7}]}>
                 <Text style={[styles.test, styles.blindsTitleTextLandscape, noticeStatus && styles.blindsNoticeText, {}]}>
                   Current Blinds:
                 </Text>
@@ -483,18 +479,17 @@ export const TournamentTimerScreen = (props) => {
         }
         {orientation == 'portrait' && 
           <AppLayout>
-            <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'stretch'}]}>
+            <View style={[{flex: 1, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'stretch', alignSelf: 'center'}]}>
               <LinearGradient
                   colors={[ '#257a2f', '#194a2f', '#226a2f' ]}
-                  style={{ flex: 1, width: responsiveWidth(98), height: responsiveHeight(98), alignItems: 'stretch', borderRadius: responsiveFontSize(3) }}
+                  style={{ flex: 1, width: width*0.98, height: height * .98, alignItems: 'stretch', borderRadius: width*0.05 }}
               >
-                <View style={{flex: 1.25, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
+                <View style={{flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', }}>
                   <Text style={[styles.titleText, { textAlign: 'center'}]}>{title}</Text>
                   <Text style={[styles.titleText, { textAlign: 'center'}]}> {subtitle} </Text>
                 </View>
-                {/* <View style={{flex: 8, flexDirection:'row', }}> */}
                   <View style={{flex: 8, flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center',}}>
-                    <View style={{flex: 4, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', }}>
+                    <View style={{flex: 6, flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', }}>
                       <Text
                         style={[styles.blindsText, noticeStatus && styles.blindsNoticeText]}
                       >
@@ -510,7 +505,7 @@ export const TournamentTimerScreen = (props) => {
                       <Pressable onPressIn={()=>Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)} onPress={()=> toggleTimerButtonPressed()} onLongPress={()=> resetTimerButtonPressed()}>
                         <CircularProgress
                           value={remainingTimeMS}
-                          radius={Math.min(responsiveHeight(26), responsiveWidth(26))}
+                          radius={width * 0.20}
                           duration={500}
                           progressValueColor={noticeStatus ? 'red' : '#ecf0f1'}
                           activeStrokeColor={noticeStatus ? 'red' : (isActive ? 'limegreen' : 'orange')}
@@ -542,7 +537,6 @@ export const TournamentTimerScreen = (props) => {
                       {<Button containerStyle={{flex: 2}} title="" buttonStyle={{ backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={()=> fwdButtonPressed()}></Button>}
                     </View>
                   </View>
-                {/* </View> */}
                 <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
                   {sortedChipsArray && sortedChipsArray.length > 0 && sortedChipsArray.map((u,i) => {
                     if (newCSI <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {

@@ -1,5 +1,6 @@
 import * as React from 'react'
-import * as Linking from 'expo-linking'
+// import { makeRedirectUri } from 'expo-auth-session'
+// import Constants from 'expo-constants'
 
 export const AuthContext = React.createContext()
 
@@ -55,4 +56,6 @@ export const authData = {
   idToken: null,
 }
 
-export const redirectUri = Linking.createURL()
+// export const redirectUri = makeRedirectUri({
+//   native: "tvis.dev///"
+// })

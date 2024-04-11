@@ -1,14 +1,12 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
-import { ActivityIndicator, View,  } from 'react-native'
+import { ActivityIndicator, View, Platform, } from 'react-native'
 import { Text, Button, CheckBox} from '@rneui/themed'
 import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { responsiveFontSize } from '../utilities/functions'
 import { Audio } from 'expo-av';
 import * as Speech from 'expo-speech';
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/core'
 
 export const TimerEditScreen = (props) => {
   const [initialValues, setInitialValues] = useState(null)
@@ -31,7 +29,7 @@ export const TimerEditScreen = (props) => {
   const playSoundEffect = async (customSpeech="", beepRate, playBeeps, volume) => {
     try {
       const { sound: soundObject, status }  = await Audio.Sound.createAsync(
-        require('../assets/sounds/3beeps.aiff'),
+        require('../assets/sounds/0925.mp3'),
         {
           positionMillis: 0,
           volume,
@@ -45,7 +43,7 @@ export const TimerEditScreen = (props) => {
               customSpeech,
               {
                 rate: 0.9,
-                pitch: 1.30,
+                pitch: Platform.OS === "ios" ? 1.30 : 1.00,
                 onDone: async () => {
                   setPlayingSound(false)              
                 }
@@ -55,6 +53,7 @@ export const TimerEditScreen = (props) => {
         }
       )
     } catch (error) {
+      console.log(error)
       setPlayingSound(false)
     }
   }
@@ -62,7 +61,7 @@ export const TimerEditScreen = (props) => {
   const soundCheckOneMinuteWarning = () => {
     if (!playingSound) {
       setPlayingSound(true)
-      playSoundEffect((formValues.oneMinuteRemainingSpeech || ""), 1.5, true, 0.5)
+      playSoundEffect((formValues.oneMinuteRemainingSpeech || ""), 1.5, true, 1)
     }
   }
 
@@ -89,7 +88,7 @@ export const TimerEditScreen = (props) => {
   if (data && formValues !== null && initialValues !== null) {
     return (
       <FormView>
-        <View style={{flex: 8, flexDirection: 'column', justifyContent: 'flex-start'}}>
+        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
           <CheckBox
             title="Play sound and speech one minute before the end of each round"
             checked={formValues.playOneMinuteRemainingSound}

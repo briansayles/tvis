@@ -6,8 +6,6 @@ import { styles, } from '../styles'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { SwipeableCollapsibleSectionList} from '../components/SwipeableList'
 import { AppLayout } from '../components/AppLayout'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/core';
 
 export const TournamentsScreen = (props) => {
   const {loading, data, error} = useSubscription(CURRENT_USER_TOURNAMENTS_LIST_SUBSCRIPTION)
@@ -29,7 +27,7 @@ export const TournamentsScreen = (props) => {
   const editItem = ({id, title}) => {
     props.navigation.navigate('Tournament Dashboard', {id: id})
   }
-  
+
   useEffect(()=> {
     if (data?.tournaments?.length == 0) {
       const createFirstTournament = async () => {
@@ -73,7 +71,6 @@ export const TournamentsScreen = (props) => {
             <Pressable style={[styles.rowFront, collapsed ? styles.collapsed : null, {} ]} onPress={() => {editItem(item)}}>
               <Text style={[item.Timers[0]?.active? styles.active : null, {}]}>{item.title}</Text>
               <Text style={[item.Timers[0]?.active? styles.active : null, {}]}>{item.subtitle}</Text>
-              {/* <Ionicons iconStyle={{flex: 2}} name='ios-arrow-forward' size={responsiveFontSize(2)} color="black"/> */}
             </Pressable>
           )
         }

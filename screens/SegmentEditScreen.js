@@ -3,8 +3,6 @@ import React, { useState, useEffect} from 'react'
 import { ActivityIndicator, View} from 'react-native'
 import { FormView, SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
 import { ErrorMessage } from '../components/ErrorMessage'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/core'
 
 export const SegmentEditScreen = (props) => {
   const [initialValues, setInitialValues] = useState(null)
@@ -43,7 +41,7 @@ export const SegmentEditScreen = (props) => {
   if (data && formValues !== null && initialValues !== null) {
     return (
       <FormView>
-        <View style={{flex: 8, flexDirection: 'column', justifyContent: 'flex-start'}}>
+        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
           <MyInput
             title="Small Blind"
             value={(formValues.sBlind.toString()).replace(/^0+/, '')}

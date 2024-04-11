@@ -3,8 +3,6 @@ import React, { useState, useEffect} from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { FormView, SubmitButton, MyInput, } from '../components/FormComponents'
 import { ErrorMessage } from '../components/ErrorMessage'
-import * as ScreenOrientation from 'expo-screen-orientation'
-import { useFocusEffect } from '@react-navigation/core'
 
 export const TournamentInfoEditScreen = (props) => {
   const [initialValues, setInitialValues] = useState(null)
@@ -38,7 +36,7 @@ export const TournamentInfoEditScreen = (props) => {
   if (data && formValues !== null && initialValues !== null) {
     return (
       <FormView>
-        <View style={{flex: 8, flexDirection: 'column', justifyContent: 'flex-start'}}>
+        <View style={{flex: 9, flexDirection: 'column', justifyContent: 'flex-start'}}>
           <MyInput
             title="Title"
             value={(formValues?.title ? formValues.title : "")}

@@ -65,3 +65,8 @@ buck-out/
 # Expo
 .expo/*
 web-build/
+
+# Builds
+*.apk
+*.aab
+*.tar.gz
