@@ -60,8 +60,8 @@
     "@babel/core": "^7.20.0"
   },
   "scripts": {
-    "buildDev": "APP_VARIANT=development eas build --profile development --platform android --local",
-    "buildPreview": "eas build --profile preview --platform android --local",
+    "buildDev": "APP_VARIANT=development eas build --profile development --platform android",
+    "buildPreview": "eas build --profile preview --platform android",
     "dev": "APP_VARIANT=development npx expo start --dev-client",
     "start": "npx expo start",
     "android": "npx expo start --android",
