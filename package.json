@@ -62,6 +62,7 @@
   "scripts": {
     "buildDev": "APP_VARIANT=development eas build --profile development --platform android",
     "buildPreview": "eas build --profile preview --platform android",
+    "updatePreview": "eas update --branch preview",
     "dev": "APP_VARIANT=development npx expo start --dev-client",
     "start": "npx expo start",
     "android": "npx expo start --android",
