@@ -108,6 +108,7 @@ const stateCalculator = (payload) => {
     currentSegmentNoticeTime: (calculatedSegmentIndex <= sortedSegmentsArray.length - 1) ? sortedSegmentsArray[calculatedSegmentIndex].finishTime - AppOptions.warningTime : null,
     currentSegmentCumulativeDuration:  (calculatedSegmentIndex <= sortedSegmentsArray.length - 1) ? sortedSegmentsArray[calculatedSegmentIndex].cumulativeDuration : 0,
     timer: Timers[0],
+    noticeStatus,
     displayChipArray,     
   }
 }
@@ -143,7 +144,7 @@ const reducer =(state, action) => {
         countdownText: msToTime(remainingTimeMS),
         sortedSegmentsArray,
         sortedChipsArray,
-        displayChipArray
+        displayChipArray,
      }
     } 
     case 'END_OF_ROUND': {
@@ -170,7 +171,7 @@ const reducer =(state, action) => {
         currentTime: new Date(),
         sortedSegmentsArray,
         sortedChipsArray,
-        displayChipArray
+        displayChipArray,
         }
     }
     case 'ONE_MINUTE_REMAINING': {
@@ -420,7 +421,7 @@ export const TournamentTimerScreen = (props) => {
             <View style={[, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 4}]}>
               {displayChipArray.map((u,i) => {
                   return (
-                    <Animated.View key={i} style={[, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/displayChipArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }]}>
+                    <Animated.View key={i} style={[, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/displayChipArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation) }]}>
                       <Text style={[, styles.chipText, {flex: 5, textAlign: 'right'}]} >{numberToSuffixedString(u.denom)}  </Text>
                       <Icon containerStyle={[ , {flex: 5, }]} name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(7)}/>
                     </Animated.View>
@@ -551,7 +552,7 @@ export const TournamentTimerScreen = (props) => {
                 <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
                   {displayChipArray.map((u,i) => {
                       return (
-                        <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', flex: 1/displayChipArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }}>
+                        <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', flex: 1/displayChipArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation) }}>
                           <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(8)}/>
                           <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
                         </Animated.View>

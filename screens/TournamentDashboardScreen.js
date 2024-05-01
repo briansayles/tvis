@@ -215,10 +215,9 @@ export const TournamentDashboardScreen = (props) => {
               <Text style={[ styles.bold, {flex: 0.5, textAlign: 'left'}]}>{item.segmentIndex + 1}:</Text>
               <Text style={[ styles.bold, {flex: 4, }]}>{item.sBlind.toLocaleString()} / {item.bBlind.toLocaleString()} {item.ante > 0 ? ' + ' + item.ante.toLocaleString() + ' ante': ''}</Text>
               <Text style={[ , {flex: 2 ,textAlign: 'right', }]}>{item.duration.toLocaleString()} Minutes</Text>
-              {/* <Ionicons iconStyle={{flex: 2}} name='ios-arrow-forward' size={responsiveFontSize(2)} color="black"/> */}
             </Pressable>}
             {item.type=='colorup' && <View style={[styles.rowFront, styles.rowFrontColorup, collapsed ? styles.collapsed : null, {} ]} >
-              <Text style={[ styles.bold, {flex: 1, textAlign: 'center', color: item.color}]}>Color-Up {item.denom}'s</Text>
+              <Text style={[ styles.bold, {flex: 1, textAlign: 'center', color: item.color}]}>Color-Up {item.denom.toLocaleString()  }'s</Text>
             </View>}
             {item.id == 'totals' && <View style={[styles.rowFront, collapsed ? styles.collapsed : null, {borderTopColor: 'black', borderTopWidth: 1} ]} >
               <Text style={[ styles.bold, {flex: 4.5, textAlign: 'left'}]}>Total scheduled duration:</Text>
@@ -308,7 +307,12 @@ export const TournamentDashboardScreen = (props) => {
 
     const html = `
       <html><body>
-
+        <h1>Tournament Title</h1>
+        <p>Tournament Subtitle will probably go here</p>
+        <h2>Buy-In Information</h2>
+        <p>This is where buy-in data will go.</p>
+        <h2>Blinds Schedule</h2>
+        <p>This is where the blinds schedule will go</p>
       </body></html>
     `
 
