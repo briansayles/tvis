@@ -94,6 +94,8 @@ export const MyInput = (props) => {
       value={props.value.toString()}
       label={props.title}
       labelStyle={[props.disabled ? styles.inputTitleDisabled : styles.inputTitleEnabled, {}]}
+      inputStyle={[styles.inputStyle, {}]}
+      inputContainerStyle={[styles.inputContainerStyle, {}]}
       {...props}
     />
   )  
@@ -122,6 +124,7 @@ export const DeleteButton = (props) => {
         name='trash'
         color='#fff'
         type='ionicon'
+        size={responsiveFontSize(1.25)}
       />}
       iconRight
       buttonStyle={{ 
@@ -129,14 +132,12 @@ export const DeleteButton = (props) => {
         marginTop: responsiveFontSize(1.5), 
         paddingLeft: responsiveFontSize(1), 
         paddingRight: responsiveFontSize(1), 
-        // marginLeft: 0, 
-        // marginRight: 0, 
-        // marginBottom: 0, 
+        marginTop: 0,
         backgroundColor: '#d00', 
         alignSelf: 'flex-end'
       }}
       title='Delete  '
-      titleStyle={{fontSize: 14, color: '#fff'}}
+      titleStyle={{fontSize: responsiveFontSize(1), color: '#fff'}}
       onPress={() => handlePress()}
       {...props}
     />
@@ -158,22 +159,21 @@ export const SubmitButton = (props) => {
         name='checkmark-circle-outline'
         color='#fff'
         type='ionicon'
+        size={responsiveFontSize(1.25)}
       />}
       iconRight
       buttonStyle={{ 
         borderRadius: responsiveFontSize(1), 
         marginTop: responsiveFontSize(1.5), 
         paddingLeft: responsiveFontSize(1), 
-        paddingRight: responsiveFontSize(1), 
-        // marginLeft: 0, 
-        // marginRight: 0, 
-        // marginBottom: 0, 
+        paddingRight: responsiveFontSize(1),
+        marginTop: 0,
         backgroundColor: '#050', 
         alignSelf: 'flex-end'
       }}
       disabledStyle={{backgroundColor: "#0504"}}
       title='Submit  '
-      titleStyle={{fontSize: 14, color: '#fff'}}
+      titleStyle={{fontSize: responsiveFontSize(1), color: '#fff'}}
       onPress={() => handlePress()}
       {...props}
     />
@@ -181,11 +181,7 @@ export const SubmitButton = (props) => {
 }
 
 export const GoToTimerButton = (props) => {
-  // [busy, setBusy] = useState(false)
   const handlePress = () => {
-  	// setBusy(true)
-  	// props.mutation().then(() => {
-  		// setBusy(false)
       if (props.navigation) {props.navigation()}  
   	// })
   }  
@@ -195,22 +191,21 @@ export const GoToTimerButton = (props) => {
         name='checkmark-circle-outline'
         color='#fff'
         type='ionicon'
+        size={responsiveFontSize(1.25)}
       />}
       iconRight
       buttonStyle={{ 
         borderRadius: responsiveFontSize(1), 
         marginTop: responsiveFontSize(1.5), 
         paddingLeft: responsiveFontSize(1), 
-        paddingRight: responsiveFontSize(1), 
-        // marginLeft: 0, 
-        // marginRight: 0, 
-        // marginBottom: 0, 
+        paddingRight: responsiveFontSize(1),
+        marginTop: 0,
         backgroundColor: '#050', 
         alignSelf: 'flex-end'
       }}
       // disabledStyle={{backgroundColor: "#0504"}}
       title='Go to Timer  '
-      titleStyle={{fontSize: 14, color: '#fff'}}
+      titleStyle={{fontSize: responsiveFontSize(1), color: '#fff'}}
       onPress={() => handlePress()}
       {...props}
     />

@@ -37,13 +37,29 @@ export const styles = StyleSheet.create({
   inputTitleEnabled: {
     fontWeight: 'bold',
     color: 'black',
+    fontSize: responsiveFontSize(1.25)
   },
   inputTitleDisabled: {
     fontWeight: 'normal',
     color: 'grey',
   },
+  inputStyle: {
+    fontSize: responsiveFontSize(1.25)
+  },
+  inputContainerStyle: {
+    height: responsiveFontSize(1.75)
+  },
+  inputScreenButtonsView: {
+    flexDirection: 'row', 
+    alignItems: 'flex-end', 
+    paddingBottom: responsiveFontSize(1), 
+    justifyContent: 'space-evenly', 
+    borderTopWidth: responsiveFontSize(0.25), 
+    backgroundColor: 'white'
+  },
   container: {
     flex: 1,
+    flexDirection: 'column',
     backgroundColor: colors.background,
   },
   adContainer: {

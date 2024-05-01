@@ -8,6 +8,8 @@ import { SwipeableCollapsibleSectionList } from '../components/SwipeableList'
 import { AppLayout } from '../components/AppLayout'
 import { DeleteButton, GoToTimerButton, MyInput} from '../components/FormComponents'
 import { smallestChipArray, sortSegments, sortChips, sortEntryFees, dictionaryLookup } from '../utilities/functions'
+import { printAsync, printToFileAsync } from 'expo-print';
+import { shareAsync } from 'expo-sharing';
 
 export const TournamentDashboardScreen = (props) => {
   const {height, width} = useWindowDimensions()
@@ -303,6 +305,22 @@ export const TournamentDashboardScreen = (props) => {
       },
 
     ]
+
+    const html = `
+      <html><body>
+
+      </body></html>
+    `
+
+    const generatePDF = async () => {
+      const file = await printToFileAsync( {
+        html,
+        base64: false,
+      })
+
+      await shareAsync(file.uri)
+    }
+
     return (
       <AppLayout>
         <View style={{flex: 9, flexDirection: 'column'}}>
@@ -320,6 +338,9 @@ export const TournamentDashboardScreen = (props) => {
           <GoToTimerButton
             navigation={()=> props.navigation.navigate('Timer', {id: Tournament.id, timerId: Tournament.Timers[0].id })}
           />
+          <Button title="Print to PDF" onPress={generatePDF}> 
+
+          </Button>
         </View>
       </AppLayout>
     )

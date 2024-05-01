@@ -6,7 +6,8 @@
     "base": {
       "android": {
         "image": "latest"
-      }
+      },
+      "channel": "base"
     },
     "development": {
       "env": {
@@ -21,7 +22,8 @@
       "extends": "development",
       "ios": {
         "simulator": true
-      }
+      },
+      "channel": "development-simulator"
     },
     "preview": {
       "extends": "base",

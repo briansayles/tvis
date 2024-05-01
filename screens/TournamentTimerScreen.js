@@ -32,6 +32,7 @@ const initialState = {
   title: "",
   subtitle: "",
   currentSegmentCumulativeDuration: 0,
+  displayChipArray: [],
 }
 
 const stateCalculator = (payload) => {
@@ -64,6 +65,15 @@ const stateCalculator = (payload) => {
     previousFinishTime = finishTime
   }
   if (calculatedSegmentIndex === null) calculatedSegmentIndex = sortedSegmentsArray.length - 1 
+  let displayedChipCount = 0
+  let displayChipArray = []
+  for (let ii = 0, len = smallestChipReq.length; ii<len; ii++) {
+    if (displayedChipCount < 5 && calculatedSegmentIndex <= smallestChipReq[ii].segment || smallestChipReq[ii].segment < 0)
+    {
+      displayedChipCount += 1
+      displayChipArray.push(smallestChipReq[ii])
+    }
+  }
   return {
     title,
     subtitle,
@@ -74,9 +84,9 @@ const stateCalculator = (payload) => {
     newCSI: calculatedSegmentIndex,
     lastSI: sortedSegmentsArray.length - 1,
     currentBlindsText: (calculatedSegmentIndex <= sortedSegmentsArray.length - 1) ? (
-      sortedSegmentsArray[calculatedSegmentIndex].sBlind.toString() + 
-      "/" + sortedSegmentsArray[calculatedSegmentIndex].bBlind.toString() +
-      (sortedSegmentsArray[calculatedSegmentIndex].ante > 0 ? " + " + sortedSegmentsArray[calculatedSegmentIndex].ante.toString() : ""))
+      numberToSuffixedString(sortedSegmentsArray[calculatedSegmentIndex].sBlind) + 
+      "/" + numberToSuffixedString(sortedSegmentsArray[calculatedSegmentIndex].bBlind) +
+      (sortedSegmentsArray[calculatedSegmentIndex].ante > 0 ? " + " + numberToSuffixedString(sortedSegmentsArray[calculatedSegmentIndex].ante) : ""))
       :"----/---- + ----",
     currentDurationMS: (calculatedSegmentIndex <= sortedSegmentsArray.length - 1) ? (
       sortedSegmentsArray[calculatedSegmentIndex].duration * 60000)
@@ -86,9 +96,9 @@ const stateCalculator = (payload) => {
       (sortedSegmentsArray[calculatedSegmentIndex].duration > 1 ? " Minutes" : " Minute"))
       : "--- Minutes",
     nextBlindsText: (calculatedSegmentIndex != null && calculatedSegmentIndex + 1 <= sortedSegmentsArray.length - 1) ? (
-      sortedSegmentsArray[calculatedSegmentIndex +1 ].sBlind.toString() + 
-      "/" + sortedSegmentsArray[calculatedSegmentIndex + 1].bBlind.toString() +
-      (sortedSegmentsArray[calculatedSegmentIndex + 1].ante > 0 ? " + " + sortedSegmentsArray[calculatedSegmentIndex + 1].ante.toString() : ""))
+      numberToSuffixedString(sortedSegmentsArray[calculatedSegmentIndex +1 ].sBlind) + 
+      "/" + numberToSuffixedString(sortedSegmentsArray[calculatedSegmentIndex + 1].bBlind) +
+      (sortedSegmentsArray[calculatedSegmentIndex + 1].ante > 0 ? " + " + numberToSuffixedString(sortedSegmentsArray[calculatedSegmentIndex + 1].ante) : ""))
       :"None",
     nextDurationText: (calculatedSegmentIndex != null && calculatedSegmentIndex + 1 <= sortedSegmentsArray.length - 1) ? (
       sortedSegmentsArray[calculatedSegmentIndex + 1].duration.toString() + 
@@ -97,7 +107,8 @@ const stateCalculator = (payload) => {
     currentSegmentFinishTime: (calculatedSegmentIndex <= sortedSegmentsArray.length - 1) ? sortedSegmentsArray[calculatedSegmentIndex].finishTime : null,
     currentSegmentNoticeTime: (calculatedSegmentIndex <= sortedSegmentsArray.length - 1) ? sortedSegmentsArray[calculatedSegmentIndex].finishTime - AppOptions.warningTime : null,
     currentSegmentCumulativeDuration:  (calculatedSegmentIndex <= sortedSegmentsArray.length - 1) ? sortedSegmentsArray[calculatedSegmentIndex].cumulativeDuration : 0,
-    timer: Timers[0],      
+    timer: Timers[0],
+    displayChipArray,     
   }
 }
 
@@ -108,7 +119,7 @@ const remainingTimeCalculator = (isActive, currentSegmentFinishTime, currentSegm
 const reducer =(state, action) => {
   switch (action.type) {
     case 'SETUP': {
-      const { isActive, title, smallestChipReq, timer, subtitle, sortedSegmentsArray, sortedChipsArray, newCSI, lastSI, currentBlindsText, currentDurationMS, currentDurationText, nextBlindsText, nextDurationText, currentSegmentFinishTime, currentSegmentNoticeTime, noticeStatus, currentSegmentCumulativeDuration, } = stateCalculator(action.payload)
+      const { isActive, title, smallestChipReq, timer, subtitle, sortedSegmentsArray, sortedChipsArray, newCSI, lastSI, currentBlindsText, currentDurationMS, currentDurationText, nextBlindsText, nextDurationText, currentSegmentFinishTime, currentSegmentNoticeTime, noticeStatus, currentSegmentCumulativeDuration, displayChipArray, } = stateCalculator(action.payload)
       const remainingTimeMS = remainingTimeCalculator(isActive, currentSegmentFinishTime, currentSegmentCumulativeDuration, timer.elapsed)
       return {
         ...state,
@@ -132,10 +143,11 @@ const reducer =(state, action) => {
         countdownText: msToTime(remainingTimeMS),
         sortedSegmentsArray,
         sortedChipsArray,
+        displayChipArray
      }
     } 
     case 'END_OF_ROUND': {
-      const { isActive, title, smallestChipReq, timer, subtitle, sortedSegmentsArray, sortedChipsArray, newCSI, lastSI, currentBlindsText, currentDurationMS, currentDurationText, nextBlindsText, nextDurationText, currentSegmentFinishTime, currentSegmentNoticeTime, noticeStatus, currentSegmentCumulativeDuration,} = stateCalculator(action.payload)
+      const { isActive, title, smallestChipReq, timer, subtitle, sortedSegmentsArray, sortedChipsArray, newCSI, lastSI, currentBlindsText, currentDurationMS, currentDurationText, nextBlindsText, nextDurationText, currentSegmentFinishTime, currentSegmentNoticeTime, noticeStatus, currentSegmentCumulativeDuration, displayChipArray, } = stateCalculator(action.payload)
       const remainingTimeMS = remainingTimeCalculator(isActive, currentSegmentFinishTime, currentSegmentCumulativeDuration, timer.elapsed)
       return {
         ...state,
@@ -158,6 +170,7 @@ const reducer =(state, action) => {
         currentTime: new Date(),
         sortedSegmentsArray,
         sortedChipsArray,
+        displayChipArray
         }
     }
     case 'ONE_MINUTE_REMAINING': {
@@ -192,13 +205,13 @@ export const TournamentTimerScreen = (props) => {
   const { data, loading, error, } = useSubscription(TOURNAMENT_SUBSCRIPTION, { variables: { id: props.route.params.id}, onData: ({data: {data}}) => {}})
   const [state, dispatch] = useReducer(reducer, initialState)
   const { newCSI, remainingTimeMS, lastSI, currentBlindsText, nextBlindsText, currentDurationMS, currentDurationText, nextDurationText, isActive, smallestChipReq, title,
-          currentSegmentFinishTime, currentSegmentNoticeTime, noticeStatus, sortedSegmentsArray, sortedChipsArray, timer, subtitle} = state
+          currentSegmentFinishTime, currentSegmentNoticeTime, noticeStatus, sortedSegmentsArray, sortedChipsArray, timer, subtitle, displayChipArray, } = state
         
   useEffect(() => {
     if (!data) { return; }
     let { tournaments_by_pk } = data;
     dispatch({ type: 'SETUP', payload: tournaments_by_pk });
-  }, [data])
+  }, [data, height, width])
 
   useEffect(()=> {
     let EORTimeout
@@ -210,7 +223,7 @@ export const TournamentTimerScreen = (props) => {
           if (timer.playEndOfRoundSound) playSoundEffect("The tournament has reached the end of the final round.  The timer has been stopped.", 1.5, true, 0.5)
           toggleTimerButtonPressed()
         } else {
-          speech = (timer.endOfRoundSpeech ? timer.endOfRoundSpeech + ". ":"") + "The blinds are now " + nextBlindsText.replace("k", " thousand ").replace("/", " and ").replace("false","").replace("+ ", "with an ante of ")
+          speech = (timer.endOfRoundSpeech ? timer.endOfRoundSpeech + ". ":"") + "The blinds are now " + nextBlindsText.replace(/k/g, " thousand ").replace("/", " and ").replace("false","").replace("+ ", "with an ante of ")
           dispatch({type: 'END_OF_ROUND', payload: data.tournaments_by_pk})
           if (timer.playEndOfRoundSound) playSoundEffect(speech, 1, true, 1)
         }
@@ -405,15 +418,13 @@ export const TournamentTimerScreen = (props) => {
               style={[styles.test, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', flex: 1, borderRadius: width *0.08}]}
             >
             <View style={[styles.test, styles.column1, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 4}]}>
-              {sortedChipsArray && sortedChipsArray.length > 0 && sortedChipsArray.map((u,i) => {
-                if (newCSI <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
+              {displayChipArray.map((u,i) => {
                   return (
-                    <Animated.View key={i} style={[styles.test, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }]}>
+                    <Animated.View key={i} style={[styles.test, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }]}>
                       <Text style={[styles.test, styles.chipText, {flex: 5, textAlign: 'right'}]} >{numberToSuffixedString(u.denom)}  </Text>
                       <Icon containerStyle={[ styles.test, {flex: 5, }]} name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(23/sortedChipsArray.length)}/>
                     </Animated.View>
                   )
-                }
               })}
             </View>
             <View style={[styles.test, styles.column2, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'stretch', flex: 7}]}>
@@ -538,15 +549,13 @@ export const TournamentTimerScreen = (props) => {
                     </View>
                   </View>
                 <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
-                  {sortedChipsArray && sortedChipsArray.length > 0 && sortedChipsArray.map((u,i) => {
-                    if (newCSI <= smallestChipReq[i].segment || smallestChipReq[i].segment < 0) {
+                  {displayChipArray.map((u,i) => {
                       return (
-                        <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= smallestChipReq[i].segment) ? 1 : (chipFadeAnimation || 1) }}>
+                        <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }}>
                           <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(33/sortedChipsArray.length)}/>
                           <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
                         </Animated.View>
                       )
-                    }
                   })}
                 </View>
               </LinearGradient>

@@ -1,9 +1,12 @@
 import { useMutation, useQuery, gql,  } from '@apollo/client'
 import React, { useState, useEffect} from 'react'
-import { ActivityIndicator, View, useWindowDimensions } from 'react-native'
+import { ActivityIndicator, View, useWindowDimensions, ScrollView, SafeAreaView} from 'react-native'
 import { SubmitButton, MyInput, DeleteButton, } from '../components/FormComponents'
 import { ErrorMessage } from '../components/ErrorMessage'
+import { styles } from '../styles'
 import { AppLayout } from '../components/AppLayout'
+import { KeyboardAwareScrollView, } from 'react-native-keyboard-aware-scroll-view'
+import { responsiveFontSize } from '../styles'
 
 export const SegmentEditScreen = (props) => {
   const { height, width } = useWindowDimensions()
@@ -44,8 +47,8 @@ export const SegmentEditScreen = (props) => {
   if (data && formValues !== null && initialValues !== null) {
     return (
       // <FormView>
-        <AppLayout>
-          <View style={{flex: 9, flexDirection: 'column'}}>
+        <SafeAreaView style={{flexDirection: 'column', flex: 1}}>
+          <ScrollView style={[styles.inputScrollView, {flex: 12, flexDirection: 'column'}]}>
             <MyInput
               title="Small Blind"
               value={(formValues.sBlind.toString()).replace(/^0+/, '')}
@@ -77,8 +80,8 @@ export const SegmentEditScreen = (props) => {
               onChangeText={(text) => handleInputChange('duration', (!text ? 0 : text))}
               keyboardType="numeric"
             />
-          </View>
-          <View style={{flex: orientation=='portrait' ? 1 : 3, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around'}}>
+          </ScrollView>
+          <View style={[styles.inputScreenButtonsView, {flex: orientation=='portrait' ? 0.5 : 0.15,}]}>
             <DeleteButton
               mutation={deleteSegment}
               navigation={()=> props.navigation.goBack()}
@@ -91,7 +94,7 @@ export const SegmentEditScreen = (props) => {
               navigation={()=> props.navigation.goBack()}
             />
           </View>
-        </AppLayout>
+        </SafeAreaView>
       //<FormView>
     )
   }
