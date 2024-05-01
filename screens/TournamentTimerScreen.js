@@ -420,9 +420,9 @@ export const TournamentTimerScreen = (props) => {
             <View style={[, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 4}]}>
               {displayChipArray.map((u,i) => {
                   return (
-                    <Animated.View key={i} style={[, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }]}>
+                    <Animated.View key={i} style={[, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/displayChipArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }]}>
                       <Text style={[, styles.chipText, {flex: 5, textAlign: 'right'}]} >{numberToSuffixedString(u.denom)}  </Text>
-                      <Icon containerStyle={[ , {flex: 5, }]} name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(23/sortedChipsArray.length)}/>
+                      <Icon containerStyle={[ , {flex: 5, }]} name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(7)}/>
                     </Animated.View>
                   )
               })}
@@ -551,8 +551,8 @@ export const TournamentTimerScreen = (props) => {
                 <View style={{flex: 2, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', }}>
                   {displayChipArray.map((u,i) => {
                       return (
-                        <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }}>
-                          <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(33/sortedChipsArray.length)}/>
+                        <Animated.View key={i} style={{flexDirection: 'column', justifyContent:'center', alignItems: 'center', flex: 1/displayChipArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }}>
+                          <Icon name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(8)}/>
                           <Text style={[styles.chipText]} >{numberToSuffixedString(u.denom)}</Text>
                         </Animated.View>
                       )
