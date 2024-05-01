@@ -20,20 +20,6 @@ export const colors = {
 }
 
 export const styles = StyleSheet.create({
-  test: {
-    // borderColor: 'blue',
-    // borderStyle: 'dotted',
-    // borderWidth: 1,
-  },
-  column1: {
-    // backgroundColor: 'orange'
-  },
-  column2: {
-    // backgroundColor: 'transparent'
-  },
-  column3: {
-    // backgroundColor: 'pink'
-  },
   inputTitleEnabled: {
     fontWeight: 'bold',
     color: 'black',
@@ -75,11 +61,6 @@ export const styles = StyleSheet.create({
   swipeListViewContentContainer: {
     
   },
-  // title: {
-  //   fontSize: 20,
-  //   textAlign: 'center',
-  //   marginTop: 40,
-  // },
   sectionTitle: {
     flex: 1,
     flexDirection: 'row',
@@ -110,25 +91,18 @@ export const styles = StyleSheet.create({
     fontSize: responsiveFontSize(1.5),
     color: '#888'
 	},
-
-
   backTextWhite: {
       color: '#FFF',
   },
   rowFront: {
     alignItems: 'center',
-    // backgroundColor: '#CCC',
-    // justifyContent: 'center',
     height: responsiveFontSize(4.5),
-
-    // flex: 1,
     flexDirection: 'row',
     backgroundColor: colors.background,
     borderBottomColor: 'black',
     justifyContent: 'space-between',
     paddingHorizontal: responsiveFontSize(1),
     width: responsiveWidth(90),
-    // backgroundColor: 'pink'
   },
   rowFrontColorup: {
     height: responsiveFontSize(1.75),
@@ -144,20 +118,12 @@ export const styles = StyleSheet.create({
   rowBackOld: {
     alignItems: 'center',
     height: responsiveFontSize(4.5),
-    // backgroundColor: '#8BC645',
-    // flex: 1,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    // padding: 15,
-    // flex: 1,
-    // flexDirection: 'row',
-    // alignItems: 'center',
     backgroundColor: colors.background,
     borderBottomColor: 'black',
-    // justifyContent: 'space-between',
     marginHorizontal: -responsiveFontSize(2),
     width: responsiveWidth(90),
-    // backgroundColor: 'red',
   },
   backRightBtn: {
     alignItems: 'center',
@@ -166,18 +132,6 @@ export const styles = StyleSheet.create({
     backgroundColor: 'yellow',
     right: 0,
   },
-//   backRightBtnLeft: {
-//       backgroundColor: 'blue',
-//       right: responsiveFontSize(8),
-//   },
-//   backRightBtnCenter: {
-//     backgroundColor: 'blue',
-//     right: responsiveFontSize(4),
-// },
-//   backRightBtnRight: {
-//     backgroundColor: 'red',
-//     right: 0,
-//   },
   collapsed: {
     height: 0,
   },
@@ -241,9 +195,7 @@ export const styles = StyleSheet.create({
   blindsTextLandscape: {
     color: 'rgba(225,225,225,1)',
     fontSize: Math.min(responsiveHeight(10), responsiveWidth(10)),
-    fontWeight: 'bold',
     flexWrap: 'wrap',
-    // flexGrow: 6,
     flex: 3,
   },
   durationTextLandscape: {

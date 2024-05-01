@@ -412,26 +412,26 @@ export const TournamentTimerScreen = (props) => {
     return (
       <>
         {orientation == 'landscape' &&
-          <SafeAreaView style={[styles.test, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', alignSelf: 'center', flex: 1, width: width*0.98, }]}>
+          <SafeAreaView style={[, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', alignSelf: 'center', flex: 1, width: width*0.98, }]}>
             <LinearGradient
               colors={[ '#257a2f', '#194a2f', '#226a2f' ]}
-              style={[styles.test, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', flex: 1, borderRadius: width *0.08}]}
+              style={[, {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'stretch', flex: 1, borderRadius: width *0.08}]}
             >
-            <View style={[styles.test, styles.column1, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 4}]}>
+            <View style={[, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 4}]}>
               {displayChipArray.map((u,i) => {
                   return (
-                    <Animated.View key={i} style={[styles.test, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }]}>
-                      <Text style={[styles.test, styles.chipText, {flex: 5, textAlign: 'right'}]} >{numberToSuffixedString(u.denom)}  </Text>
-                      <Icon containerStyle={[ styles.test, {flex: 5, }]} name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(23/sortedChipsArray.length)}/>
+                    <Animated.View key={i} style={[, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', flex: 1/sortedChipsArray.length, opacity: (newCSI + 1 <= u.segment) ? 1 : (chipFadeAnimation || 1) }]}>
+                      <Text style={[, styles.chipText, {flex: 5, textAlign: 'right'}]} >{numberToSuffixedString(u.denom)}  </Text>
+                      <Icon containerStyle={[ , {flex: 5, }]} name='poker-chip' color={u.color} type='material-community' size={responsiveFontSize(23/sortedChipsArray.length)}/>
                     </Animated.View>
                   )
               })}
             </View>
-            <View style={[styles.test, styles.column2, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'stretch', flex: 7}]}>
+            <View style={[, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'stretch', flex: 7}]}>
               <View style={[ , {flex: 0.5}]}></View>
-              <Text style={[styles.test, styles.titleText, { textAlign:  'center', flex: 1.5,}]}>{title}</Text>            
-              <Text style={[styles.test, styles.titleText, { textAlign:  'center', flex: 1.5,}]}>{subtitle}</Text>            
-              <View style={[ styles.test, {flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex: 12}]}>
+              <Text style={[, styles.titleText, { textAlign:  'center', flex: 1.5,}]}>{title}</Text>            
+              <Text style={[, styles.titleText, { textAlign:  'center', flex: 1.5,}]}>{subtitle}</Text>            
+              <View style={[ , {flexDirection: 'row', justifyContent: 'center', alignItems: 'center', flex: 12}]}>
                 <Pressable onPress={()=> toggleTimerButtonPressed()} onLongPress={()=> resetTimerButtonPressed()}>
                   <CircularProgress
                     value={remainingTimeMS}
@@ -448,40 +448,40 @@ export const TournamentTimerScreen = (props) => {
                   />
                   </Pressable>
               </View>
-              <View style={[styles.test, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', alignSelf: 'stretch' , flex: 2.5, }]}>
-                {<Button containerStyle={[styles.test, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={()=> resetTimerButtonPressed()}></Button>}
-                {<Button containerStyle={[styles.test, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-rewind' size={responsiveFontSize(3)}/>} onPress={()=> rwdButtonPressed()}></Button>}
-                {<Button containerStyle={[styles.test, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={ isActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={()=> toggleTimerButtonPressed()}></Button>}
-                {<Button containerStyle={[styles.test, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={()=> fwdButtonPressed()}></Button>}
+              <View style={[, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', alignSelf: 'stretch' , flex: 2.5, }]}>
+                {<Button containerStyle={[, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='restore' size={responsiveFontSize(3)}/>} onPress={()=> resetTimerButtonPressed()}></Button>}
+                {<Button containerStyle={[, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-rewind' size={responsiveFontSize(3)}/>} onPress={()=> rwdButtonPressed()}></Button>}
+                {<Button containerStyle={[, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={ isActive ? <Icon name='pause' size={responsiveFontSize(3)}/> : <Icon name='play-arrow' size={responsiveFontSize(3)}/>} onPress={()=> toggleTimerButtonPressed()}></Button>}
+                {<Button containerStyle={[, {flex: 1}]} title="" buttonStyle={{backgroundColor: 'transparent'}} icon={<Icon name='fast-forward' size={responsiveFontSize(3)}/>} onPress={()=> fwdButtonPressed()}></Button>}
               </View>
             </View>
-            <View style={[styles.test, styles.column3, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 9}]}>
-              <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 1}]}></View>
-              <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 7}]}>
-                <Text style={[styles.test, styles.blindsTitleTextLandscape, styles.underlinedText, noticeStatus && styles.blindsNoticeText, { }]}>
+            <View style={[, {flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', flex: 9}]}>
+              <View style={[, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 1}]}></View>
+              <View style={[, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 7}]}>
+                <Text style={[, styles.blindsTitleTextLandscape, styles.underlinedText, noticeStatus && styles.blindsNoticeText, { }]}>
                   Current Blinds:
                 </Text>
-                <Text style={[styles.test, styles.blindsTextLandscape, noticeStatus && styles.blindsNoticeText, {}]}>
+                <Text style={[, styles.blindsTextLandscape, noticeStatus && styles.blindsNoticeText, {}]}>
                   {currentBlindsText}
                 </Text>
-                <Text style={[styles.test, styles.durationTextLandscape, noticeStatus && styles.blindsNoticeText, {}]}>
+                <Text style={[, styles.durationTextLandscape, noticeStatus && styles.blindsNoticeText, {}]}>
                   {currentDurationText}
                 </Text>
               </View>
-              <View style={[styles.test, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', alignSelf: 'stretch' , flex: 2, }]}>
+              <View style={[, {flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', alignSelf: 'stretch' , flex: 2, }]}>
               </View>
-              <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 5}]}>
-                <Text style={[styles.test, styles.nextBlindsTextLandscape, styles.underlinedText, noticeStatus && styles.nextBlindsNoticeText]}>
+              <View style={[, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 5}]}>
+                <Text style={[, styles.nextBlindsTextLandscape, styles.underlinedText, noticeStatus && styles.nextBlindsNoticeText]}>
                   Next Blinds:
                 </Text>
-                <Text style={[styles.test, styles.nextBlindsTextLandscape, noticeStatus && styles.nextBlindsNoticeText]}>
+                <Text style={[, styles.nextBlindsTextLandscape, noticeStatus && styles.nextBlindsNoticeText]}>
                   {nextBlindsText}
                 </Text>
-                <Text style={[styles.test, styles.nextBlindsTextLandscape, noticeStatus && styles.nextBlindsNoticeText]}>
+                <Text style={[, styles.nextBlindsTextLandscape, noticeStatus && styles.nextBlindsNoticeText]}>
                   {nextDurationText}
                 </Text>
               </View>
-              <View style={[styles.test, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 1}]}></View>
+              <View style={[, {flexDirection: 'column', justifyContent: 'space-around', alignItems: 'center', flex: 1}]}></View>
             </View>
 
             </LinearGradient>
